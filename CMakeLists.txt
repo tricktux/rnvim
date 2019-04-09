@@ -9,7 +9,7 @@
 cmake_minimum_required(VERSION 3.1)
 
 # Set ProjectName
-project(ProjectName)
+project(gnvim)
 
 option(USE_CLANG "build application with clang" ON) # ON is the default
 
@@ -82,8 +82,7 @@ SET(CMAKE_CXX_FLAGS_DEBUG
 set(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")
 
 # Include custom macros to find Glog.
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
-	"${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
@@ -94,6 +93,9 @@ find_package(GLog REQUIRED)
 find_package(GTest REQUIRED)
 
 find_package(Boost REQUIRED)
+
+set(SFML_STATIC_LIBRARIES TRUE)
+find_package(SFML 2 COMPONENTS network system graphics REQUIRED)
 
 add_subdirectory("src")
 add_subdirectory("docs")
