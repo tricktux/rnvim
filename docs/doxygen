@@ -1,0 +1,25 @@
+# Doxyfile 1.8.14
+
+
+PROJECT_NAME           = "<Your Project Name>"
+OUTPUT_DIRECTORY       = 
+CREATE_SUBDIRS         = YES
+BUILTIN_STL_SUPPORT    = YES
+INPUT                  = ".."
+RECURSIVE              = YES
+GENERATE_TREEVIEW      = YES
+EXCLUDE_PATTERNS       = */gtest/*
+CLASS_DIAGRAMS         = YES
+HAVE_DOT               = YES
+CLASS_GRAPH            = YES
+UML_LOOK               = YES
+UML_LIMIT_NUM_FIELDS   = 100
+TEMPLATE_RELATIONS     = YES
+DOT_IMAGE_FORMAT       = svg
+INTERACTIVE_SVG        = YES
+DOT_PATH               = "C:\Program Files (x86)\Graphviz2.38\bin"
+PLANTUML_JAR_PATH      = C:\ProgramData\chocolatey\bin
+GENERATE_LATEX         = NO
+CALLER_GRAPH           = YES
+CALL_GRAPH             = YES
+EXTRACT_STATIC         = YES

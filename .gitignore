@@ -1,3 +1,7 @@
+build
+*.plist
+
+# generated
 CMakeCache.txt
 CMakeFiles
 CMakeScripts
