@@ -1,0 +1,16 @@
+
+include(ExternalProject)
+
+set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
+
+ExternalProject_Add(libnvc
+	GIT_REPOSITORY https://github.com/etorth/libnvc
+	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION} 
+		-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+	)
+
+SET(LIBNVC_INCLUDE "${EXTERNAL_INSTALL_LOCATION}/inc")
+SET(LIBNVC_LIB "${EXTERNAL_INSTALL_LOCATION}/lib")
+
+include_directories(${EXTERNAL_INSTALL_LOCATION}/include)
+link_directories(${EXTERNAL_INSTALL_LOCATION}/lib)

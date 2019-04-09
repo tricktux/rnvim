@@ -58,7 +58,7 @@ SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS}")
 SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fno-strict-aliasing")
 SET(CMAKE_CXX_FLAGS_RELEASE
-	"${CMAKE_CXX_FLAGS_RELEASE} -Wall -Wfatal-errors -Wextra -Wunused -Werror")
+	"${CMAKE_CXX_FLAGS_RELEASE} -Wall -Wfatal-errors -Wextra -Wunused -Werror -Wno-unused-lambda-capture")
 
 # always compile libnvc in debug mode
 # for trace message use LIBNVC_DEBUG_ARG_LIST to enable
@@ -69,13 +69,13 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -ggdb3 -pedantic")
 SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-strict-aliasing")
 SET(CMAKE_CXX_FLAGS_DEBUG
-	"${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -Wunused -Werror")
+	"${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -Wunused -Werror -Wno-unused-lambda-capture")
 
 # if(NOT CMAKE_BUILD_TYPE)
-	# set(CMAKE_BUILD_TYPE "Release" CACHE STRING
-		# "Choose the type of build, options are: Debug Release
-		# RelWithDebInfo MinSizeRel."
-		# FORCE)
+# set(CMAKE_BUILD_TYPE "Release" CACHE STRING
+# "Choose the type of build, options are: Debug Release
+# RelWithDebInfo MinSizeRel."
+# FORCE)
 # endif(NOT CMAKE_BUILD_TYPE)
 
 # Specify output directories.
@@ -94,11 +94,28 @@ find_package(GTest REQUIRED)
 
 find_package(Boost REQUIRED)
 
-set(SFML_STATIC_LIBRARIES TRUE)
+# set(SFML_STATIC_LIBRARIES TRUE)
 find_package(SFML 2 COMPONENTS network system graphics REQUIRED)
 
+FILE(GLOB GNVIM_DOWNLOAD_SUBDIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake/download/*.cmake")
+FOREACH(GNVIM_DOWNLOAD ${GNVIM_DOWNLOAD_SUBDIR})
+	INCLUDE(${GNVIM_DOWNLOAD})
+ENDFOREACH()
+
+IF(DEFINED LIBNVC_INCLUDE)
+	MESSAGE(STATUS "Found libnvc include path: ${LIBNVC_INCLUDE}")
+ELSE()
+	MESSAGE(FATAL_ERROR "Required LIBNVC_INCLUDE=\"to-libnvc-include-path\" not defined")
+ENDIF()
+
+IF(DEFINED LIBNVC_LIB)
+	MESSAGE(STATUS "Found libnvc library path: ${LIBNVC_LIB}")
+ELSE()
+	MESSAGE(FATAL_ERROR "Required LIBNVC_LIB=\"to-libnvc-library-path\" not defined")
+ENDIF()
+
 add_subdirectory("src")
-add_subdirectory("docs")
+# add_subdirectory("docs")
 
 option(ENABLE_TESTS "Build tests" OFF)
 if(ENABLE_TESTS)

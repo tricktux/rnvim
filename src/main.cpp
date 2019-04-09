@@ -1,5 +1,5 @@
 /// @file main.cpp
-/// @brief File description
+/// @brief Main for gnvim
 /// @author Reinaldo Molina
 /// @version  0.0
 /// @date Mar 05 2019
@@ -18,16 +18,36 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http:www.gnu.org/licenses/>.
 
-#include <string>
-#include <iostream>
-#include <boost/lexical_cast.hpp>
+#include "libnvc.hpp"
+#include <cinttypes>
+#include <stdexcept>
 
-int main(int argc, const char *argv[]) { 
+int main() {
+  libnvc::asio_socket socket;
+  if (!socket.connect("localhost", 6666)) {
+    throw std::runtime_error("failed to connect to localhost:6666");
+  }
 
-	int count = 1;
+  libnvc::api_client client(&socket);
+  client.forward<libnvc::reqid("nvim_input")>(
+      {"$i123<CR>123<ESC>"}, [](int64_t len_done) {
+        char buf[128];
+        std::sprintf(buf, "nvim_input returns: %" PRIi64, len_done);
+        libnvc::log(libnvc::LOG_INFO, buf);
+      });
 
-	std::string yours = boost::lexical_cast<std::string>(count);
+  client.forward<libnvc::reqid("nvim_buf_set_name")>(
+      {1, "1234"},
+      []() { libnvc::log(libnvc::LOG_INFO, "nvim_buf_set_name done"); },
+      [](int64_t ec, std::string emsg) {
+        std::printf("nvim reports error: [%d, %s]", (int)(ec), emsg.c_str());
+      });
 
-	std::cout << "yours:" << yours << std::endl;
-	return 0;
+  client.forward<libnvc::reqid("nvim_command")>(
+      {":echomsg \"hello world\""},
+      []() { libnvc::log(libnvc::LOG_INFO, "nvim_command done"); });
+
+  while (true) {
+    client.poll();
+  }
 }
