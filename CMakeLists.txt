@@ -86,13 +86,13 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
-find_package(RapidJSON REQUIRED)
+# find_package(RapidJSON REQUIRED)
 
-find_package(GLog REQUIRED)
+# find_package(GLog REQUIRED)
 
-find_package(GTest REQUIRED)
+# find_package(GTest REQUIRED)
 
-find_package(Boost REQUIRED)
+# find_package(Boost REQUIRED)
 
 # set(SFML_STATIC_LIBRARIES TRUE)
 find_package(SFML 2 COMPONENTS network system graphics REQUIRED)
