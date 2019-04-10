@@ -6,10 +6,19 @@
 # Created:        Tue Mar 05 2019 06:13
 # Last Modified:  Tue Mar 05 2019 06:13
 
-cmake_minimum_required(VERSION 3.1)
+# 3.11 - FetchContent
+cmake_minimum_required(VERSION 3.11)
 
 # Set ProjectName
 project(gnvim)
+
+# Include dependencies before setting/overwritting any options
+FILE(GLOB GNVIM_DOWNLOAD_SUBDIR
+	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/download/*.cmake")
+
+FOREACH(GNVIM_DOWNLOAD ${GNVIM_DOWNLOAD_SUBDIR})
+	INCLUDE(${GNVIM_DOWNLOAD})
+ENDFOREACH()
 
 option(USE_CLANG "build application with clang" ON) # ON is the default
 
@@ -58,7 +67,9 @@ SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS}")
 SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fno-strict-aliasing")
 SET(CMAKE_CXX_FLAGS_RELEASE
-	"${CMAKE_CXX_FLAGS_RELEASE} -Wall -Wfatal-errors -Wextra -Wunused -Werror -Wno-unused-lambda-capture")
+	"${CMAKE_CXX_FLAGS_RELEASE} -Wall -Wfatal-errors -Wextra -Wunused -Werror")
+SET(CMAKE_CXX_FLAGS_RELEASE
+	"${CMAKE_CXX_FLAGS_RELEASE} -Wno-unused-lambda-capture")
 
 # always compile libnvc in debug mode
 # for trace message use LIBNVC_DEBUG_ARG_LIST to enable
@@ -94,13 +105,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 # find_package(Boost REQUIRED)
 
+set(CMAKE_THREAD_PREFER_PTHREAD ON)
+find_package(Threads REQUIRED)
+
 # set(SFML_STATIC_LIBRARIES TRUE)
 find_package(SFML 2 COMPONENTS network system graphics REQUIRED)
-
-FILE(GLOB GNVIM_DOWNLOAD_SUBDIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake/download/*.cmake")
-FOREACH(GNVIM_DOWNLOAD ${GNVIM_DOWNLOAD_SUBDIR})
-	INCLUDE(${GNVIM_DOWNLOAD})
-ENDFOREACH()
 
 IF(DEFINED LIBNVC_INCLUDE)
 	MESSAGE(STATUS "Found libnvc include path: ${LIBNVC_INCLUDE}")

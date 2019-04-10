@@ -22,7 +22,16 @@
 #include <cinttypes>
 #include <stdexcept>
 
-int main() {
+#include <reproc++/reproc.hpp>
+#include <gflags/gflags.h>
+#include <glog/logging.h>
+
+int main(int argc, char **argv) {
+	google::InitGoogleLogging("Cool");
+
+	gflags::ParseCommandLineFlags(&argc, &argv, true);
+	LOG(INFO) << "Super cool";
+
   libnvc::asio_socket socket;
   if (!socket.connect("localhost", 6666)) {
     throw std::runtime_error("failed to connect to localhost:6666");

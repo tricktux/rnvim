@@ -11,7 +11,7 @@ if (RAPIDJSON_INCLUDE_DIRS)
 	include_directories(SYSTEM "${RAPIDJSON_INCLUDE_DIRS}")
 endif ()
 
-include_directories("${LIBNVC_INCLUDE}")
+# include_directories("${LIBNVC_INCLUDE}")
 
 # Show more warnings at compiletime.
 if (MSVC)
@@ -23,15 +23,19 @@ endif ()
 # Set ExecutableName.
 add_executable(gnvim ${SOURCES})
 
-add_dependencies(gnvim libnvc)
+# add_dependencies(gnvim libnvc)
 
 # TODO - Link agins sfml-xxx
 
 # Link against libnvc
-# find_library(LIBNVC_LIBNAME nvc HINTS ${LIBNVC_LIB})
+find_library(LIBNVC_LIBNAME nvc HINTS ${LIBNVC_LIB})
 target_link_libraries(gnvim Threads::Threads)
 target_link_libraries(gnvim nvc)
 target_link_libraries(gnvim stdc++fs)
+
+target_link_libraries(gnvim gflags)
+target_link_libraries(gnvim reproc++)
+target_link_libraries(gnvim glog)
 
 if (GLOG_FOUND)
 	target_link_libraries(gnvim ${GLOG_LIBRARIES})
