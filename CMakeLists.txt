@@ -12,45 +12,70 @@ cmake_minimum_required(VERSION 3.11)
 # Set ProjectName
 project(gnvim)
 
-# Include dependencies before setting/overwritting any options
-FILE(GLOB GNVIM_DOWNLOAD_SUBDIR
-	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/download/*.cmake")
+option(DOWNLOAD_DEPENDENCIES "Download Dependencies" OFF)
+if (DOWNLOAD_DEPENDENCIES)
+	include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/download/fetch_deps.cmake")
+else ()
+	find_package(RapidJSON REQUIRED)
 
-FOREACH(GNVIM_DOWNLOAD ${GNVIM_DOWNLOAD_SUBDIR})
-	INCLUDE(${GNVIM_DOWNLOAD})
-ENDFOREACH()
+	find_package(GLog REQUIRED)
+
+	find_package(GTest REQUIRED)
+
+	set(CMAKE_THREAD_PREFER_PTHREAD ON)
+	find_package(Threads REQUIRED)
+
+	# set(SFML_STATIC_LIBRARIES TRUE)
+	find_package(SFML 2 COMPONENTS network system graphics REQUIRED)
+endif ()
+
+# Download libnvc
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/download/libnvc.cmake")
+
+# Check libnvc
+if (DEFINED LIBNVC_INCLUDE)
+	message (STATUS "Found libnvc include path: ${LIBNVC_INCLUDE}")
+else ()
+	message (FATAL_ERROR
+		"Required LIBNVC_INCLUDE=\"to-libnvc-include-path\" not defined")
+endif ()
+
+if (DEFINED LIBNVC_LIB)
+	message (STATUS "Found libnvc library path: ${LIBNVC_LIB}")
+else ()
+	message (FATAL_ERROR
+		"Required LIBNVC_LIB=\"to-libnvc-library-path\" not defined")
+endif ()
+
+option (ENABLE_ASAN "Enable ASAN" OFF)
+if (ENABLE_ASAN)
+	message (STATUS "ASAN enabled")
+	set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
+endif ()
+
+option (ENABLE_USAN "Enable USAN" OFF)
+if (ENABLE_USAN)
+	message (STATUS "USAN enabled")
+	set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=undefined")
+endif ()
+
+option(ENABLE_TSAN "Enable TSAN" OFF)
+if (ENABLE_TSAN)
+	message(STATUS "TSAN enabled")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=thread")
+endif ()
 
 option(USE_CLANG "build application with clang" ON) # ON is the default
-
-OPTION(ENABLE_ASAN "Enable ASAN" OFF)
-OPTION(ENABLE_USAN "Enable USAN" OFF)
-OPTION(ENABLE_TSAN "Enable TSAN" OFF)
-
-IF(ENABLE_ASAN)
-	MESSAGE(STATUS "ASAN enabled")
-	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
-ENDIF()
-
-IF(ENABLE_USAN)
-	MESSAGE(STATUS "USAN enabled")
-	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=undefined")
-ENDIF()
-
-IF(ENABLE_TSAN)
-	MESSAGE(STATUS "TSAN enabled")
-	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=thread")
-ENDIF()
-
 if (USE_CLANG)
-	SET (CMAKE_CXX_COMPILER "/usr/bin/clang++" )
-	SET (CMAKE_AR           "/usr/bin/llvm-ar" )
-	SET (CMAKE_LINKER       "/usr/bin/llvm-ld" )
-	SET (CMAKE_NM           "/usr/bin/llvm-nm" )
-	SET (CMAKE_OBJDUMP      "/usr/bin/llvm-objdump" )
-	SET (CMAKE_RANLIB       "/usr/bin/llvm-ranlib" )
+	set (CMAKE_CXX_COMPILER "/usr/bin/clang++" )
+	set (CMAKE_AR           "/usr/bin/llvm-ar" )
+	set (CMAKE_LINKER       "/usr/bin/llvm-ld" )
+	set (CMAKE_NM           "/usr/bin/llvm-nm" )
+	set (CMAKE_OBJDUMP      "/usr/bin/llvm-objdump" )
+	set (CMAKE_RANLIB       "/usr/bin/llvm-ranlib" )
 endif (USE_CLANG)
 
-INCLUDE(CheckCXXCompilerFlag)
+include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
 
 # Build with c++17 support
@@ -63,31 +88,25 @@ ENDIF()
 
 # add flags to release mode
 # by default won't use release mode
-SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS}")
-SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fno-strict-aliasing")
-SET(CMAKE_CXX_FLAGS_RELEASE
+set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS}")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fno-strict-aliasing")
+set(CMAKE_CXX_FLAGS_RELEASE
 	"${CMAKE_CXX_FLAGS_RELEASE} -Wall -Wfatal-errors -Wextra -Wunused -Werror")
-SET(CMAKE_CXX_FLAGS_RELEASE
+set(CMAKE_CXX_FLAGS_RELEASE
 	"${CMAKE_CXX_FLAGS_RELEASE} -Wno-unused-lambda-capture")
 
 # always compile libnvc in debug mode
 # for trace message use LIBNVC_DEBUG_ARG_LIST to enable
-SET(CMAKE_BUILD_TYPE "Debug")
-SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS}")
-SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
+set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS}")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 
-SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -ggdb3 -pedantic")
-SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-strict-aliasing")
-SET(CMAKE_CXX_FLAGS_DEBUG
-	"${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -Wunused -Werror -Wno-unused-lambda-capture")
-
-# if(NOT CMAKE_BUILD_TYPE)
-# set(CMAKE_BUILD_TYPE "Release" CACHE STRING
-# "Choose the type of build, options are: Debug Release
-# RelWithDebInfo MinSizeRel."
-# FORCE)
-# endif(NOT CMAKE_BUILD_TYPE)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -ggdb3 -pedantic")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-strict-aliasing")
+set(CMAKE_CXX_FLAGS_DEBUG
+	"${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -Wunused -Werror")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-unused-lambda-capture")
 
 # Specify output directories.
 set(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")
@@ -97,33 +116,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
-# find_package(RapidJSON REQUIRED)
-
-# find_package(GLog REQUIRED)
-
-# find_package(GTest REQUIRED)
-
-# find_package(Boost REQUIRED)
-
-set(CMAKE_THREAD_PREFER_PTHREAD ON)
-find_package(Threads REQUIRED)
-
-# set(SFML_STATIC_LIBRARIES TRUE)
-find_package(SFML 2 COMPONENTS network system graphics REQUIRED)
-
-IF(DEFINED LIBNVC_INCLUDE)
-	MESSAGE(STATUS "Found libnvc include path: ${LIBNVC_INCLUDE}")
-ELSE()
-	MESSAGE(FATAL_ERROR "Required LIBNVC_INCLUDE=\"to-libnvc-include-path\" not defined")
-ENDIF()
-
-IF(DEFINED LIBNVC_LIB)
-	MESSAGE(STATUS "Found libnvc library path: ${LIBNVC_LIB}")
-ELSE()
-	MESSAGE(FATAL_ERROR "Required LIBNVC_LIB=\"to-libnvc-library-path\" not defined")
-ENDIF()
-
 add_subdirectory("src")
+# TODO Fix cmake for doxygen
 # add_subdirectory("docs")
 
 option(ENABLE_TESTS "Build tests" OFF)
