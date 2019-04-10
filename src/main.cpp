@@ -25,12 +25,15 @@
 #include <reproc++/reproc.hpp>
 #include <gflags/gflags.h>
 #include <glog/logging.h>
+#include <SFML/Window.hpp>
 
 int main(int argc, char **argv) {
 	google::InitGoogleLogging("Cool");
 
 	gflags::ParseCommandLineFlags(&argc, &argv, true);
 	LOG(INFO) << "Super cool";
+
+	sf::Window window(sf::VideoMode(800, 600), "My Window");
 
   libnvc::asio_socket socket;
   if (!socket.connect("localhost", 6666)) {

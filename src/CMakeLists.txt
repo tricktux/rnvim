@@ -36,6 +36,7 @@ target_link_libraries(gnvim stdc++fs)
 target_link_libraries(gnvim gflags)
 target_link_libraries(gnvim reproc++)
 target_link_libraries(gnvim glog)
+target_link_libraries(gnvim sfml-system sfml-graphics)
 
 if (GLOG_FOUND)
 	target_link_libraries(gnvim ${GLOG_LIBRARIES})

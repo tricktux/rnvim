@@ -14,23 +14,26 @@ project(gnvim)
 
 option(DOWNLOAD_DEPENDENCIES "Download Dependencies" OFF)
 if (DOWNLOAD_DEPENDENCIES)
-	include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/download/fetch_deps.cmake")
+	include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/download/fetch.cmake")
 else ()
-	find_package(RapidJSON REQUIRED)
-
-	find_package(GLog REQUIRED)
+	find_package(gflags REQUIRED)
 
 	find_package(GTest REQUIRED)
 
 	set(CMAKE_THREAD_PREFER_PTHREAD ON)
 	find_package(Threads REQUIRED)
 
-	# set(SFML_STATIC_LIBRARIES TRUE)
+	# set(BUILD_SHARED_LIBS FALSE)
 	find_package(SFML 2 COMPONENTS network system graphics REQUIRED)
 endif ()
 
-# Download libnvc
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/download/libnvc.cmake")
+
+# Download some dependencies
+file(GLOB GNVIM_DEPS_SUBDIR
+	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/deps/*.cmake")
+foreach (GNVIM_DEPS ${GNVIM_DEPS_SUBDIR})
+	include(${GNVIM_DEPS})
+endforeach ()
 
 # Check libnvc
 if (DEFINED LIBNVC_INCLUDE)
@@ -110,9 +113,6 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-unused-lambda-capture")
 
 # Specify output directories.
 set(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")
-
-# Include custom macros to find Glog.
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
