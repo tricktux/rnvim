@@ -23,10 +23,15 @@ FetchContent_Declare(
 		GIT_REPOSITORY https://github.com/DaanDeMeyer/reproc
 		GIT_TAG        v4.0.0
 	)
+FetchContent_Declare(
+		sfml
+		GIT_REPOSITORY https://github.com/SFML/SFML
+		GIT_TAG        2.5.1
+	)
 
 # After the following call, the CMake targets defined by googletest
 # will be defined and available to the rest of the build
-FetchContent_MakeAvailable(googletest glog gflags)
+FetchContent_MakeAvailable(googletest glog gflags sfml)
 
 # If you need to add special steps or variables do this
 FetchContent_GetProperties(reproc)
@@ -37,15 +42,3 @@ if(NOT reproc_POPULATED)
 	set(REPROC++ ON CACHE BOOL "" FORCE)
 	add_subdirectory(${reproc_SOURCE_DIR} ${reproc_BINARY_DIR})
 endif()
-
-# ExternalProject_Add(libnvc
-	# GIT_REPOSITORY https://github.com/etorth/libnvc
-	# CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-		# -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-	# )
-
-# SET(LIBNVC_INCLUDE "${EXTERNAL_INSTALL_LOCATION}/inc")
-# SET(LIBNVC_LIB "${EXTERNAL_INSTALL_LOCATION}/lib")
-
-# include_directories(${EXTERNAL_INSTALL_LOCATION}/include)
-# link_directories(${EXTERNAL_INSTALL_LOCATION}/lib)
