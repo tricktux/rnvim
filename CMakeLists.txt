@@ -14,8 +14,10 @@ project(gnvim)
 
 option(DOWNLOAD_DEPENDENCIES "Download Dependencies" OFF)
 if (DOWNLOAD_DEPENDENCIES)
-	include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/download/fetch.cmake")
+	message (STATUS "Downloading dependencies ...")
+	include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/download/fetch_deps.cmake")
 else ()
+	message (STATUS "Looking for dependencies ...")
 	find_package(gflags REQUIRED)
 
 	find_package(GTest REQUIRED)

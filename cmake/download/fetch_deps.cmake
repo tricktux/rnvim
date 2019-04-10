@@ -19,7 +19,7 @@ FetchContent_Declare(
 
 # After the following call, the CMake targets defined by googletest
 # will be defined and available to the rest of the build
-FetchContent_MakeAvailable(googletest glog gflags sfml)
+FetchContent_MakeAvailable(googletest gflags sfml)
 
 # If you need to add special steps or variables do this
 # FetchContent_GetProperties(reproc)
