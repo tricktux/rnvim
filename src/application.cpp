@@ -18,15 +18,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "common.hpp"
 #include "application.hpp"
+#include "common.hpp"
 
 /// @brief Initializes all members of the Application
 /// @param argc Number of arguments passed to the application
 /// @param argv Array of application arguments
 /// @return SUCCESS, less than SUCCESS in case of failure
 int Application::init(int argc, char **argv) {
-	if (parse_cli_args(argc, argv) < SUCESS) {} // handle error
+	if (parse_cli_args(argc, argv) < SUCESS)
+		return -1;
 	return 0;
 }
 

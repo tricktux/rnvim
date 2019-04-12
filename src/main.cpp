@@ -26,16 +26,11 @@
 
 #include <reproc++/reproc.hpp>
 #include <gflags/gflags.h>
-#include <glog/logging.h>
 #include <SFML/Window.hpp>
 
 int main(int argc, char **argv) {
-	google::InitGoogleLogging("Cool");
 
-	gflags::ParseCommandLineFlags(&argc, &argv, true);
-	LOG(INFO) << "Super cool";
-
-	sf::Window window(sf::VideoMode(800, 600), "My Window");
+	// sf::Window window(sf::VideoMode(800, 600), "My Window");
 
 	std::string casa;
   libnvc::asio_socket socket;
@@ -43,9 +38,6 @@ int main(int argc, char **argv) {
     throw std::runtime_error("failed to connect to localhost:6666");
   }
 
-  LOG(INFO) << 'd';
-  if (!argc)
-	  LOG(ERROR) << "this is bad";
   libnvc::api_client client(&socket);
   client.forward<libnvc::reqid("nvim_input")>(
       {"$i123<CR>123<ESC>"}, [](int64_t len_done) {
