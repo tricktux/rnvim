@@ -74,12 +74,14 @@ endif ()
 
 option(USE_CLANG "build application with clang" ON) # ON is the default
 if (USE_CLANG)
-	set (CMAKE_CXX_COMPILER "/usr/bin/clang++" )
-	set (CMAKE_AR           "/usr/bin/llvm-ar" )
-	set (CMAKE_LINKER       "/usr/bin/llvm-ld" )
-	set (CMAKE_NM           "/usr/bin/llvm-nm" )
-	set (CMAKE_OBJDUMP      "/usr/bin/llvm-objdump" )
-	set (CMAKE_RANLIB       "/usr/bin/llvm-ranlib" )
+	if (UNIX AND NOT APPLE)
+		set (CMAKE_CXX_COMPILER "/usr/bin/clang++" )
+		set (CMAKE_AR           "/usr/bin/llvm-ar" )
+		set (CMAKE_LINKER       "/usr/bin/llvm-ld" )
+		set (CMAKE_NM           "/usr/bin/llvm-nm" )
+		set (CMAKE_OBJDUMP      "/usr/bin/llvm-objdump" )
+		set (CMAKE_RANLIB       "/usr/bin/llvm-ranlib" )
+	endif (UNIX AND NOT APPLE)
 endif (USE_CLANG)
 
 include(CheckCXXCompilerFlag)
@@ -95,25 +97,29 @@ ENDIF()
 
 # add flags to release mode
 # by default won't use release mode
-set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS}")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fno-strict-aliasing")
-set(CMAKE_CXX_FLAGS_RELEASE
-	"${CMAKE_CXX_FLAGS_RELEASE} -Wall -Wfatal-errors -Wextra -Wunused -Werror")
-set(CMAKE_CXX_FLAGS_RELEASE
-	"${CMAKE_CXX_FLAGS_RELEASE} -Wno-unused-lambda-capture")
+if (MSVC)
+	# FIXME: put Windows specific options here.
+else ()
+	set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS}")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fno-strict-aliasing")
+	set(CMAKE_CXX_FLAGS_RELEASE
+		"${CMAKE_CXX_FLAGS_RELEASE} -Wall -Wfatal-errors -Wextra -Wunused -Werror")
+	set(CMAKE_CXX_FLAGS_RELEASE
+		"${CMAKE_CXX_FLAGS_RELEASE} -Wno-unused-lambda-capture")
 
-# always compile libnvc in debug mode
-# for trace message use LIBNVC_DEBUG_ARG_LIST to enable
-set(CMAKE_BUILD_TYPE "Debug")
-set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS}")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
+	# always compile libnvc in debug mode
+	# for trace message use LIBNVC_DEBUG_ARG_LIST to enable
+	set(CMAKE_BUILD_TYPE "Debug")
+	set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS}")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -ggdb3 -pedantic")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-strict-aliasing")
-set(CMAKE_CXX_FLAGS_DEBUG
-	"${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -Wunused -Werror")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-unused-lambda-capture")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -ggdb3 -pedantic")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-strict-aliasing")
+	set(CMAKE_CXX_FLAGS_DEBUG
+		"${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -Wunused -Werror")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-unused-lambda-capture")
+endif ()
 
 # Specify output directories.
 set(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")
