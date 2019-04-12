@@ -18,8 +18,6 @@ if (DOWNLOAD_DEPENDENCIES)
 	include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/download/fetch_deps.cmake")
 else ()
 	message (STATUS "Looking for dependencies ...")
-	find_package(spdlog REQUIRED)
-
 	find_package(gflags REQUIRED)
 
 	find_package(GTest REQUIRED)
