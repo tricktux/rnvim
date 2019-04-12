@@ -1,0 +1,57 @@
+' File:           arch.uml
+' Description:    Architecture for gnvim
+' Author:		    Reinaldo Molina
+' Email:          rmolin88 at gmail dot com
+' Revision:	    0.0.0
+' Created:        Thu Apr 11 2019 23:11
+' Last Modified:  Thu Apr 11 2019 23:11
+
+@startuml
+
+class Application {
+	-CliArgs cli_args;
+	-NvimInstanc nvim;
+	-sf::RenderWindow windows;
+	-ProcessHandler reproc;
+
+	-void get_args(CliArgsGetter& getter);
+	-void update();
+	-void render();
+	-void process_input();
+
+	+int init();
+	+void run();
+}
+
+class IProcessHandler <<Interface >> {
+	virtual int start();
+	virtual int stop();
+}
+
+class reproc <<Implementation>> {
+	int start();
+	int stop();
+}
+
+class CliArgsGetter <<Interface>> {
+	virtual int get_arg(string name);
+	virtual string get_arg(string name);
+}
+
+class CliArgs {
+
+}
+
+class gflags <<Implementation>> {
+}
+
+Application *-- ProcessHandler : has
+Application *-- CliArgs : has
+Application *-- SFML_Windows : has
+Application *-- Nvim : has
+CliArgsGetter --|> gflags
+CliArgs --> CliArgsGetter : Gets
+IProcessHandler --|> reproc
+ProcessHandler --> IProcessHandler : Gets
+
+@enduml

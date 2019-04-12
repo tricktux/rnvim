@@ -21,6 +21,8 @@
 #include "libnvc.hpp"
 #include <cinttypes>
 #include <stdexcept>
+#include <iostream>
+#include <string>
 
 #include <reproc++/reproc.hpp>
 #include <gflags/gflags.h>
@@ -35,11 +37,15 @@ int main(int argc, char **argv) {
 
 	sf::Window window(sf::VideoMode(800, 600), "My Window");
 
+	std::string casa;
   libnvc::asio_socket socket;
   if (!socket.connect("localhost", 6666)) {
     throw std::runtime_error("failed to connect to localhost:6666");
   }
 
+  LOG(INFO) << 'd';
+  if (!argc)
+	  LOG(ERROR) << "this is bad";
   libnvc::api_client client(&socket);
   client.forward<libnvc::reqid("nvim_input")>(
       {"$i123<CR>123<ESC>"}, [](int64_t len_done) {
