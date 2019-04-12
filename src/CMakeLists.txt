@@ -3,14 +3,6 @@ file(GLOB SOURCES "main.cpp")
 
 include_directories(${CMAKE_SOURCE_DIR}/inc)
 
-if (GLOG_FOUND)
-	include_directories(SYSTEM "${GLOG_INCLUDE_DIRS}")
-endif ()
-
-if (RAPIDJSON_INCLUDE_DIRS)
-	include_directories(SYSTEM "${RAPIDJSON_INCLUDE_DIRS}")
-endif ()
-
 # include_directories("${LIBNVC_INCLUDE}")
 
 # Show more warnings at compiletime.
@@ -37,10 +29,6 @@ target_link_libraries(gnvim gflags)
 target_link_libraries(gnvim reproc++)
 target_link_libraries(gnvim glog)
 target_link_libraries(gnvim sfml-system sfml-graphics)
-
-if (GLOG_FOUND)
-	target_link_libraries(gnvim ${GLOG_LIBRARIES})
-endif ()
 
 if (APPLE)
 	target_link_libraries(gnvim "-framework Carbon")
