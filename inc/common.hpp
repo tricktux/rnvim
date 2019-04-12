@@ -1,5 +1,5 @@
-/// @file application.hpp
-/// @brief Application class
+/// @file common.hpp
+/// @brief Definitions common to the entire application
 /// @author Reinaldo Molina
 /// @version  0.0
 /// @date Apr 12 2019
@@ -20,12 +20,4 @@
 
 #pragma once
 
-class Application {
-
-	int parse_cli_args(int argc, char **argv);
-public:
-  Application();
-
-  int init(int argc, char **argv);
-  int run();
-};
+#define SUCESS 0

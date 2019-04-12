@@ -1,5 +1,5 @@
-/// @file application.hpp
-/// @brief Application class
+/// @file cli_args.hpp
+/// @brief Handling of application arguments
 /// @author Reinaldo Molina
 /// @version  0.0
 /// @date Apr 12 2019
@@ -18,14 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#pragma once
+class CliArgs {
 
-class Application {
-
-	int parse_cli_args(int argc, char **argv);
 public:
-  Application();
-
-  int init(int argc, char **argv);
-  int run();
+	CliArgs() {}
 };
