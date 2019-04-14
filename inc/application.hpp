@@ -24,7 +24,7 @@ class Application {
 
 	int parse_cli_args(int argc, char **argv);
 public:
-  Application();
+  Application() {}
 
   int init(int argc, char **argv);
   int run();

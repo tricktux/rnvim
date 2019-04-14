@@ -19,6 +19,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application.hpp"
+#include <string>
 #include "common.hpp"
 
 /// @brief Initializes all members of the Application
@@ -26,9 +27,9 @@
 /// @param argv Array of application arguments
 /// @return SUCCESS, less than SUCCESS in case of failure
 int Application::init(int argc, char **argv) {
-	if (parse_cli_args(argc, argv) < SUCESS)
+	if (parse_cli_args(argc, argv) < SUCCESS)
 		return -1;
-	return 0;
+	return SUCCESS;
 }
 
 /// @brief Parses command line arguments
@@ -39,5 +40,9 @@ int Application::init(int argc, char **argv) {
 int Application::parse_cli_args(int argc, char **argv) {
 	// TODO: Create gflags pass under constructor argc and argv
 	// TODO: pass a reference of gflags to CliArgs to get arguments
-	return 0;
+	if (argc < 1)
+		return SUCCESS;
+
+	std::string awe = { argv[1] };
+	return SUCCESS;
 }

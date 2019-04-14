@@ -18,7 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http:www.gnu.org/licenses/>.
 
-#include "libnvc.hpp"
+#include "nvc/libnvc.hpp"
+#include "application.hpp"
 #include <cinttypes>
 #include <stdexcept>
 #include <iostream>
@@ -27,12 +28,22 @@
 #include <reproc++/reproc.hpp>
 #include <gflags/gflags.h>
 #include <SFML/Window.hpp>
+#include "easylogging/easylogging++.h"
+
+INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char **argv) {
+	START_EASYLOGGINGPP(argc, argv);
+
+	DLOG(INFO) << "This is what I am looking for";
+	VLOG(1) << "This is what I am looking for";
+	VLOG(2) << "This is what I am looking for";
+	VLOG(3) << "This is what I am looking for";
+	Application app;
+	app.init(argc, argv);
 
 	// sf::Window window(sf::VideoMode(800, 600), "My Window");
 
-	std::string casa;
   libnvc::asio_socket socket;
   if (!socket.connect("localhost", 6666)) {
     throw std::runtime_error("failed to connect to localhost:6666");

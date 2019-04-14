@@ -20,4 +20,4 @@
 
 #pragma once
 
-#define SUCESS 0
+#define SUCCESS 0
