@@ -36,6 +36,7 @@ int main(int argc, char **argv) {
 	START_EASYLOGGINGPP(argc, argv);
 
 	DLOG(INFO) << "This is what I am looking for";
+	DLOG(ERROR) << "This is what I am looking for";
 	VLOG(1) << "This is what I am looking for";
 	VLOG(2) << "This is what I am looking for";
 	VLOG(3) << "This is what I am looking for";

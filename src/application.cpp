@@ -21,6 +21,7 @@
 #include "application.hpp"
 #include <string>
 #include "common.hpp"
+#include "easylogging/easylogging++.h"
 
 /// @brief Initializes all members of the Application
 /// @param argc Number of arguments passed to the application
@@ -40,8 +41,10 @@ int Application::init(int argc, char **argv) {
 int Application::parse_cli_args(int argc, char **argv) {
 	// TODO: Create gflags pass under constructor argc and argv
 	// TODO: pass a reference of gflags to CliArgs to get arguments
-	if (argc < 1)
+	if (argc < 1) {
+		DLOG(INFO) << "Cool";
 		return SUCCESS;
+	}
 
 	std::string awe = { argv[1] };
 	return SUCCESS;
