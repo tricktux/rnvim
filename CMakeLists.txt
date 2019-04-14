@@ -18,8 +18,6 @@ if (DOWNLOAD_DEPENDENCIES)
 	include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/download/fetch_deps.cmake")
 else ()
 	message (STATUS "Looking for dependencies ...")
-	find_package(spdlog REQUIRED)
-
 	find_package(gflags REQUIRED)
 
 	find_package(GTest REQUIRED)
@@ -39,20 +37,12 @@ foreach (GNVIM_DEPS ${GNVIM_DEPS_SUBDIR})
 	include(${GNVIM_DEPS})
 endforeach ()
 
-# Check libnvc
-if (DEFINED LIBNVC_INCLUDE)
-	message (STATUS "Found libnvc include path: ${LIBNVC_INCLUDE}")
-else ()
-	message (FATAL_ERROR
-		"Required LIBNVC_INCLUDE=\"to-libnvc-include-path\" not defined")
-endif ()
-
-if (DEFINED LIBNVC_LIB)
-	message (STATUS "Found libnvc library path: ${LIBNVC_LIB}")
-else ()
-	message (FATAL_ERROR
-		"Required LIBNVC_LIB=\"to-libnvc-library-path\" not defined")
-endif ()
+if(NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE "Debug" CACHE STRING
+		"Choose the type of build, options are: Debug Release
+		RelWithDebInfo MinSizeRel."
+		FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
 
 option (ENABLE_ASAN "Enable ASAN" OFF)
 if (ENABLE_ASAN)
@@ -108,17 +98,14 @@ else ()
 	set(CMAKE_CXX_FLAGS_RELEASE
 		"${CMAKE_CXX_FLAGS_RELEASE} -Wno-unused-lambda-capture")
 
-	# always compile libnvc in debug mode
-	# for trace message use LIBNVC_DEBUG_ARG_LIST to enable
-	set(CMAKE_BUILD_TYPE "Debug")
 	set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS}")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
-
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -ggdb3 -pedantic")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-strict-aliasing")
 	set(CMAKE_CXX_FLAGS_DEBUG
 		"${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -Wunused -Werror")
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-unused-lambda-capture")
+	set(CMAKE_CXX_FLAGS_DEBUG 
+		"${CMAKE_CXX_FLAGS_DEBUG} -Wno-unused-lambda-capture")
 endif ()
 
 # Specify output directories.
