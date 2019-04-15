@@ -20,9 +20,6 @@
 
 #pragma once
 
-#include <reproc++/reproc.hpp>
-#include <reproc++/sink.hpp>
-
 #include <future>
 #include <iostream>
 #include <string>

@@ -18,13 +18,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "process_handler.hpp"
-#include "common.hpp"
-#include "easylogging/easylogging++.h"
 #include <reproc++/reproc.hpp>
 #include <reproc++/sink.hpp>
-
 #include <string>
+
+#include "common.hpp"
+#include "easylogging/easylogging++.h"
+#include "process_handler.hpp"
 
 /// @brief Starts the process provided in @cmd
 /// @param cmd Command to execute, includes arguments
@@ -44,7 +44,7 @@ int ProcessHandler::start(const std::vector<std::string> &cmd,
     return -1;
   }
 
-  if (timeout < 0) {
+  if ((int) timeout < 0) {
     DLOG(WARNING) << "[" << __FUNCTION__ << "]: invalid timeout (" << timeout
                   << ")";
     timeout = 0;
