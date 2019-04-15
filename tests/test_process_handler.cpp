@@ -1,5 +1,5 @@
-/// @file process_handler.cpp
-/// @brief Responsible for handling the neovim process
+/// @file test_process_handler.cpp
+/// @brief Tests for the process_handler class
 /// @author Reinaldo Molina
 /// @version  0.0
 /// @date Apr 15 2019
@@ -18,37 +18,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#pragma once
+#include "process_handler.hpp"
+#include <gtest/gtest.h>
 
-#include <reproc++/reproc.hpp>
-#include <reproc++/sink.hpp>
-
-#include <future>
-#include <iostream>
 #include <string>
 #include <vector>
 
-class IProcessHandler {
-protected:
-  bool running;
-
-public:
-  virtual int start(const std::vector<std::string> &cmd, unsigned int timeout);
-  virtual int stop(unsigned int timeout);
-  bool is_running() { return running; }
-};
-
-class ProcessHandler : public IProcessHandler {
-  reproc::process p;
-
-public:
-  ProcessHandler() : running(false) {}
-  ~ProcessHandler() {
-    if (running)
-      p.kill();
-  }
-
-  virtual int start(const std::vector<std::string> &cmd,
-                    unsigned int timeout) final;
-  virtual int stop(unsigned int timeout) final;
-};
+TEST(process_handler, start_stop) {
+  std::vector<std::string> cmd = {"nvim",       "-u",       "NONE",
+                                  "--headless", "--listen", "127.0.0.1:6666"};
+  ProcessHandler ph;
+  ph.start(cmd, 1000);
+  ASSERT_EQ(ph.is_running(), true);
+  ph.stop(1000);
+  ASSERT_EQ(ph.is_running(), false);
+}

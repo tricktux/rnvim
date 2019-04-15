@@ -30,7 +30,7 @@ int ProcessHandler::start(const std::vector<std::string> &cmd,
                           unsigned int timeout) {
   std::error_code ec;
 
-  if (is_running) {
+  if (running) {
     DLOG(WARNING) << "[ProcessHandler::start]: Process is running already";
     return SUCCESS;
   }
@@ -45,8 +45,6 @@ int ProcessHandler::start(const std::vector<std::string> &cmd,
                   << ")";
     timeout = 0;
   }
-
-  this->timeout = timeout;
 
   DLOG(INFO) << "[ProcessHandler::start]: Cmd = ";
   for (const auto &c : cmd)
@@ -71,7 +69,7 @@ int ProcessHandler::start(const std::vector<std::string> &cmd,
   p.close(reproc::stream::in);
 
   DLOG(INFO) << "[ProcessHandler::start]: ec.value = '" << ec.value() << "'";
-	is_running = true;
+  running = true;
   return ec.value();
 }
 
@@ -83,7 +81,7 @@ int ProcessHandler::stop(unsigned int timeout) {
   unsigned int exit_status = 0;
   std::error_code ec;
 
-  if (!is_running) {
+  if (!running) {
     DLOG(WARNING) << "[ProcessHandler::stop]: Process stopped already";
     return exit_status;
   }
@@ -99,6 +97,6 @@ int ProcessHandler::stop(unsigned int timeout) {
                 << " ec.message = '" << ec.value() << "'";
   }
 
-  is_running = false;
+  running = false;
   return exit_status;
 }
