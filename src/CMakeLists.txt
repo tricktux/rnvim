@@ -2,7 +2,6 @@
 file(GLOB SOURCES "main.cpp" "application.cpp")
 
 include_directories(${CMAKE_SOURCE_DIR}/inc)
-# link_directories(${CMAKE_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE})
 
 add_executable(gnvim ${SOURCES})
 

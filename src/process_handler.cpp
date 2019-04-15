@@ -18,9 +18,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "process_handler.hpp"
 #include "common.hpp"
 #include "easylogging/easylogging++.h"
-#include "process_handler.hpp"
+#include <reproc++/reproc.hpp>
+#include <reproc++/sink.hpp>
+
+#include <string>
 
 /// @brief Starts the process provided in @cmd
 /// @param cmd Command to execute, includes arguments
@@ -31,22 +35,22 @@ int ProcessHandler::start(const std::vector<std::string> &cmd,
   std::error_code ec;
 
   if (running) {
-    DLOG(WARNING) << "[ProcessHandler::start]: Process is running already";
+    DLOG(WARNING) << "[" << __FUNCTION__ << "]: Process is running already";
     return SUCCESS;
   }
 
   if (cmd.empty()) {
-    DLOG(ERROR) << "[ProcessHandler::start]: cmd argument empty";
+    DLOG(ERROR) << "[" << __FUNCTION__ << "]: cmd argument empty";
     return -1;
   }
 
   if (timeout < 0) {
-    DLOG(WARNING) << "[ProcessHandler::start]: invalid timeout (" << timeout
+    DLOG(WARNING) << "[" << __FUNCTION__ << "]: invalid timeout (" << timeout
                   << ")";
     timeout = 0;
   }
 
-  DLOG(INFO) << "[ProcessHandler::start]: Cmd = ";
+  DLOG(INFO) << "[" << __FUNCTION__ << "]: Cmd = ";
   for (const auto &c : cmd)
     DLOG(INFO) << "\t" << c;
 
@@ -54,7 +58,7 @@ int ProcessHandler::start(const std::vector<std::string> &cmd,
                       reproc::kill, reproc::milliseconds(timeout / 2));
 
   if ((ec = p.start(cmd))) {
-    DLOG(ERROR) << "[ProcessHandler::start]: Failed to start process."
+    DLOG(ERROR) << "[" << __FUNCTION__ << "]: Failed to start process."
                 << " ec.value = '" << ec.value() << "'."
                 << " ec.message = '" << ec.value() << "'";
     if (ec == reproc::errc::file_not_found)
@@ -68,7 +72,7 @@ int ProcessHandler::start(const std::vector<std::string> &cmd,
   // - Is this needed?
   p.close(reproc::stream::in);
 
-  DLOG(INFO) << "[ProcessHandler::start]: ec.value = '" << ec.value() << "'";
+  DLOG(INFO) << "[" << __FUNCTION__ << "]: ec.value = '" << ec.value() << "'";
   running = true;
   return ec.value();
 }
@@ -82,17 +86,17 @@ int ProcessHandler::stop(unsigned int timeout) {
   std::error_code ec;
 
   if (!running) {
-    DLOG(WARNING) << "[ProcessHandler::stop]: Process stopped already";
+    DLOG(WARNING) << "[" << __FUNCTION__ << "]: Process stopped already";
     return exit_status;
   }
 
-  DLOG(INFO) << "[ProcessHandler::stop]: Stopping process";
+  DLOG(INFO) << "[" << __FUNCTION__ << "]: Stopping process";
   ec = p.stop(reproc::wait, reproc::milliseconds(timeout / 3),
               reproc::terminate, reproc::milliseconds(timeout / 3),
               reproc::kill, reproc::milliseconds(timeout / 3), &exit_status);
 
   if (ec) {
-    DLOG(ERROR) << "[ProcessHandler::stop]: Failed to stop the application"
+    DLOG(ERROR) << "[" << __FUNCTION__ << "]: Failed to stop the application"
                 << " ec.value = '" << ec.value() << "'."
                 << " ec.message = '" << ec.value() << "'";
   }

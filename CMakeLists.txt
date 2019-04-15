@@ -117,7 +117,7 @@ add_subdirectory("src")
 # TODO Fix cmake for doxygen
 # add_subdirectory("docs")
 
-option(ENABLE_TESTS "Build tests" OFF)
+option(ENABLE_TESTS "Build tests" ON)
 if(ENABLE_TESTS)
 	enable_testing()
 	add_subdirectory("tests")

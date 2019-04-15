@@ -40,17 +40,18 @@ int main(int argc, char **argv) {
 	VLOG(1) << "This is what I am looking for";
 	VLOG(2) << "This is what I am looking for";
 	VLOG(3) << "This is what I am looking for";
-	Application app;
-	app.init(argc, argv);
+	// Application app;
+	// app.init(argc, argv);
 
-	// sf::Window window(sf::VideoMode(800, 600), "My Window");
+	sf::Window window(sf::VideoMode(800, 600), "My Window");
 
   libnvc::asio_socket socket;
   if (!socket.connect("localhost", 6666)) {
     throw std::runtime_error("failed to connect to localhost:6666");
   }
-
+	const std::map<std::string, libnvc::object> options;
   libnvc::api_client client(&socket);
+	client.nvim_ui_attach(800, 600, options);
   client.forward<libnvc::reqid("nvim_input")>(
       {"$i123<CR>123<ESC>"}, [](int64_t len_done) {
         char buf[128];

@@ -32,6 +32,7 @@ class IProcessHandler {
 protected:
   bool running;
 
+	IProcessHandler() : running(false) {}
 public:
   virtual int start(const std::vector<std::string> &cmd, unsigned int timeout);
   virtual int stop(unsigned int timeout);
@@ -42,7 +43,7 @@ class ProcessHandler : public IProcessHandler {
   reproc::process p;
 
 public:
-  ProcessHandler() : running(false) {}
+  ProcessHandler() {}
   ~ProcessHandler() {
     if (running)
       p.kill();
