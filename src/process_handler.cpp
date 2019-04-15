@@ -29,6 +29,12 @@
 int ProcessHandler::start(const std::vector<std::string> &cmd,
                           unsigned int timeout) {
   std::error_code ec;
+
+	if (is_running) {
+		DLOG(WARNING) << "[ProcessHandler::start]: Process is running already";
+		return SUCCESS;
+	}
+
   if (cmd.empty()) {
     DLOG(ERROR) << "[ProcessHandler::start]: cmd argument empty";
     return -1;
@@ -46,11 +52,10 @@ int ProcessHandler::start(const std::vector<std::string> &cmd,
   for (const auto &c : cmd)
     DLOG(INFO) << "\t" << c;
 
-  nvim = reproc::process(reproc::terminate, reproc::milliseconds(timeout / 2),
-                         reproc::kill, reproc::milliseconds(timeout / 2));
+  p = reproc::process(reproc::terminate, reproc::milliseconds(timeout / 2),
+                      reproc::kill, reproc::milliseconds(timeout / 2));
 
-  ec = nvim.start(cmd);
-  if ((ec = nvim.start(cmd))) {
+  if ((ec = p.start(cmd))) {
     DLOG(ERROR) << "[ProcessHandler::start]: Failed to start process."
                 << " ec.value = '" << ec.value() << "'."
                 << " ec.message = '" << ec.value() << "'";
@@ -63,7 +68,35 @@ int ProcessHandler::start(const std::vector<std::string> &cmd,
 
   // TODO-[RM]-(Mon Apr 15 2019 15:08):
   // - Is this needed?
-  nvim.close(reproc::stream::in);
+  p.close(reproc::stream::in);
+  is_running = true;
 
+  DLOG(INFO) << "[ProcessHandler::start]: ec.value = '" << ec.value() << "'";
   return ec.value();
+}
+
+/// @brief Stops the process @p initialized by the class
+/// @return Process exit status
+int ProcessHandler::stop() {
+  unsigned int exit_status = 0;
+  std::error_code ec;
+
+	if (!is_running) {
+		DLOG(WARNING) << "[ProcessHandler::stop]: Process stopped already";
+		return exit_status;
+	}
+
+  DLOG(INFO) << "[ProcessHandler::stop]: Stopping process";
+  ec = p.stop(reproc::wait, reproc::milliseconds(timeout / 3),
+              reproc::terminate, reproc::milliseconds(timeout / 3),
+              reproc::kill, reproc::milliseconds(timeout / 3), &exit_status);
+
+  if (ec) {
+    DLOG(ERROR) << "[ProcessHandler::stop]: Failed to stop the application"
+                << " ec.value = '" << ec.value() << "'."
+                << " ec.message = '" << ec.value() << "'";
+  }
+
+  is_running = false;
+  return exit_status;
 }

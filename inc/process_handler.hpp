@@ -38,9 +38,10 @@ public:
 };
 
 class ProcessHandler : public IProcessHandler {
-	reproc::process nvim;
+	reproc::process p;
 public:
 	ProcessHandler() : is_running(false), timeout(0) {}
+	~ProcessHandler() { if (is_running) stop(); }
 
 	virtual int start(const std::vector<std::string> &cmd, unsigned int timeout);
 	virtual int stop();
