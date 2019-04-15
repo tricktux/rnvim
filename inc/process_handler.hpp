@@ -25,24 +25,29 @@
 
 #include <future>
 #include <iostream>
-#include <vector>
 #include <string>
+#include <vector>
 
 class IProcessHandler {
 protected:
-	bool is_running;
-	unsigned int timeout;
+  bool is_running;
+
 public:
-	virtual int start(const std::vector<std::string> &cmd, unsigned int timeout);
-	virtual int stop();
+  virtual int start(const std::vector<std::string> &cmd, unsigned int timeout);
+  virtual int stop(unsigned int timeout);
 };
 
 class ProcessHandler : public IProcessHandler {
-	reproc::process p;
-public:
-	ProcessHandler() : is_running(false), timeout(0) {}
-	~ProcessHandler() { if (is_running) stop(); }
+  reproc::process p;
 
-	virtual int start(const std::vector<std::string> &cmd, unsigned int timeout);
-	virtual int stop();
+public:
+  ProcessHandler() : is_running(false) {}
+  ~ProcessHandler() {
+    if (is_running)
+      p.kill();
+  }
+
+  virtual int start(const std::vector<std::string> &cmd,
+                    unsigned int timeout) final;
+  virtual int stop(unsigned int timeout) final;
 };

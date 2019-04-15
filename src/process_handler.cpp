@@ -30,10 +30,10 @@ int ProcessHandler::start(const std::vector<std::string> &cmd,
                           unsigned int timeout) {
   std::error_code ec;
 
-	if (is_running) {
-		DLOG(WARNING) << "[ProcessHandler::start]: Process is running already";
-		return SUCCESS;
-	}
+  if (is_running) {
+    DLOG(WARNING) << "[ProcessHandler::start]: Process is running already";
+    return SUCCESS;
+  }
 
   if (cmd.empty()) {
     DLOG(ERROR) << "[ProcessHandler::start]: cmd argument empty";
@@ -69,22 +69,24 @@ int ProcessHandler::start(const std::vector<std::string> &cmd,
   // TODO-[RM]-(Mon Apr 15 2019 15:08):
   // - Is this needed?
   p.close(reproc::stream::in);
-  is_running = true;
 
   DLOG(INFO) << "[ProcessHandler::start]: ec.value = '" << ec.value() << "'";
+	is_running = true;
   return ec.value();
 }
 
 /// @brief Stops the process @p initialized by the class
+/// Note: Uses timeout value from class
+/// @param timeout Time in milliseconds to wait for application to close
 /// @return Process exit status
-int ProcessHandler::stop() {
+int ProcessHandler::stop(unsigned int timeout) {
   unsigned int exit_status = 0;
   std::error_code ec;
 
-	if (!is_running) {
-		DLOG(WARNING) << "[ProcessHandler::stop]: Process stopped already";
-		return exit_status;
-	}
+  if (!is_running) {
+    DLOG(WARNING) << "[ProcessHandler::stop]: Process stopped already";
+    return exit_status;
+  }
 
   DLOG(INFO) << "[ProcessHandler::stop]: Stopping process";
   ec = p.stop(reproc::wait, reproc::milliseconds(timeout / 3),
