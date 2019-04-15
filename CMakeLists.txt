@@ -95,8 +95,10 @@ else ()
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fno-strict-aliasing")
 	set(CMAKE_CXX_FLAGS_RELEASE
 		"${CMAKE_CXX_FLAGS_RELEASE} -Wall -Wfatal-errors -Wextra -Wunused -Werror")
-	set(CMAKE_CXX_FLAGS_RELEASE
-		"${CMAKE_CXX_FLAGS_RELEASE} -Wno-unused-lambda-capture")
+	if (USE_CLANG)
+		set(CMAKE_CXX_FLAGS_RELEASE
+			"${CMAKE_CXX_FLAGS_RELEASE} -Wno-unused-lambda-capture")
+	endif (USE_CLANG)
 
 	set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS}")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
@@ -104,8 +106,10 @@ else ()
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-strict-aliasing")
 	set(CMAKE_CXX_FLAGS_DEBUG
 		"${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -Wunused -Werror")
-	set(CMAKE_CXX_FLAGS_DEBUG 
-		"${CMAKE_CXX_FLAGS_DEBUG} -Wno-unused-lambda-capture")
+	if (USE_CLANG)
+		set(CMAKE_CXX_FLAGS_DEBUG
+			"${CMAKE_CXX_FLAGS_DEBUG} -Wno-unused-lambda-capture")
+	endif (USE_CLANG)
 endif ()
 
 # Specify output directories.
