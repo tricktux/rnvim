@@ -18,5 +18,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "cli_args.hpp"
 
+void CliArgs::init(ICliArgsGetter &getter) {
+	for (auto &arg : str_args)
+		arg.second = getter.get_arg(arg.first.c_str(), arg.second);
+	for (auto &arg : int_args)
+		arg.second = getter.get_arg(arg.first.c_str(), arg.second);
+	for (auto &arg : bool_args)
+		arg.second = getter.get_arg(arg.first.c_str(), arg.second);
+}
 
+int get_arg(const char *name, int def) {
+	return 8;
+}
+std::string get_arg(const char *name, const std::string &def) {
+	return "lkas";
+}
+bool get_arg(const char *name, bool def) {
+	return false;
+}

@@ -23,8 +23,8 @@
 
 class ICliArgsGetter {
 protected:
-	ICliArgsGetter() {}
-	virtual ~ICliArgsGetter() {}
+  ICliArgsGetter() {}
+  virtual ~ICliArgsGetter() {}
 
 public:
   virtual int get_arg(const char *name, int def) = 0;
@@ -33,17 +33,22 @@ public:
 };
 
 class CliArgs : public ICliArgsGetter {
-	std::unordered_map<std::string, std::string> str_args;
-	std::unordered_map<std::string, int> int_args;
-	std::unordered_map<std::string, bool> bool_args;
+  std::unordered_map<std::string, std::string> str_args;
+  std::unordered_map<std::string, int> int_args;
+  std::unordered_map<std::string, bool> bool_args;
 
 public:
-	CliArgs() {
+  CliArgs() {
+    str_args = {{"nvim", "nvim"}};
 
-	}
-	virtual ~CliArgs() {}
+    bool_args = {{"maximized", false}};
 
-	void init(ICliArgsGetter &getter);
+    int_args = {{"timeout", 1000}};
+  }
+
+  virtual ~CliArgs() {}
+
+  void init(ICliArgsGetter &getter);
   virtual int get_arg(const char *name, int def) final;
   virtual std::string get_arg(const char *name, const std::string &def) final;
   virtual bool get_arg(const char *name, bool def) final;
@@ -52,11 +57,11 @@ public:
 class GflagsArgs : public ICliArgsGetter {
 
 public:
-	GflagsArgs() {}
-	virtual ~GflagsArgs() {}
+  GflagsArgs() {}
+  virtual ~GflagsArgs() {}
 
-	void init(int argc, char **argv);
-	virtual int get_arg(const char *name, int def) final;
-	virtual std::string get_arg(const char *name, const std::string &def) final;
-	virtual bool get_arg(const char *name, bool def) final;
+  void init(int argc, char **argv);
+  virtual int get_arg(const char *name, int def) final;
+  virtual std::string get_arg(const char *name, const std::string &def) final;
+  virtual bool get_arg(const char *name, bool def) final;
 };
