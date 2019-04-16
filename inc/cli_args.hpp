@@ -20,7 +20,10 @@
 
 #include <string>
 #include <unordered_map>
+#include <utility>
+#include <vector>
 
+/// Interface to get argument options
 class ICliArgsGetter {
 protected:
   ICliArgsGetter() {}
@@ -32,18 +35,24 @@ public:
   virtual bool get_arg(const char *name, bool def) = 0;
 };
 
+/// Storage for argument options
 class CliArgs : public ICliArgsGetter {
-  std::unordered_map<std::string, std::string> str_args;
-  std::unordered_map<std::string, int> int_args;
-  std::unordered_map<std::string, bool> bool_args;
+	/// Option name, {option value, option help text}
+  std::unordered_map<std::string, std::pair<std::string, std::string>> str_args;
+  std::unordered_map<std::string, std::pair<int, std::string>> int_args;
+  std::unordered_map<std::string, std::pair<bool, std::string>> bool_args;
+
+	/// Storage for poitional args
+  std::vector<std::string> positional_args;
 
 public:
   CliArgs() {
-    str_args = {{"nvim", "nvim"}};
+		str_args = {{"n,nvim", {"nvim executable path", "nvim"}}};
 
-    bool_args = {{"maximized", false}};
+    bool_args = {{"m,maximized", {false, "Maximize the window on startup"}}};
 
-    int_args = {{"timeout", 1000}};
+    int_args = {{"t,timeout",
+                 {15, "Error if nvim does not responde after count seconds"}}};
   }
 
   virtual ~CliArgs() {}
@@ -54,6 +63,7 @@ public:
   virtual bool get_arg(const char *name, bool def) final;
 };
 
+/// Implementation that parses options and makes them available
 class CxxOptsArgs : public ICliArgsGetter {
 
 public:

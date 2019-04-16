@@ -23,11 +23,11 @@
 
 void CliArgs::init(ICliArgsGetter &getter) {
 	for (auto &arg : str_args)
-		arg.second = getter.get_arg(arg.first.c_str(), arg.second);
+		arg.second.first = getter.get_arg(arg.first.c_str(), arg.second.first);
 	for (auto &arg : int_args)
-		arg.second = getter.get_arg(arg.first.c_str(), arg.second);
+		arg.second.first = getter.get_arg(arg.first.c_str(), arg.second.first);
 	for (auto &arg : bool_args)
-		arg.second = getter.get_arg(arg.first.c_str(), arg.second);
+		arg.second.first = getter.get_arg(arg.first.c_str(), arg.second.first);
 }
 
 int CliArgs::get_arg(const char *name, int def) {
@@ -35,31 +35,28 @@ int CliArgs::get_arg(const char *name, int def) {
 		return def;
 
 	const auto &search = int_args.find(name);
-
 	if (search == int_args.end())
 		return def;
 
-	return search->second;
+	return search->second.first;
 }
 std::string CliArgs::get_arg(const char *name, const std::string &def) {
 	if ((name == nullptr) || (name[0] == 0))
 		return def;
 
 	const auto &search = str_args.find(name);
-
 	if (search == str_args.end())
 		return def;
 
-	return search->second;
+	return search->second.first;
 }
 bool CliArgs::get_arg(const char *name, bool def) {
 	if ((name == nullptr) || (name[0] == 0))
 		return def;
 
 	const auto &search = bool_args.find(name);
-
 	if (search == bool_args.end())
 		return def;
 
-	return search->second;
+	return search->second.first;
 }
