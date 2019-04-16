@@ -85,5 +85,5 @@ public:
   CxxOptsArgs() {}
   virtual ~CxxOptsArgs() {}
 
-  void init(int argc, char **argv);
+  int init(int argc, char **argv);
 };

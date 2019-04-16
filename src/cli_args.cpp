@@ -18,6 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "common.hpp"
 #include "cli_args.hpp"
 #include "cxxopts.hpp"
 #include "easylogging/easylogging++.h"
@@ -67,7 +68,13 @@ const std::vector<std::string>& CliArgs::get_positional_arg() {
 	return std::get<1>(opt.pos_arg);
 }
 
-void CxxOptsArgs::init(int argc, char **argv) {
+/// @brief Parse program arguments
+/// Results are stored in the static Options opt
+/// They are then shared with @CliArgs which you can query
+/// @param argc
+/// @param argv
+/// @return SUCCESS, or -100 in case of exception
+int CxxOptsArgs::init(int argc, char **argv) {
   try {
     cxxopts::Options options(argv[0], opt.description);
     options.positional_help(opt.positional_help).show_positional_help();
@@ -94,9 +101,10 @@ void CxxOptsArgs::init(int argc, char **argv) {
 		// Get help string
 		opt.help = options.help();
 
+		return SUCCESS;
   } catch (const cxxopts::OptionException &e) {
     DLOG(ERROR) << "[" << __FUNCTION__
                 << "]: Error parsing options: " << e.what();
-    return;
+    return -100;
   }
 }
