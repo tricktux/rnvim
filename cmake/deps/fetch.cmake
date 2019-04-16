@@ -1,17 +1,18 @@
 include(FetchContent)
 
-# FetchContent_Declare(
-		# easylogging
-		# GIT_REPOSITORY https://github.com/zuhd-org/easyloggingpp
-		# GIT_TAG        v9.96.7
-	# )
+FetchContent_Declare(
+		cxxopts
+		GIT_REPOSITORY https://github.com/jarro2783/cxxopts
+		GIT_TAG        v2.1.2
+	)
 FetchContent_Declare(
 		reproc
 		GIT_REPOSITORY https://github.com/DaanDeMeyer/reproc
 		GIT_TAG        v5.0.0
 	)
 
-# FetchContent_MakeAvailable(easylogging)
+FetchContent_MakeAvailable(cxxopts)
+
 # If you need to add special steps or variables do this
 FetchContent_GetProperties(reproc)
 if(NOT reproc_POPULATED)

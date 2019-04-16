@@ -16,7 +16,7 @@ find_library(LIBNVC_LIBNAME nvc
 find_library(EASYLOGGING_LIBNAME easyloggingpp
 	HINTS ${CMAKE_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE})
 
-target_link_libraries(gnvim gflags)
+target_link_libraries(gnvim cxxopts)
 target_link_libraries(gnvim reproc++)
 target_link_libraries(gnvim ${EASYLOGGING_LIBNAME})
 target_link_libraries(gnvim ${LIBNVC_LIBNAME})

@@ -17,9 +17,7 @@ if (DOWNLOAD_DEPENDENCIES)
 	message (STATUS "Downloading dependencies ...")
 	include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/download/fetch_deps.cmake")
 else ()
-	message (STATUS "Looking for dependencies ...")
-	find_package(gflags REQUIRED)
-
+	message (STATUS "Searching for dependencies ...")
 	find_package(GTest REQUIRED)
 
 	set(CMAKE_THREAD_PREFER_PTHREAD ON)
