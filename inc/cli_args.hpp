@@ -18,8 +18,45 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-class CliArgs {
+#include <string>
+#include <unordered_map>
+
+class ICliArgsGetter {
+protected:
+	ICliArgsGetter() {}
+	virtual ~ICliArgsGetter() {}
 
 public:
-	CliArgs() {}
+  virtual int get_arg(const char *name, int def) = 0;
+  virtual std::string get_arg(const char *name, const std::string &def) = 0;
+  virtual bool get_arg(const char *name, bool def) = 0;
+};
+
+class CliArgs : public ICliArgsGetter {
+	std::unordered_map<std::string, std::string> str_args;
+	std::unordered_map<std::string, int> int_args;
+	std::unordered_map<std::string, bool> bool_args;
+
+public:
+	CliArgs() {
+
+	}
+	virtual ~CliArgs() {}
+
+	void init(ICliArgsGetter &getter);
+  virtual int get_arg(const char *name, int def) final;
+  virtual std::string get_arg(const char *name, const std::string &def) final;
+  virtual bool get_arg(const char *name, bool def) final;
+};
+
+class GflagsArgs : public ICliArgsGetter {
+
+public:
+	GflagsArgs() {}
+	virtual ~GflagsArgs() {}
+
+	void init(int argc, char **argv);
+	virtual int get_arg(const char *name, int def) final;
+	virtual std::string get_arg(const char *name, const std::string &def) final;
+	virtual bool get_arg(const char *name, bool def) final;
 };
