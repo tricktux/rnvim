@@ -63,6 +63,9 @@ bool CliArgs::get_arg(const char *name, bool def) {
 
   return search->second.first;
 }
+const std::vector<std::string>& CliArgs::get_positional_arg() {
+	return std::get<1>(opt.pos_arg);
+}
 
 void CxxOptsArgs::init(int argc, char **argv) {
   try {

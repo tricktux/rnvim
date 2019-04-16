@@ -26,11 +26,11 @@
 
 /// Interface to get argument options
 class ICliArgsGetter {
-protected:
-  ICliArgsGetter() {}
-  virtual ~ICliArgsGetter() {}
 
 public:
+	ICliArgsGetter() {}
+	virtual ~ICliArgsGetter() {}
+
   virtual int get_arg(const char *name, int def) = 0;
   virtual std::string get_arg(const char *name, const std::string &def) = 0;
   virtual bool get_arg(const char *name, bool def) = 0;
@@ -72,17 +72,15 @@ public:
   virtual int get_arg(const char *name, int def) final;
   virtual std::string get_arg(const char *name, const std::string &def) final;
   virtual bool get_arg(const char *name, bool def) final;
+	const std::vector<std::string>& get_positional_arg();
 };
 
 /// Implementation that parses options and makes them available
-class CxxOptsArgs : public ICliArgsGetter {
+class CxxOptsArgs {
 
 public:
   CxxOptsArgs() {}
   virtual ~CxxOptsArgs() {}
 
   void init(int argc, char **argv);
-  virtual int get_arg(const char *name, int def) final;
-  virtual std::string get_arg(const char *name, const std::string &def) final;
-  virtual bool get_arg(const char *name, bool def) final;
 };
