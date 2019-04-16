@@ -9,6 +9,7 @@ add_executable(test_process_handler test_process_handler.cpp
 target_link_libraries(test_process_handler reproc++)
 target_link_libraries(test_process_handler ${EASYLOGGING_LIBNAME})
 target_link_libraries(test_process_handler ${GTEST_BOTH_LIBRARIES})
+target_link_libraries(test_process_handler Threads::Threads)
 
 add_test(test_process_handler ${EXECUTABLE_OUTPUT_PATH})
 
