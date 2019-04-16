@@ -96,6 +96,8 @@ int ProcessHandler::stop(unsigned int timeout) {
 
 
 /// @brief Check if process is currently running
+/// Implementation based on comments here:
+/// https://github.com/DaanDeMeyer/reproc/issues/9
 bool ProcessHandler::is_running() {
 	unsigned int exit_status = 0;
 	std::error_code ec;
