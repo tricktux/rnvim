@@ -3,6 +3,7 @@ file(GLOB SOURCES
 	"main.cpp"
 	"application.cpp"
 	"process_handler.cpp"
+	"cli_args.cpp"
 )
 
 include_directories(${CMAKE_SOURCE_DIR}/inc)
