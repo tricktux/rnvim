@@ -25,7 +25,6 @@
 #include <iostream>
 #include <string>
 
-#include <reproc++/reproc.hpp>
 #include <SFML/Window.hpp>
 #include "easylogging/easylogging++.h"
 #include "cxxopts.hpp"
