@@ -25,35 +25,35 @@
 
 INITIALIZE_EASYLOGGINGPP
 
-const char *argv[] = {"gnvim",  "-n",           "/usr/bin/nvim", "--maximized",
-                      "--help", "--timeout=13", "file2.cpp",     "filee3.h"};
-
 TEST(cxxopts_args, loading) {
-  int argc = sizeof(argv) / sizeof(char *);
-  char **argv_ = new char *[argc];
-  for (int k = 0; k < argc; k++) {
-    argv_[k] = new char[32];
-    std::strncpy(argv_[k], argv[k], 32);
-  }
+	const char *argv[] = {"gnvim",  "-n",           "/usr/bin/nvim", "--maximized",
+		"--help", "--timeout=13", "file2.cpp",     "filee3.h"};
 
-  CxxOptsArgs parser;
-  parser.init(argc, argv_);
+	int argc = sizeof(argv) / sizeof(char *);
+	char **argv_ = new char *[argc];
+	for (int k = 0; k < argc; k++) {
+		argv_[k] = new char[32];
+		std::strncpy(argv_[k], argv[k], 32);
+	}
 
-  CliArgs args;
-  std::string opt = args.get_arg("n,nvim", std::string());
-  ASSERT_EQ(argv[2], opt);
-  const std::vector<std::string> &pos = args.get_positional_arg();
-  ASSERT_EQ(pos.size(), 2);
-  for (int k = 6; k < argc; k++) {
-    ASSERT_EQ(argv[k], pos[k - 6]);
-  }
-  bool max = args.get_arg("m,maximized", false);
-  ASSERT_EQ(max, true);
-  int t = args.get_arg("t,timeout", 0);
-  ASSERT_EQ(t, 13);
+	CxxOptsArgs parser;
+	parser.init(argc, argv_);
 
-  for (int k = 0; k < argc; k++) {
-    delete[] argv_[k];
-  }
-  delete[] argv_;
+	CliArgs args;
+	std::string opt = args.get_arg("n,nvim", std::string());
+	ASSERT_EQ(argv[2], opt);
+	const std::vector<std::string> &pos = args.get_positional_arg();
+	ASSERT_EQ(pos.size(), 2);
+	for (int k = 6; k < argc; k++) {
+		ASSERT_EQ(argv[k], pos[k - 6]);
+	}
+	bool max = args.get_arg("m,maximized", false);
+	ASSERT_EQ(max, true);
+	int t = args.get_arg("t,timeout", 0);
+	ASSERT_EQ(t, 13);
+
+	for (int k = 0; k < argc; k++) {
+		delete[] argv_[k];
+	}
+	delete[] argv_;
 }
