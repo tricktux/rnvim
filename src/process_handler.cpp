@@ -31,7 +31,7 @@
 /// @param cmd Command to execute, includes arguments
 /// @param timeout timeout in milliseconds
 /// @return SUCCESS or <SUCCESS in case of error
-int ProcessHandler::start(const std::vector<std::string> &cmd) {
+int ReprocHandler::start(const std::vector<std::string> &cmd) {
   std::error_code ec;
 
   if (is_running()) {
@@ -71,7 +71,7 @@ int ProcessHandler::start(const std::vector<std::string> &cmd) {
 /// Note: Uses timeout value from class
 /// @param timeout Time in milliseconds to wait for application to close
 /// @return Process exit status
-int ProcessHandler::stop(unsigned int timeout) {
+int ReprocHandler::stop(unsigned int timeout) {
   unsigned int exit_status = 0;
   std::error_code ec;
 
@@ -98,7 +98,7 @@ int ProcessHandler::stop(unsigned int timeout) {
 /// @brief Check if process is currently running
 /// Implementation based on comments here:
 /// https://github.com/DaanDeMeyer/reproc/issues/9
-bool ProcessHandler::is_running() {
+bool ReprocHandler::is_running() {
 	unsigned int exit_status = 0;
 	std::error_code ec;
 

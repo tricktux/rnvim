@@ -30,10 +30,10 @@
 
 INITIALIZE_EASYLOGGINGPP
 
-TEST(process_handler, start_stop) {
+TEST(reproc_process_handler, start_stop) {
   std::vector<std::string> cmd = {"nvim",       "-u",       "NONE",
                                   "--headless", "--listen", "127.0.0.1:6666"};
-  ProcessHandler ph(1000);
+  ReprocHandler ph(1000);
   ph.start(cmd);
   ASSERT_EQ(ph.is_running(), true);
   ph.stop(1000);

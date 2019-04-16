@@ -36,14 +36,14 @@ public:
   virtual bool is_running() = 0;
 };
 
-class ProcessHandler : public IProcessHandler {
+class ReprocHandler : public IProcessHandler {
   reproc::process p;
 
 public:
-  ProcessHandler(unsigned int _timeout)
+  ReprocHandler(unsigned int _timeout)
       : p(reproc::terminate, reproc::milliseconds(_timeout/2), reproc::kill,
            reproc::milliseconds(_timeout/2)) {}
-  virtual ~ProcessHandler() {
+  virtual ~ReprocHandler() {
     if (is_running())
       p.kill();
   }
