@@ -27,12 +27,10 @@
 
 #include <SFML/Window.hpp>
 #include "easylogging/easylogging++.h"
-#include "cxxopts.hpp"
 
 INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char **argv) {
-	cxxopts::Options _options(argv[0], " - cool");
 	START_EASYLOGGINGPP(argc, argv);
 
 	DLOG(INFO) << "This is what I am looking for";
