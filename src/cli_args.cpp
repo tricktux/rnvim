@@ -91,6 +91,8 @@ void CxxOptsArgs::init(int argc, char **argv) {
 		// Get positional option
 		options.parse_positional(std::get<0>(opt.pos_arg));
 		auto result = options.parse(argc, argv);
+		// Get help string
+		opt.help = options.help();
 
   } catch (const cxxopts::OptionException &e) {
     DLOG(ERROR) << "[" << __FUNCTION__

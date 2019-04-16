@@ -47,6 +47,9 @@ typedef struct _Options {
 
   const char *description = "gnvim - GUI for neovim";
   const char *positional_help = "[optional args]";
+  /// Contains information to show when using -h
+	std::string help;
+	// TODO- Create a version string
 
   _Options() {
     str_args = {{"n,nvim", {"nvim", "nvim executable path"}}};
