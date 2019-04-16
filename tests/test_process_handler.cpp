@@ -26,12 +26,15 @@
 #include <vector>
 
 #include "process_handler.hpp"
+#include "easylogging/easylogging++.h"
+
+INITIALIZE_EASYLOGGINGPP
 
 TEST(process_handler, start_stop) {
   std::vector<std::string> cmd = {"nvim",       "-u",       "NONE",
                                   "--headless", "--listen", "127.0.0.1:6666"};
-  ProcessHandler ph;
-  ph.start(cmd, 1000);
+  ProcessHandler ph(1000);
+  ph.start(cmd);
   ASSERT_EQ(ph.is_running(), true);
   ph.stop(1000);
   ASSERT_EQ(ph.is_running(), false);

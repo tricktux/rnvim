@@ -29,10 +29,12 @@ class IProcessHandler {
 protected:
   bool running;
 
-	IProcessHandler() : running(false) {}
+  IProcessHandler() : running(false) {}
+	virtual ~IProcessHandler() {}
+
 public:
-  virtual int start(const std::vector<std::string> &cmd, unsigned int timeout);
-  virtual int stop(unsigned int timeout);
+  virtual int start(const std::vector<std::string> &cmd) = 0;
+  virtual int stop(unsigned int timeout) = 0;
   bool is_running() { return running; }
 };
 
@@ -40,13 +42,14 @@ class ProcessHandler : public IProcessHandler {
   reproc::process p;
 
 public:
-  ProcessHandler() {}
-  ~ProcessHandler() {
+  ProcessHandler(unsigned int _timeout)
+      : p(reproc::terminate, reproc::milliseconds(_timeout/2), reproc::kill,
+           reproc::milliseconds(_timeout/2)) {}
+  virtual ~ProcessHandler() {
     if (running)
       p.kill();
   }
 
-  virtual int start(const std::vector<std::string> &cmd,
-                    unsigned int timeout) final;
+  virtual int start(const std::vector<std::string> &cmd) final;
   virtual int stop(unsigned int timeout) final;
 };

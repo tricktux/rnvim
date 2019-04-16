@@ -30,8 +30,7 @@
 /// @param cmd Command to execute, includes arguments
 /// @param timeout timeout in milliseconds
 /// @return SUCCESS or <SUCCESS in case of error
-int ProcessHandler::start(const std::vector<std::string> &cmd,
-                          unsigned int timeout) {
+int ProcessHandler::start(const std::vector<std::string> &cmd) {
   std::error_code ec;
 
   if (running) {
@@ -44,18 +43,9 @@ int ProcessHandler::start(const std::vector<std::string> &cmd,
     return -1;
   }
 
-  if ((int) timeout < 0) {
-    DLOG(WARNING) << "[" << __FUNCTION__ << "]: invalid timeout (" << timeout
-                  << ")";
-    timeout = 0;
-  }
-
   DLOG(INFO) << "[" << __FUNCTION__ << "]: Cmd = ";
   for (const auto &c : cmd)
     DLOG(INFO) << "\t" << c;
-
-  p = reproc::process(reproc::terminate, reproc::milliseconds(timeout / 2),
-                      reproc::kill, reproc::milliseconds(timeout / 2));
 
   if ((ec = p.start(cmd))) {
     DLOG(ERROR) << "[" << __FUNCTION__ << "]: Failed to start process."
@@ -63,7 +53,7 @@ int ProcessHandler::start(const std::vector<std::string> &cmd,
                 << " ec.message = '" << ec.value() << "'";
     if (ec == reproc::errc::file_not_found)
       DLOG(ERROR)
-          << "[ProcessHandler::start]: "
+          << "[" << __FUNCTION__ << "]: "
           << "Program not found. Make sure it's available from the PATH.";
     return -2;
   }
