@@ -22,6 +22,7 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <tuple>
 
 /// Interface to get argument options
 class ICliArgsGetter {
@@ -42,13 +43,13 @@ typedef struct _Options {
   std::unordered_map<std::string, std::pair<bool, std::string>> bool_args;
 
   /// Storage for poitional args
-  std::vector<std::string> positional_args;
+  std::tuple<std::string, std::vector<std::string>, std::string> pos_arg;
 
   const char *description = "gnvim - GUI for neovim";
   const char *positional_help = "[optional args]";
 
   _Options() {
-    str_args = {{"n,nvim", {"nvim executable path", "nvim"}}};
+    str_args = {{"n,nvim", {"nvim", "nvim executable path"}}};
 
     bool_args = {{"m,maximized", {false, "Maximize the window on startup"}},
                  {"h,help", {false, "Print this help"}},
@@ -56,6 +57,7 @@ typedef struct _Options {
 
     int_args = {{"t,timeout",
                  {15, "Error if nvim does not responde after count seconds"}}};
+    pos_arg = {"positional", {}, "List of files to open"};
   }
 } Options;
 

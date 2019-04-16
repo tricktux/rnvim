@@ -69,6 +69,24 @@ void CxxOptsArgs::init(int argc, char **argv) {
     cxxopts::Options options(argv[0], opt.description);
     options.positional_help(opt.positional_help).show_positional_help();
 
+		for (auto &arg : opt.bool_args) {
+			options.add_options()(arg.first, arg.second.second,
+					cxxopts::value<bool>(arg.second.first)->implicit_value("true"));
+		}
+		for (auto &arg : opt.int_args) {
+			options.add_options()(arg.first, arg.second.second,
+					cxxopts::value<int>(arg.second.first));
+		}
+		for (auto &arg : opt.str_args) {
+			options.add_options()(arg.first, arg.second.second,
+					cxxopts::value<std::string>(arg.second.first));
+		}
+
+    // Add positional option
+		options.add_options()(std::get<0>(opt.pos_arg), std::get<2>(opt.pos_arg),
+				cxxopts::value<std::vector<std::string>>(std::get<1>(opt.pos_arg)));
+		// Get positional option
+		options.parse_positional(std::get<0>(opt.pos_arg));
 		auto result = options.parse(argc, argv);
 
   } catch (const cxxopts::OptionException &e) {
