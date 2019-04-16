@@ -21,6 +21,7 @@
 #include <reproc++/reproc.hpp>
 #include <reproc++/sink.hpp>
 #include <string>
+#include <chrono>
 
 #include "common.hpp"
 #include "easylogging/easylogging++.h"
@@ -33,7 +34,7 @@
 int ProcessHandler::start(const std::vector<std::string> &cmd) {
   std::error_code ec;
 
-  if (running) {
+  if (is_running()) {
     DLOG(WARNING) << "[" << __FUNCTION__ << "]: Process is running already";
     return SUCCESS;
   }
@@ -63,7 +64,6 @@ int ProcessHandler::start(const std::vector<std::string> &cmd) {
   p.close(reproc::stream::in);
 
   DLOG(INFO) << "[" << __FUNCTION__ << "]: ec.value = '" << ec.value() << "'";
-  running = true;
   return ec.value();
 }
 
@@ -75,7 +75,7 @@ int ProcessHandler::stop(unsigned int timeout) {
   unsigned int exit_status = 0;
   std::error_code ec;
 
-  if (!running) {
+  if (!is_running()) {
     DLOG(WARNING) << "[" << __FUNCTION__ << "]: Process stopped already";
     return exit_status;
   }
@@ -91,6 +91,19 @@ int ProcessHandler::stop(unsigned int timeout) {
                 << " ec.message = '" << ec.value() << "'";
   }
 
-  running = false;
   return exit_status;
+}
+
+
+/// @brief Check if process is currently running
+bool ProcessHandler::is_running() {
+	unsigned int exit_status = 0;
+	std::error_code ec;
+
+	ec = p.wait(reproc::milliseconds(0), &exit_status);
+
+	if (ec == reproc::errc::wait_timeout)
+		return true;
+
+	return false;
 }
