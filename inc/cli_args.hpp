@@ -54,11 +54,11 @@ public:
   virtual bool get_arg(const char *name, bool def) final;
 };
 
-class GflagsArgs : public ICliArgsGetter {
+class CxxOptsArgs : public ICliArgsGetter {
 
 public:
-  GflagsArgs() {}
-  virtual ~GflagsArgs() {}
+  CxxOptsArgs() {}
+  virtual ~CxxOptsArgs() {}
 
   void init(int argc, char **argv);
   virtual int get_arg(const char *name, int def) final;
