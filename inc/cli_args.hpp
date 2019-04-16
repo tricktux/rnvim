@@ -35,26 +35,35 @@ public:
   virtual bool get_arg(const char *name, bool def) = 0;
 };
 
-/// Storage for argument options
-class CliArgs : public ICliArgsGetter {
-	/// Option name, {option value, option help text}
+typedef struct _Options {
+  /// Option name, {option value, option help text}
   std::unordered_map<std::string, std::pair<std::string, std::string>> str_args;
   std::unordered_map<std::string, std::pair<int, std::string>> int_args;
   std::unordered_map<std::string, std::pair<bool, std::string>> bool_args;
 
-	/// Storage for poitional args
+  /// Storage for poitional args
   std::vector<std::string> positional_args;
 
-public:
-  CliArgs() {
-		str_args = {{"n,nvim", {"nvim executable path", "nvim"}}};
+  const char *description = "gnvim - GUI for neovim";
+  const char *positional_help = "[optional args]";
 
-    bool_args = {{"m,maximized", {false, "Maximize the window on startup"}}};
+  _Options() {
+    str_args = {{"n,nvim", {"nvim executable path", "nvim"}}};
+
+    bool_args = {{"m,maximized", {false, "Maximize the window on startup"}},
+                 {"h,help", {false, "Print this help"}},
+                 {"v,version", {false, "Print version information"}}};
 
     int_args = {{"t,timeout",
                  {15, "Error if nvim does not responde after count seconds"}}};
   }
+} Options;
 
+/// Local interface to get options
+/// Provides abstraction from external libraries
+class CliArgs : public ICliArgsGetter {
+public:
+  CliArgs() {}
   virtual ~CliArgs() {}
 
   void init(ICliArgsGetter &getter);
