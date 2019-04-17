@@ -30,16 +30,19 @@ typedef std::unordered_map<std::string, std::pair<int, std::string>>
     map_int_args;
 typedef std::unordered_map<std::string, std::pair<bool, std::string>>
     map_bool_args;
+typedef std::tuple<std::string, std::vector<std::string>, std::string>
+		tuple_positional_args;
 
 /// Interface to get argument options
 class ICliArgsGetter {
-protected:
-  virtual ~ICliArgsGetter() {}
-
 public:
-  virtual int parse(int argc, char **argv) = 0;
-  virtual int init(std::string_view program_name,
-                   std::string_view program_description) = 0;
+	virtual ~ICliArgsGetter() {}
+	virtual int init(std::string_view program_name,
+			std::string_view program_description) = 0;
+	virtual void add_options(const map_string_args &string_args) = 0;
+	virtual void add_options(const map_int_args &int_args) = 0;
+	virtual void add_options(const map_bool_args &bool_args) = 0;
+  virtual int parse_options(int argc, char **argv) = 0;
   virtual int get_arg(std::string_view name, int def) const = 0;
   virtual std::string get_arg(std::string_view name,
                               const std::string &def) const = 0;
@@ -53,7 +56,7 @@ typedef struct _Options {
   map_bool_args bool_args;
 
   /// Storage for poitional args
-  std::tuple<std::string, std::vector<std::string>, std::string> pos_arg;
+  tuple_positional_args pos_arg;
 
   const char *description = "gnvim - GUI for neovim";
   const char *positional_help = "[optional args]";
@@ -61,17 +64,15 @@ typedef struct _Options {
   std::string help;
   // TODO- Create a version string
 
-  _Options() {
-    str_args = {{"n,nvim", {"nvim", "nvim executable path"}}};
-
-    bool_args = {{"m,maximized", {false, "Maximize the window on startup"}},
-                 {"h,help", {false, "Print this help"}},
-                 {"v,version", {false, "Print version information"}}};
-
-    int_args = {{"t,timeout",
-                 {15, "Error if nvim does not responde after count seconds"}}};
-    pos_arg = {"positional", {}, "List of files to open"};
-  }
+  _Options():
+    str_args({{"n,nvim", {"nvim", "nvim executable path"}}}),
+    int_args({{"t,timeout",
+                 {15, "Error if nvim does not responde after count seconds"}}}),
+		bool_args({{"m,maximized", {false, "Maximize the window on startup"}},
+				{"h,help", {false, "Print this help"}},
+				{"v,version", {false, "Print version information"}}}),
+    pos_arg({"positional", {}, "List of files to open"})
+		{}
 } Options;
 
 /// Local interface to get options
@@ -81,7 +82,11 @@ public:
   CliArgs() {}
   virtual ~CliArgs() {}
 
-  // void init(ICliArgsGetter &getter);
+	int init(std::string_view program_name,
+			std::string_view program_description) override;
+	void add_options(const map_string_args &string_args) override;
+	void add_options(const map_int_args &int_args) override;
+	void add_options(const map_bool_args &bool_args) override;
   int get_arg(std::string_view name, int def) const override;
   std::string get_arg(std::string_view name,
                               const std::string &def) const override;
@@ -90,6 +95,8 @@ public:
 };
 
 /// Implementation that parses options and makes them available
+// TODO-[RM]-(Wed Apr 17 2019 15:29):  
+// Get rid of this
 class CxxOptsArgs {
 
 public:
