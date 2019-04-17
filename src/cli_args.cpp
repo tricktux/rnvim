@@ -77,8 +77,8 @@ const std::vector<std::string> &CliArgs::get_positional_arg() {
 /// @return SUCCESS, or -100 in case of exception
 int CxxOptsArgs::init(int argc, char **argv) {
   try {
-    cxxopts::Options options(argv[0], opt.description);
-    options.positional_help(opt.positional_help).show_positional_help();
+    cxxopts::Options options(argv[0], opt.description.data());
+    options.positional_help(opt.positional_help.data()).show_positional_help();
 
     for (auto &arg : opt.bool_args) {
       options.add_options()(
