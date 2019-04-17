@@ -19,28 +19,38 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
-#include <tuple>
+
+typedef std::unordered_map<std::string, std::pair<std::string, std::string>>
+    map_string_args;
+typedef std::unordered_map<std::string, std::pair<int, std::string>>
+    map_int_args;
+typedef std::unordered_map<std::string, std::pair<bool, std::string>>
+    map_bool_args;
 
 /// Interface to get argument options
 class ICliArgsGetter {
+protected:
+  virtual ~ICliArgsGetter() {}
 
 public:
-	ICliArgsGetter() {}
-	virtual ~ICliArgsGetter() {}
-
-  virtual int get_arg(const char *name, int def) = 0;
-  virtual std::string get_arg(const char *name, const std::string &def) = 0;
-  virtual bool get_arg(const char *name, bool def) = 0;
+  virtual int parse(int argc, char **argv) = 0;
+  virtual int init(std::string_view program_name,
+                   std::string_view program_description) = 0;
+  virtual int get_arg(std::string_view name, int def) const = 0;
+  virtual std::string get_arg(std::string_view name,
+                              const std::string &def) const = 0;
+  virtual bool get_arg(std::string_view name, bool def) const = 0;
 };
 
 typedef struct _Options {
   /// Option name, {option value, option help text}
-  std::unordered_map<std::string, std::pair<std::string, std::string>> str_args;
-  std::unordered_map<std::string, std::pair<int, std::string>> int_args;
-  std::unordered_map<std::string, std::pair<bool, std::string>> bool_args;
+  map_string_args str_args;
+  map_int_args int_args;
+  map_bool_args bool_args;
 
   /// Storage for poitional args
   std::tuple<std::string, std::vector<std::string>, std::string> pos_arg;
@@ -48,8 +58,8 @@ typedef struct _Options {
   const char *description = "gnvim - GUI for neovim";
   const char *positional_help = "[optional args]";
   /// Contains information to show when using -h
-	std::string help;
-	// TODO- Create a version string
+  std::string help;
+  // TODO- Create a version string
 
   _Options() {
     str_args = {{"n,nvim", {"nvim", "nvim executable path"}}};
@@ -71,11 +81,12 @@ public:
   CliArgs() {}
   virtual ~CliArgs() {}
 
-  void init(ICliArgsGetter &getter);
-  virtual int get_arg(const char *name, int def) final;
-  virtual std::string get_arg(const char *name, const std::string &def) final;
-  virtual bool get_arg(const char *name, bool def) final;
-	const std::vector<std::string>& get_positional_arg();
+  // void init(ICliArgsGetter &getter);
+  int get_arg(std::string_view name, int def) const override;
+  std::string get_arg(std::string_view name,
+                              const std::string &def) const override;
+  bool get_arg(std::string_view name, bool def) const override;
+  const std::vector<std::string> &get_positional_arg();
 };
 
 /// Implementation that parses options and makes them available
