@@ -38,19 +38,16 @@ class CliArgsGetter <<Interface>> {
 	virtual string get_arg(string name);
 }
 
-class CliArgs {
+class CliArgs<<cxxopts>> {
 
-}
-
-class gflags <<Implementation>> {
 }
 
 Application *-- ProcessHandler : has
 Application *-- CliArgs : has
 Application *-- SFML_Windows : has
 Application *-- Nvim : has
-CliArgsGetter --|> gflags
-CliArgs --> Options : Has
+CliArgs --|> CliArgsGetter
+CliArgs *-- Options : Has
 IProcessHandler --|> reproc
 ProcessHandler --> IProcessHandler : Gets
 
