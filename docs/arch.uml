@@ -50,7 +50,7 @@ Application *-- CliArgs : has
 Application *-- SFML_Windows : has
 Application *-- Nvim : has
 CliArgsGetter --|> gflags
-CliArgs --> CliArgsGetter : Gets
+CliArgs --> Options : Has
 IProcessHandler --|> reproc
 ProcessHandler --> IProcessHandler : Gets
 
