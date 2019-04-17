@@ -33,13 +33,14 @@ class reproc <<Implementation>> {
 	int stop();
 }
 
-class CliArgsGetter <<Interface>> {
-	virtual int get_arg(string name);
-	virtual string get_arg(string name);
+class CliArgsGetter <<cxxopts>> {
 }
 
-class CliArgs<<cxxopts>> {
-
+class CliArgs<<interface>> {
+	virtual {string, int, bool} add_options(string name, string def);
+	int init(prog_name, prog_description);
+	int parse(argc, argv);
+	virtual {string, int, bool} get_arg(string name, string def);
 }
 
 Application *-- ProcessHandler : has
