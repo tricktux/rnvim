@@ -115,6 +115,7 @@ typedef struct _Options {
 /// Local interface to get options
 /// Provides abstraction from external libraries
 class CliArgs : public ICliArgsGetter {
+	Options options_def;
 public:
   CliArgs() {}
   virtual ~CliArgs() {}
@@ -129,6 +130,8 @@ public:
                       const std::string &def) const override;
   bool get_arg(std::string_view name, bool def) const override;
   const std::vector<std::string> &get_positional_arg();
+	std::string_view get_help() const override;
+	std::string_view get_version() const override;
 };
 
 /// Implementation that parses options and makes them available

@@ -23,23 +23,12 @@
 #include "cxxopts.hpp"
 #include "easylogging/easylogging++.h"
 
-static Options opt;
-
-// void CliArgs::init(ICliArgsGetter &getter) {
-  // for (auto &arg : opt.str_args)
-    // arg.second.first = getter.get_arg(arg.first.c_str(), arg.second.first);
-  // for (auto &arg : opt.int_args)
-    // arg.second.first = getter.get_arg(arg.first.c_str(), arg.second.first);
-  // for (auto &arg : opt.bool_args)
-    // arg.second.first = getter.get_arg(arg.first.c_str(), arg.second.first);
-// }
-
 int cli::CliArgs::get_arg(std::string_view name, int def) const {
 	if (name.empty())
 		return def;
 
-  const auto &search = opt.int_args.find(name.data());
-  if (search == opt.int_args.end())
+  const auto &search = options_def.int_args.find(name.data());
+  if (search == options_def.int_args.end())
     return def;
 
   return search->second.first;
@@ -49,8 +38,8 @@ std::string cli::CliArgs::get_arg(std::string_view name,
 	if (name.empty())
 		return def;
 
-  const auto &search = opt.str_args.find(name.data());
-  if (search == opt.str_args.end())
+  const auto &search = options_def.str_args.find(name.data());
+  if (search == options_def.str_args.end())
     return def;
 
   return search->second.first;
@@ -59,18 +48,17 @@ bool cli::CliArgs::get_arg(std::string_view name, bool def) const {
 	if (name.empty())
 		return def;
 
-  const auto &search = opt.bool_args.find(name.data());
-  if (search == opt.bool_args.end())
+  const auto &search = options_def.bool_args.find(name.data());
+  if (search == options_def.bool_args.end())
     return def;
 
   return search->second.first;
 }
 const std::vector<std::string> &cli::CliArgs::get_positional_arg() {
-  return std::get<1>(opt.pos_arg);
+  return std::get<1>(options_def.pos_arg);
 }
 
 /// @brief Parse program arguments
-/// Results are stored in the static Options opt
 /// They are then shared with @cli::CliArgs which you can query
 /// @param argc
 /// @param argv
