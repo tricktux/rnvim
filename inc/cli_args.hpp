@@ -64,8 +64,7 @@ constexpr std::string_view BOOL_ARG_VERSION_DESCRIPTION =
     "Print version information";
 constexpr std::string_view STR_POS_ARG = "position";
 const std::vector<std::string> STR_POS_ARG_DEFAULT = {};
-constexpr std::string_view STR_POS_ARG_DESCRIPTION =
-	"List of files to open";
+constexpr std::string_view STR_POS_ARG_DESCRIPTION = "List of files to open";
 
 /// Interface to get argument options
 class ICliArgsGetter {
@@ -81,6 +80,8 @@ public:
   virtual std::string get_arg(std::string_view name,
                               const std::string &def) const = 0;
   virtual bool get_arg(std::string_view name, bool def) const = 0;
+	virtual std::string_view get_help() const = 0;
+	virtual std::string_view get_version() const = 0;
 };
 
 typedef struct _Options {
@@ -92,8 +93,6 @@ typedef struct _Options {
   /// Storage for poitional args
   app::tuple_positional_args pos_arg;
 
-  // std::string_view description = "gnvim - GUI for neovim";
-  // std::string_view positional_help =
   /// Contains information to show when using -h
   std::string help;
   // TODO- Create a version string
@@ -110,7 +109,7 @@ typedef struct _Options {
               {BOOL_ARG_HELP_DEFAULT, BOOL_ARG_HELP_DESCRIPTION}},
              {BOOL_ARG_VERSION,
               {BOOL_ARG_VERSION_DEFAULT, BOOL_ARG_VERSION_DESCRIPTION}}}),
-				pos_arg({STR_POS_ARG, STR_POS_ARG_DEFAULT, STR_POS_ARG_DESCRIPTION}) {}
+        pos_arg({STR_POS_ARG, STR_POS_ARG_DEFAULT, STR_POS_ARG_DESCRIPTION}) {}
 } Options;
 
 /// Local interface to get options
