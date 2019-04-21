@@ -34,7 +34,7 @@ static Options opt;
     // arg.second.first = getter.get_arg(arg.first.c_str(), arg.second.first);
 // }
 
-int CliArgs::get_arg(std::string_view name, int def) const {
+int cli::CliArgs::get_arg(std::string_view name, int def) const {
 	if (name.empty())
 		return def;
 
@@ -44,7 +44,7 @@ int CliArgs::get_arg(std::string_view name, int def) const {
 
   return search->second.first;
 }
-std::string CliArgs::get_arg(std::string_view name,
+std::string cli::CliArgs::get_arg(std::string_view name,
                              const std::string &def) const {
 	if (name.empty())
 		return def;
@@ -55,7 +55,7 @@ std::string CliArgs::get_arg(std::string_view name,
 
   return search->second.first;
 }
-bool CliArgs::get_arg(std::string_view name, bool def) const {
+bool cli::CliArgs::get_arg(std::string_view name, bool def) const {
 	if (name.empty())
 		return def;
 
@@ -65,17 +65,17 @@ bool CliArgs::get_arg(std::string_view name, bool def) const {
 
   return search->second.first;
 }
-const std::vector<std::string> &CliArgs::get_positional_arg() {
+const std::vector<std::string> &cli::CliArgs::get_positional_arg() {
   return std::get<1>(opt.pos_arg);
 }
 
 /// @brief Parse program arguments
 /// Results are stored in the static Options opt
-/// They are then shared with @CliArgs which you can query
+/// They are then shared with @cli::CliArgs which you can query
 /// @param argc
 /// @param argv
 /// @return SUCCESS, or -100 in case of exception
-int CxxOptsArgs::init(int argc, char **argv) {
+int cli::CxxOptsArgs::init(int argc, char **argv) {
   try {
     cxxopts::Options options(argv[0], opt.description.data());
     options.positional_help(opt.positional_help.data()).show_positional_help();

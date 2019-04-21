@@ -24,24 +24,58 @@
 #include <utility>
 #include <vector>
 
-typedef std::unordered_map<std::string, std::pair<std::string, std::string>>
+namespace app {
+typedef std::unordered_map<std::string_view,
+                           std::pair<std::string, std::string_view>>
     map_string_args;
-typedef std::unordered_map<std::string, std::pair<int, std::string>>
+typedef std::unordered_map<std::string_view, std::pair<int, std::string_view>>
     map_int_args;
-typedef std::unordered_map<std::string, std::pair<bool, std::string>>
+typedef std::unordered_map<std::string_view, std::pair<bool, std::string_view>>
     map_bool_args;
-typedef std::tuple<std::string, std::vector<std::string>, std::string>
-		tuple_positional_args;
+typedef std::tuple<std::string_view, std::vector<std::string>, std::string_view>
+    tuple_positional_args;
+
+} // namespace app
+namespace cli {
+constexpr std::string_view PROGRAM_DESCRIPTION = "gnvim - GUI for neovim";
+constexpr std::string_view POSITIONAL_ARGS_HELP = "[optional args]";
+
+constexpr std::string_view STR_ARG_NVIM = "n,nvim";
+constexpr std::string_view STR_ARG_NVIM_DEFAULT = "nvim";
+constexpr std::string_view STR_ARG_NVIM_DESCRIPTION = "nvim executable path";
+
+constexpr std::string_view INT_ARG_TIMEOUT = "t,timeout";
+constexpr int INT_ARG_TIMEOUT_DEFAULT = 15;
+constexpr std::string_view INT_ARG_TIMEOUT_DESCRIPTION =
+    "Error if nvim does not responde after count seconds";
+
+constexpr std::string_view BOOL_ARG_MAXIMIZED = "m,maximized";
+constexpr bool BOOL_ARG_MAXIMIZED_DEFAULT = false;
+constexpr std::string_view BOOL_ARG_MAXIMIZED_DESCRIPTION =
+    "Maximize the window on startup";
+
+constexpr std::string_view BOOL_ARG_HELP = "h,help";
+constexpr bool BOOL_ARG_HELP_DEFAULT = false;
+constexpr std::string_view BOOL_ARG_HELP_DESCRIPTION = "Print this help";
+
+constexpr std::string_view BOOL_ARG_VERSION = "v,version";
+constexpr bool BOOL_ARG_VERSION_DEFAULT = false;
+constexpr std::string_view BOOL_ARG_VERSION_DESCRIPTION =
+    "Print version information";
+constexpr std::string_view STR_POS_ARG = "position";
+const std::vector<std::string> STR_POS_ARG_DEFAULT = {};
+constexpr std::string_view STR_POS_ARG_DESCRIPTION =
+	"List of files to open";
 
 /// Interface to get argument options
 class ICliArgsGetter {
 public:
-	virtual ~ICliArgsGetter() {}
-	virtual int init(std::string_view program_name,
-			std::string_view program_description) = 0;
-	virtual void add_options(const map_string_args &string_args) = 0;
-	virtual void add_options(const map_int_args &int_args) = 0;
-	virtual void add_options(const map_bool_args &bool_args) = 0;
+  virtual ~ICliArgsGetter() {}
+  virtual int init(std::string_view program_name,
+                   std::string_view program_description) = 0;
+  virtual void add_options(const app::map_string_args &string_args) = 0;
+  virtual void add_options(const app::map_int_args &int_args) = 0;
+  virtual void add_options(const app::map_bool_args &bool_args) = 0;
   virtual int parse_options(int argc, char **argv) = 0;
   virtual int get_arg(std::string_view name, int def) const = 0;
   virtual std::string get_arg(std::string_view name,
@@ -51,28 +85,32 @@ public:
 
 typedef struct _Options {
   /// Option name, {option value, option help text}
-  map_string_args str_args;
-  map_int_args int_args;
-  map_bool_args bool_args;
+  app::map_string_args str_args;
+  app::map_int_args int_args;
+  app::map_bool_args bool_args;
 
   /// Storage for poitional args
-  tuple_positional_args pos_arg;
+  app::tuple_positional_args pos_arg;
 
-	std::string_view description = "gnvim - GUI for neovim";
-  std::string_view positional_help = "[optional args]";
+  // std::string_view description = "gnvim - GUI for neovim";
+  // std::string_view positional_help =
   /// Contains information to show when using -h
   std::string help;
   // TODO- Create a version string
 
-  _Options():
-    str_args({{"n,nvim", {"nvim", "nvim executable path"}}}),
-    int_args({{"t,timeout",
-                 {15, "Error if nvim does not responde after count seconds"}}}),
-		bool_args({{"m,maximized", {false, "Maximize the window on startup"}},
-				{"h,help", {false, "Print this help"}},
-				{"v,version", {false, "Print version information"}}}),
-    pos_arg({"positional", {}, "List of files to open"})
-		{}
+  _Options()
+      : str_args({{STR_ARG_NVIM,
+                   {STR_ARG_NVIM_DEFAULT.data(), STR_ARG_NVIM_DESCRIPTION}}}),
+        int_args({{INT_ARG_TIMEOUT,
+                   {INT_ARG_TIMEOUT_DEFAULT, INT_ARG_TIMEOUT_DESCRIPTION}}}),
+        bool_args(
+            {{BOOL_ARG_MAXIMIZED,
+              {BOOL_ARG_MAXIMIZED_DEFAULT, BOOL_ARG_MAXIMIZED_DESCRIPTION}},
+             {BOOL_ARG_HELP,
+              {BOOL_ARG_HELP_DEFAULT, BOOL_ARG_HELP_DESCRIPTION}},
+             {BOOL_ARG_VERSION,
+              {BOOL_ARG_VERSION_DEFAULT, BOOL_ARG_VERSION_DESCRIPTION}}}),
+				pos_arg({STR_POS_ARG, STR_POS_ARG_DEFAULT, STR_POS_ARG_DESCRIPTION}) {}
 } Options;
 
 /// Local interface to get options
@@ -82,20 +120,20 @@ public:
   CliArgs() {}
   virtual ~CliArgs() {}
 
-	int init(std::string_view program_name,
-			std::string_view program_description) override;
-	void add_options(const map_string_args &string_args) override;
-	void add_options(const map_int_args &int_args) override;
-	void add_options(const map_bool_args &bool_args) override;
+  int init(std::string_view program_name,
+           std::string_view program_description) override;
+  void add_options(const app::map_string_args &string_args) override;
+  void add_options(const app::map_int_args &int_args) override;
+  void add_options(const app::map_bool_args &bool_args) override;
   int get_arg(std::string_view name, int def) const override;
   std::string get_arg(std::string_view name,
-                              const std::string &def) const override;
+                      const std::string &def) const override;
   bool get_arg(std::string_view name, bool def) const override;
   const std::vector<std::string> &get_positional_arg();
 };
 
 /// Implementation that parses options and makes them available
-// TODO-[RM]-(Wed Apr 17 2019 15:29):  
+// TODO-[RM]-(Wed Apr 17 2019 15:29):
 // Get rid of this
 class CxxOptsArgs {
 
@@ -105,3 +143,4 @@ public:
 
   int init(int argc, char **argv);
 };
+} // namespace cli
