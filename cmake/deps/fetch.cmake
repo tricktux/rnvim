@@ -13,7 +13,7 @@ FetchContent_Declare(
 FetchContent_Declare(
 		reproc
 		GIT_REPOSITORY https://github.com/DaanDeMeyer/reproc
-		GIT_TAG        v5.0.0
+		GIT_TAG        v6.0.0
 	)
 
 FetchContent_MakeAvailable(cxxopts)
