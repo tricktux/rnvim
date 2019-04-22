@@ -47,7 +47,7 @@ constexpr std::string_view PROGRAM_VERSION = "gnvim - GUI for neovim\nv0.0.1";
 constexpr std::string_view STR_ARG_NVIM_OPTS = "a,nvim_args";
 constexpr std::string_view STR_ARG_NVIM_OPTS_DEFAULT = "";
 constexpr std::string_view STR_ARG_NVIM_OPTS_DESCRIPTION =
-    "options to pass to neovim";
+    "Options to pass to neovim";
 
 constexpr std::string_view STR_ARG_NVIM = "n,nvim";
 constexpr std::string_view STR_ARG_NVIM_DEFAULT = "nvim";
@@ -94,6 +94,7 @@ public:
 };
 
 class Options {
+public:
   /// Option name, {option value, option help text}
   app::map_string_args str_args;
   app::map_int_args int_args;
@@ -103,7 +104,6 @@ class Options {
   /// Option name, storage for values, description, help
   app::tuple_positional_args pos_arg;
 
-public:
   /// Contains information to show when using -h
   Options()
       : str_args({{STR_ARG_NVIM,
@@ -130,9 +130,14 @@ public:
 	}
 
   std::string_view get_version() const { return PROGRAM_VERSION; };
+
+	// TODO = not really used
   void set_arg(std::string_view name, int val);
   void set_arg(std::string_view name, std::string_view val);
   void set_arg(std::string_view name, bool val);
+	void set_pos_arg(const std::vector<std::string> &val) {
+		std::get<1>(pos_arg) = val;
+	}
 
 };
 
@@ -156,19 +161,9 @@ public:
   void add_options(app::map_int_args &int_args) override;
   void add_options(app::map_bool_args &bool_args) override;
   void add_pos_options(app::tuple_positional_args &pos_arg) override;
-  cxxopts::ParseResult&& parse_options(int argc, char **argv);
   std::string_view get_help() const override { return opt.help(); }
+
+	int parse_and_save_options(int argc, char **argv, Options &opt_save);
 };
 
-/// Implementation that parses options and makes them available
-// TODO-[RM]-(Wed Apr 17 2019 15:29):
-// Get rid of this
-// class CxxOptsArgs {
-
-// public:
-// CxxOptsArgs() {}
-// virtual ~CxxOptsArgs() {}
-
-// int init(int argc, char **argv);
-// };
 } // namespace cli
