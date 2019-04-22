@@ -18,6 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "cxxopts.hpp"
+
 #include <string>
 #include <tuple>
 #include <unordered_map>
@@ -75,13 +77,14 @@ public:
   virtual void add_options(const app::map_string_args &string_args) = 0;
   virtual void add_options(const app::map_int_args &int_args) = 0;
   virtual void add_options(const app::map_bool_args &bool_args) = 0;
+	virtual void add_pos_options(const app::tuple_positional_args &pos_arg) = 0;
   virtual int parse_options(int argc, char **argv) = 0;
   virtual int get_arg(std::string_view name, int def) const = 0;
   virtual std::string get_arg(std::string_view name,
                               const std::string &def) const = 0;
   virtual bool get_arg(std::string_view name, bool def) const = 0;
-	virtual std::string_view get_help() const = 0;
-	virtual std::string_view get_version() const = 0;
+  virtual std::string_view get_help() const = 0;
+  virtual std::string_view get_version() const = 0;
 };
 
 typedef struct _Options {
@@ -115,9 +118,14 @@ typedef struct _Options {
 /// Local interface to get options
 /// Provides abstraction from external libraries
 class CliArgs : public ICliArgsGetter {
-	Options options_def;
+  /// There can be only one positional argument per program design
+	std::string_view pos_arg;
+  Options options_def;
+  cxxopts::Options opt;
+
 public:
-  CliArgs() {}
+  CliArgs(std::string_view program_name, std::string_view program_description)
+      : options_def(), opt(program_name.data(), program_description.data()) {}
   virtual ~CliArgs() {}
 
   int init(std::string_view program_name,
@@ -125,13 +133,14 @@ public:
   void add_options(const app::map_string_args &string_args) override;
   void add_options(const app::map_int_args &int_args) override;
   void add_options(const app::map_bool_args &bool_args) override;
+	void add_pos_options(const app::tuple_positional_args &pos_arg) override;
   int get_arg(std::string_view name, int def) const override;
   std::string get_arg(std::string_view name,
                       const std::string &def) const override;
   bool get_arg(std::string_view name, bool def) const override;
   const std::vector<std::string> &get_positional_arg();
-	std::string_view get_help() const override;
-	std::string_view get_version() const override;
+  std::string_view get_help() const override;
+  std::string_view get_version() const override;
 };
 
 /// Implementation that parses options and makes them available
