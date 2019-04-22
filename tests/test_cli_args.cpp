@@ -26,33 +26,43 @@
 INITIALIZE_EASYLOGGINGPP
 
 TEST(cxxopts_args, loading) {
-	const char *argv[] = {"gnvim",  "-n",           "/usr/bin/nvim", "--maximized",
-		"--help", "--timeout=13", "file2.cpp",     "filee3.h"};
+  const char *argv[] = {"gnvim",       "-n",      "/usr/bin/nvim",
+                        "--maximized", "--help",  "--timeout=13",
+                        "file2.cpp",   "filee3.h"};
 
-	int argc = sizeof(argv) / sizeof(char *);
-	char **argv_ = new char *[argc];
-	for (int k = 0; k < argc; k++) {
-		argv_[k] = new char[32];
-		std::strncpy(argv_[k], argv[k], 32);
-	}
+  int argc = sizeof(argv) / sizeof(char *);
+  char **argv_ = new char *[argc];
+  for (int k = 0; k < argc; k++) {
+    argv_[k] = new char[32];
+    std::strncpy(argv_[k], argv[k], 32);
+  }
 
-	cli::CliArgs args("gnvim", "BEST SOFTWARE EVER");
-	std::string opt = args.get_arg("n,nvim", std::string());
-	ASSERT_EQ(argv[2], opt);
-	const std::vector<std::string> &pos = args.get_positional_arg();
-	ASSERT_EQ(pos.size(), 2);
-	for (int k = 6; k < argc; k++) {
-		ASSERT_EQ(argv[k], pos[k - 6]);
-	}
-	bool max = args.get_arg("m,maximized", false);
-	ASSERT_EQ(max, true);
-	int t = args.get_arg("t,timeout", 0);
-	ASSERT_EQ(t, 13);
+	cli::Options opt;
+  cli::CliArgs args(cli::PROGRAM_NAME, cli::PROGRAM_DESCRIPTION);
 
-	std::cout << args.get_help() << std::endl;
+  args.add_options(opt.bool_args);
+  args.add_options(opt.str_args);
+  args.add_options(opt.int_args);
+  args.add_pos_options(opt.pos_arg);
+  std::cout << args.get_help() << std::endl;
 
-	for (int k = 0; k < argc; k++) {
-		delete[] argv_[k];
-	}
-	delete[] argv_;
+  ASSERT_EQ(args.parse_and_save_options(argc, argv_, opt), 0);
+  std::string nvim = opt.get_arg("n,nvim", std::string());
+  ASSERT_EQ(argv[2], nvim);
+  const std::vector<std::string> &pos = opt.get_pos_arg();
+  ASSERT_EQ(pos.size(), 2);
+  for (int k = 6; k < argc; k++) {
+    ASSERT_EQ(argv[k], pos[k - 6]);
+  }
+  bool max = opt.get_arg("m,maximized", false);
+  ASSERT_EQ(max, true);
+  int t = opt.get_arg("t,timeout", 0);
+  ASSERT_EQ(t, 13);
+
+  std::cout << args.get_help() << std::endl;
+
+  for (int k = 0; k < argc; k++) {
+    delete[] argv_[k];
+  }
+  delete[] argv_;
 }
