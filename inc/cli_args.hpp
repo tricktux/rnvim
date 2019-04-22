@@ -34,13 +34,13 @@ typedef std::unordered_map<std::string_view, std::pair<int, std::string_view>>
     map_int_args;
 typedef std::unordered_map<std::string_view, std::pair<bool, std::string_view>>
     map_bool_args;
-typedef std::tuple<std::string_view, std::vector<std::string>, std::string_view>
+typedef std::tuple<std::string_view, std::vector<std::string>, std::string_view,
+				std::string_view>
     tuple_positional_args;
 
 } // namespace app
 namespace cli {
 constexpr std::string_view PROGRAM_DESCRIPTION = "gnvim - GUI for neovim";
-constexpr std::string_view POSITIONAL_ARGS_HELP = "[optional args]";
 
 constexpr std::string_view STR_ARG_NVIM = "n,nvim";
 constexpr std::string_view STR_ARG_NVIM_DEFAULT = "nvim";
@@ -64,9 +64,10 @@ constexpr std::string_view BOOL_ARG_VERSION = "v,version";
 constexpr bool BOOL_ARG_VERSION_DEFAULT = false;
 constexpr std::string_view BOOL_ARG_VERSION_DESCRIPTION =
     "Print version information";
-constexpr std::string_view STR_POS_ARG = "position";
+constexpr std::string_view STR_POS_ARG = "files";
 const std::vector<std::string> STR_POS_ARG_DEFAULT = {};
 constexpr std::string_view STR_POS_ARG_DESCRIPTION = "List of files to open";
+constexpr std::string_view STR_POS_ARG_HELP = "[optional list of files]";
 
 /// Interface to get argument options
 class ICliArgsGetter {
@@ -94,6 +95,7 @@ typedef struct _Options {
   app::map_bool_args bool_args;
 
   /// Storage for poitional args
+	/// Option name, storage for values, description, help
   app::tuple_positional_args pos_arg;
 
   /// Contains information to show when using -h
@@ -128,8 +130,6 @@ public:
       : options_def(), opt(program_name.data(), program_description.data()) {}
   virtual ~CliArgs() {}
 
-  int init(std::string_view program_name,
-           std::string_view program_description) override;
   void add_options(const app::map_string_args &string_args) override;
   void add_options(const app::map_int_args &int_args) override;
   void add_options(const app::map_bool_args &bool_args) override;
