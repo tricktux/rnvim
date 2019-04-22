@@ -26,26 +26,94 @@
 #include "cxxopts.hpp"
 #include "easylogging/easylogging++.h"
 
+int cli::CliArgs::parse_options(int argc, char **argv) {
+  try {
+
+		return SUCCESS;
+  } catch (const cxxopts::OptionException &excep) {
+    DLOG(ERROR) << "[" << __FUNCTION__
+                << "]: Error parsing options: " << excep.what();
+    return -100;
+  }
+}
+
+/// @brief Adds argument of type positional
+/// Also adds the positional help, enables library to show the positional help
+/// and saves argument name to be used in parse function
+/// @param pos_arg - Tuple that contains, name, default, description and help
+/// @see @tuple_positional_args
+void cli::CliArgs::add_pos_options(app::tuple_positional_args &pos_arg) {
+  if (std::get<0>(pos_arg).empty()) {
+    DLOG(WARNING) << "[" << __FUNCTION__ << "]: Empty key";
+    return;
+  }
+
+  opt.add_options()(
+      std::get<0>(pos_arg).data(), std::get<2>(pos_arg).data(),
+      cxxopts::value<std::vector<std::string>>(std::get<1>(pos_arg)));
+
+  opt.positional_help(std::get<3>(pos_arg).data());
+  opt.show_positional_help();
+
+  // Copy title of positional arg to be added during parse
+  this->pos_arg = std::get<0>(pos_arg);
+}
+
+void cli::CliArgs::add_options(app::map_bool_args &bool_args) {
+  if (bool_args.empty()) {
+    DLOG(WARNING) << "[" << __FUNCTION__ << "]: Empty map of options detected";
+    return;
+  }
+
+  for (auto &arg : bool_args) {
+    if (arg.first.empty()) {
+      DLOG(WARNING) << "[" << __FUNCTION__ << "]: Empty option name detected";
+      continue;
+    }
+
+    opt.add_options()(
+        arg.first.data(), arg.second.second.data(),
+        cxxopts::value<bool>(arg.second.first)->implicit_value("true"));
+  }
+}
+
+void cli::CliArgs::add_options(app::map_int_args &int_args) {
+  if (int_args.empty()) {
+    DLOG(WARNING) << "[" << __FUNCTION__ << "]: Empty map of options detected";
+    return;
+  }
+
+  for (auto &arg : int_args) {
+    if (arg.first.empty()) {
+      DLOG(WARNING) << "[" << __FUNCTION__ << "]: Empty option name detected";
+      continue;
+    }
+
+    opt.add_options()(arg.first.data(), arg.second.second.data(),
+                      cxxopts::value<int>(arg.second.first));
+  }
+}
+
 void cli::CliArgs::add_options(app::map_string_args &string_args) {
-	if (string_args.empty()) {
-		DLOG(WARNING) << "["<< __FUNCTION__ << "]: Empty map of options detected";
-		return;
-	}
+  if (string_args.empty()) {
+    DLOG(WARNING) << "[" << __FUNCTION__ << "]: Empty map of options detected";
+    return;
+  }
 
-	for (auto &arg : string_args) {
-		if (arg.first.empty()) {
-			DLOG(WARNING) << "["<< __FUNCTION__ << "]: Empty option name detected";
-			continue;
-		}
+  for (auto &arg : string_args) {
+    if (arg.first.empty()) {
+      DLOG(WARNING) << "[" << __FUNCTION__ << "]: Empty option name detected";
+      continue;
+    }
 
-		opt.add_options()(arg.first.data(), arg.second.second.data(),
-				cxxopts::value<std::string>(arg.second.first));
-	}
+    opt.add_options()(arg.first.data(), arg.second.second.data(),
+                      cxxopts::value<std::string>(arg.second.first));
+  }
 }
 
 int cli::CliArgs::get_arg(std::string_view name, int def) const {
-	if (name.empty())
-		return def;
+  if (name.empty())
+    return def;
 
   const auto &search = options_def.int_args.find(name.data());
   if (search == options_def.int_args.end())
@@ -54,9 +122,9 @@ int cli::CliArgs::get_arg(std::string_view name, int def) const {
   return search->second.first;
 }
 std::string cli::CliArgs::get_arg(std::string_view name,
-                             const std::string &def) const {
-	if (name.empty())
-		return def;
+                                  const std::string &def) const {
+  if (name.empty())
+    return def;
 
   const auto &search = options_def.str_args.find(name.data());
   if (search == options_def.str_args.end())
@@ -65,8 +133,8 @@ std::string cli::CliArgs::get_arg(std::string_view name,
   return search->second.first;
 }
 bool cli::CliArgs::get_arg(std::string_view name, bool def) const {
-	if (name.empty())
-		return def;
+  if (name.empty())
+    return def;
 
   const auto &search = options_def.bool_args.find(name.data());
   if (search == options_def.bool_args.end())
@@ -84,38 +152,38 @@ const std::vector<std::string> &cli::CliArgs::get_positional_arg() {
 /// @param argv
 /// @return SUCCESS, or -100 in case of exception
 // int cli::CxxOptsArgs::init(int argc, char **argv) {
-  // try {
-    // cxxopts::Options options(argv[0], opt.description.data());
-    // options.positional_help(opt.positional_help.data()).show_positional_help();
+// try {
+// cxxopts::Options options(argv[0], opt.description.data());
+// options.positional_help(opt.positional_help.data()).show_positional_help();
 
-    // for (auto &arg : opt.bool_args) {
-      // options.add_options()(
-          // arg.first, arg.second.second,
-          // cxxopts::value<bool>(arg.second.first)->implicit_value("true"));
-    // }
-    // for (auto &arg : opt.int_args) {
-      // options.add_options()(arg.first, arg.second.second,
-                            // cxxopts::value<int>(arg.second.first));
-    // }
-    // for (auto &arg : opt.str_args) {
-      // options.add_options()(arg.first, arg.second.second,
-                            // cxxopts::value<std::string>(arg.second.first));
-    // }
+// for (auto &arg : opt.bool_args) {
+// options.add_options()(
+// arg.first, arg.second.second,
+// cxxopts::value<bool>(arg.second.first)->implicit_value("true"));
+// }
+// for (auto &arg : opt.int_args) {
+// options.add_options()(arg.first, arg.second.second,
+// cxxopts::value<int>(arg.second.first));
+// }
+// for (auto &arg : opt.str_args) {
+// options.add_options()(arg.first, arg.second.second,
+// cxxopts::value<std::string>(arg.second.first));
+// }
 
-    // // Add positional option
-    // options.add_options()(
-        // std::get<0>(opt.pos_arg), std::get<2>(opt.pos_arg),
-        // cxxopts::value<std::vector<std::string>>(std::get<1>(opt.pos_arg)));
-    // // Get positional option
-    // options.parse_positional(std::get<0>(opt.pos_arg));
-    // auto result = options.parse(argc, argv);
-    // // Get help string
-    // opt.help = options.help();
+// // Add positional option
+// options.add_options()(
+// std::get<0>(opt.pos_arg), std::get<2>(opt.pos_arg),
+// cxxopts::value<std::vector<std::string>>(std::get<1>(opt.pos_arg)));
+// // Get positional option
+// options.parse_positional(std::get<0>(opt.pos_arg));
+// auto result = options.parse(argc, argv);
+// // Get help string
+// opt.help = options.help();
 
-    // return SUCCESS;
-  // } catch (const cxxopts::OptionException &e) {
-    // DLOG(ERROR) << "[" << __FUNCTION__
-                // << "]: Error parsing options: " << e.what();
-    // return -100;
-  // }
+// return SUCCESS;
+// } catch (const cxxopts::OptionException &e) {
+// DLOG(ERROR) << "[" << __FUNCTION__
+// << "]: Error parsing options: " << e.what();
+// return -100;
+// }
 // }

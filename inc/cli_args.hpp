@@ -40,6 +40,7 @@ typedef std::tuple<std::string_view, std::vector<std::string>, std::string_view,
 
 } // namespace app
 namespace cli {
+constexpr std::string_view PROGRAM_NAME = "gnvim";
 constexpr std::string_view PROGRAM_DESCRIPTION = "gnvim - GUI for neovim";
 
 constexpr std::string_view STR_ARG_NVIM_OPTS = "-";
@@ -81,7 +82,7 @@ public:
   virtual void add_options(app::map_string_args &string_args) = 0;
   virtual void add_options(app::map_int_args &int_args) = 0;
   virtual void add_options(app::map_bool_args &bool_args) = 0;
-  virtual void add_pos_options(const app::tuple_positional_args &pos_arg) = 0;
+  virtual void add_pos_options(app::tuple_positional_args &pos_arg) = 0;
   virtual int parse_options(int argc, char **argv) = 0;
   virtual int get_arg(std::string_view name, int def) const = 0;
   virtual std::string get_arg(std::string_view name,
@@ -140,8 +141,9 @@ public:
   void add_options(app::map_string_args &string_args) override;
   void add_options(app::map_int_args &int_args) override;
   void add_options(app::map_bool_args &bool_args) override;
-  void add_pos_options(const app::tuple_positional_args &pos_arg) override;
+  void add_pos_options(app::tuple_positional_args &pos_arg) override;
   int get_arg(std::string_view name, int def) const override;
+	int parse_options(int argc, char **argv) override;
   std::string get_arg(std::string_view name,
                       const std::string &def) const override;
   bool get_arg(std::string_view name, bool def) const override;
