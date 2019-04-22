@@ -125,7 +125,7 @@ public:
   int get_arg(std::string_view name, int def) const;
   std::string get_arg(std::string_view name, const std::string &def) const;
   bool get_arg(std::string_view name, bool def) const;
-	const std::vector<std::string>& get_positional_arg() {
+	const std::vector<std::string>& get_pos_arg() {
 		return std::get<1>(pos_arg);
 	}
 
