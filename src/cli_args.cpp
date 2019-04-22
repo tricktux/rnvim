@@ -18,10 +18,30 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <string>
+#include <vector>
+
 #include "cli_args.hpp"
 #include "common.hpp"
 #include "cxxopts.hpp"
 #include "easylogging/easylogging++.h"
+
+void cli::CliArgs::add_options(app::map_string_args &string_args) {
+	if (string_args.empty()) {
+		DLOG(WARNING) << "["<< __FUNCTION__ << "]: Empty map of options detected";
+		return;
+	}
+
+	for (auto &arg : string_args) {
+		if (arg.first.empty()) {
+			DLOG(WARNING) << "["<< __FUNCTION__ << "]: Empty option name detected";
+			continue;
+		}
+
+		opt.add_options()(arg.first.data(), arg.second.second.data(),
+				cxxopts::value<std::string>(arg.second.first));
+	}
+}
 
 int cli::CliArgs::get_arg(std::string_view name, int def) const {
 	if (name.empty())
@@ -63,39 +83,39 @@ const std::vector<std::string> &cli::CliArgs::get_positional_arg() {
 /// @param argc
 /// @param argv
 /// @return SUCCESS, or -100 in case of exception
-int cli::CxxOptsArgs::init(int argc, char **argv) {
-  try {
-    cxxopts::Options options(argv[0], opt.description.data());
-    options.positional_help(opt.positional_help.data()).show_positional_help();
+// int cli::CxxOptsArgs::init(int argc, char **argv) {
+  // try {
+    // cxxopts::Options options(argv[0], opt.description.data());
+    // options.positional_help(opt.positional_help.data()).show_positional_help();
 
-    for (auto &arg : opt.bool_args) {
-      options.add_options()(
-          arg.first, arg.second.second,
-          cxxopts::value<bool>(arg.second.first)->implicit_value("true"));
-    }
-    for (auto &arg : opt.int_args) {
-      options.add_options()(arg.first, arg.second.second,
-                            cxxopts::value<int>(arg.second.first));
-    }
-    for (auto &arg : opt.str_args) {
-      options.add_options()(arg.first, arg.second.second,
-                            cxxopts::value<std::string>(arg.second.first));
-    }
+    // for (auto &arg : opt.bool_args) {
+      // options.add_options()(
+          // arg.first, arg.second.second,
+          // cxxopts::value<bool>(arg.second.first)->implicit_value("true"));
+    // }
+    // for (auto &arg : opt.int_args) {
+      // options.add_options()(arg.first, arg.second.second,
+                            // cxxopts::value<int>(arg.second.first));
+    // }
+    // for (auto &arg : opt.str_args) {
+      // options.add_options()(arg.first, arg.second.second,
+                            // cxxopts::value<std::string>(arg.second.first));
+    // }
 
-    // Add positional option
-    options.add_options()(
-        std::get<0>(opt.pos_arg), std::get<2>(opt.pos_arg),
-        cxxopts::value<std::vector<std::string>>(std::get<1>(opt.pos_arg)));
-    // Get positional option
-    options.parse_positional(std::get<0>(opt.pos_arg));
-    auto result = options.parse(argc, argv);
-    // Get help string
-    opt.help = options.help();
+    // // Add positional option
+    // options.add_options()(
+        // std::get<0>(opt.pos_arg), std::get<2>(opt.pos_arg),
+        // cxxopts::value<std::vector<std::string>>(std::get<1>(opt.pos_arg)));
+    // // Get positional option
+    // options.parse_positional(std::get<0>(opt.pos_arg));
+    // auto result = options.parse(argc, argv);
+    // // Get help string
+    // opt.help = options.help();
 
-    return SUCCESS;
-  } catch (const cxxopts::OptionException &e) {
-    DLOG(ERROR) << "[" << __FUNCTION__
-                << "]: Error parsing options: " << e.what();
-    return -100;
-  }
-}
+    // return SUCCESS;
+  // } catch (const cxxopts::OptionException &e) {
+    // DLOG(ERROR) << "[" << __FUNCTION__
+                // << "]: Error parsing options: " << e.what();
+    // return -100;
+  // }
+// }

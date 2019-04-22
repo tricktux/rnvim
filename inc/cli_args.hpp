@@ -78,9 +78,9 @@ constexpr std::string_view STR_POS_ARG_HELP = "[optional list of files]";
 class ICliArgsGetter {
 public:
   virtual ~ICliArgsGetter() {}
-  virtual void add_options(const app::map_string_args &string_args) = 0;
-  virtual void add_options(const app::map_int_args &int_args) = 0;
-  virtual void add_options(const app::map_bool_args &bool_args) = 0;
+  virtual void add_options(app::map_string_args &string_args) = 0;
+  virtual void add_options(app::map_int_args &int_args) = 0;
+  virtual void add_options(app::map_bool_args &bool_args) = 0;
   virtual void add_pos_options(const app::tuple_positional_args &pos_arg) = 0;
   virtual int parse_options(int argc, char **argv) = 0;
   virtual int get_arg(std::string_view name, int def) const = 0;
@@ -137,9 +137,9 @@ public:
       : options_def(), opt(program_name.data(), program_description.data()) {}
   virtual ~CliArgs() {}
 
-  void add_options(const app::map_string_args &string_args) override;
-  void add_options(const app::map_int_args &int_args) override;
-  void add_options(const app::map_bool_args &bool_args) override;
+  void add_options(app::map_string_args &string_args) override;
+  void add_options(app::map_int_args &int_args) override;
+  void add_options(app::map_bool_args &bool_args) override;
   void add_pos_options(const app::tuple_positional_args &pos_arg) override;
   int get_arg(std::string_view name, int def) const override;
   std::string get_arg(std::string_view name,
@@ -153,12 +153,12 @@ public:
 /// Implementation that parses options and makes them available
 // TODO-[RM]-(Wed Apr 17 2019 15:29):
 // Get rid of this
-class CxxOptsArgs {
+// class CxxOptsArgs {
 
-public:
-  CxxOptsArgs() {}
-  virtual ~CxxOptsArgs() {}
+// public:
+  // CxxOptsArgs() {}
+  // virtual ~CxxOptsArgs() {}
 
-  int init(int argc, char **argv);
-};
+  // int init(int argc, char **argv);
+// };
 } // namespace cli
