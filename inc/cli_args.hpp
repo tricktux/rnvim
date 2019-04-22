@@ -126,17 +126,18 @@ typedef struct _Options {
                  STR_POS_ARG_HELP}) {}
 } Options;
 
+static Options options_def;
+
 /// Local interface to get options
 /// Provides abstraction from external libraries
 class CliArgs : public ICliArgsGetter {
 	/// There can be only one positional argument per program design
 	std::string_view pos_arg;
-	Options options_def;
 	cxxopts::Options opt;
 
 public:
   CliArgs(std::string_view program_name, std::string_view program_description)
-      : options_def(), opt(program_name.data(), program_description.data()) {}
+      : opt(program_name.data(), program_description.data()) {}
   virtual ~CliArgs() {}
 
   void add_options(app::map_string_args &string_args) override;
