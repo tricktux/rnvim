@@ -23,11 +23,6 @@
 #include "cxxopts.hpp"
 #include "easylogging/easylogging++.h"
 
-int cli::CliArgs::init(std::string_view program_name,
-		std::string_view program_description) {
-	return 18;
-}
-
 int cli::CliArgs::get_arg(std::string_view name, int def) const {
 	if (name.empty())
 		return def;

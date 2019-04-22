@@ -73,8 +73,6 @@ constexpr std::string_view STR_POS_ARG_HELP = "[optional list of files]";
 class ICliArgsGetter {
 public:
   virtual ~ICliArgsGetter() {}
-  virtual int init(std::string_view program_name,
-                   std::string_view program_description) = 0;
   virtual void add_options(const app::map_string_args &string_args) = 0;
   virtual void add_options(const app::map_int_args &int_args) = 0;
   virtual void add_options(const app::map_bool_args &bool_args) = 0;
