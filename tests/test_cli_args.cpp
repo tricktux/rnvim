@@ -37,16 +37,18 @@ TEST(cxxopts_args, loading) {
     std::strncpy(argv_[k], argv[k], 32);
   }
 
-	cli::Options opt;
-  cli::CliArgs args(cli::PROGRAM_NAME, cli::PROGRAM_DESCRIPTION);
+  cli::Options opt;
+	{
+		cli::CliArgs args(cli::PROGRAM_NAME, cli::PROGRAM_DESCRIPTION);
 
-  args.add_options(opt.bool_args);
-  args.add_options(opt.str_args);
-  args.add_options(opt.int_args);
-  args.add_pos_options(opt.pos_arg);
-  std::cout << args.get_help() << std::endl;
+		args.add_options(opt.bool_args);
+		args.add_options(opt.str_args);
+		args.add_options(opt.int_args);
+		args.add_pos_options(opt.pos_arg);
+		std::cout << args.get_help() << std::endl;
 
-  ASSERT_EQ(args.parse_and_save_options(argc, argv_, opt), 0);
+		ASSERT_EQ(args.parse_and_save_options(argc, argv_, opt), 0);
+	}
   std::string nvim = opt.get_arg("n,nvim", std::string());
   ASSERT_EQ(argv[2], nvim);
   const std::vector<std::string> &pos = opt.get_pos_arg();
@@ -58,8 +60,6 @@ TEST(cxxopts_args, loading) {
   ASSERT_EQ(max, true);
   int t = opt.get_arg("t,timeout", 0);
   ASSERT_EQ(t, 13);
-
-  std::cout << args.get_help() << std::endl;
 
   for (int k = 0; k < argc; k++) {
     delete[] argv_[k];
