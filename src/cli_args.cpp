@@ -20,28 +20,30 @@
 
 #include <string>
 #include <vector>
+#include <utility>
 
 #include "cli_args.hpp"
 #include "common.hpp"
 #include "cxxopts.hpp"
 #include "easylogging/easylogging++.h"
 
-int cli::CliArgs::parse_options(int argc, char **argv) {
+cxxopts::ParseResult&& cli::CliArgs::parse_options(int argc, char **argv) {
   try {
 
-		if (argc < 2) {
-			DLOG(INFO) << "[" << __FUNCTION__ << "]: No arguments. Yay!!";
-			return SUCCESS;
-		}
+		// if (argc < 2) {
+			// DLOG(INFO) << "[" << __FUNCTION__ << "]: No arguments. Yay!!";
+			// return SUCCESS;
+		// }
 
 		opt.parse_positional(pos_arg.data());
-		opt.parse(argc, argv);
+		return std::move(opt.parse(argc, argv));
 
-		return SUCCESS;
+
+		// return SUCCESS;
   } catch (const cxxopts::OptionException &excep) {
     DLOG(ERROR) << "[" << __FUNCTION__
                 << "]: Error parsing options: " << excep.what();
-    return -100;
+    // return -100;
   }
 }
 
@@ -119,39 +121,36 @@ void cli::CliArgs::add_options(app::map_string_args &string_args) {
   }
 }
 
-int cli::CliArgs::get_arg(std::string_view name, int def) const {
+int cli::Options::get_arg(std::string_view name, int def) const {
   if (name.empty())
     return def;
 
-  const auto &search = options_def.int_args.find(name.data());
-  if (search == options_def.int_args.end())
+  const auto &search = int_args.find(name.data());
+  if (search == int_args.end())
     return def;
 
   return search->second.first;
 }
-std::string cli::CliArgs::get_arg(std::string_view name,
+std::string cli::Options::get_arg(std::string_view name,
                                   const std::string &def) const {
   if (name.empty())
     return def;
 
-  const auto &search = options_def.str_args.find(name.data());
-  if (search == options_def.str_args.end())
+  const auto &search = str_args.find(name.data());
+  if (search == str_args.end())
     return def;
 
   return search->second.first;
 }
-bool cli::CliArgs::get_arg(std::string_view name, bool def) const {
+bool cli::Options::get_arg(std::string_view name, bool def) const {
   if (name.empty())
     return def;
 
-  const auto &search = options_def.bool_args.find(name.data());
-  if (search == options_def.bool_args.end())
+  const auto &search = bool_args.find(name.data());
+  if (search == bool_args.end())
     return def;
 
   return search->second.first;
-}
-const std::vector<std::string> &cli::CliArgs::get_positional_arg() {
-  return std::get<1>(options_def.pos_arg);
 }
 
 /// @brief Parse program arguments

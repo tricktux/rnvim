@@ -44,7 +44,7 @@ constexpr std::string_view PROGRAM_NAME = "gnvim";
 constexpr std::string_view PROGRAM_DESCRIPTION = "gnvim - GUI for neovim";
 constexpr std::string_view PROGRAM_VERSION = "gnvim - GUI for neovim\nv0.0.1";
 
-constexpr std::string_view STR_ARG_NVIM_OPTS = "-";
+constexpr std::string_view STR_ARG_NVIM_OPTS = "a,nvim_args";
 constexpr std::string_view STR_ARG_NVIM_OPTS_DEFAULT = "";
 constexpr std::string_view STR_ARG_NVIM_OPTS_DESCRIPTION =
     "options to pass to neovim";
@@ -84,16 +84,16 @@ public:
   virtual void add_options(app::map_int_args &int_args) = 0;
   virtual void add_options(app::map_bool_args &bool_args) = 0;
   virtual void add_pos_options(app::tuple_positional_args &pos_arg) = 0;
-  virtual int parse_options(int argc, char **argv) = 0;
-  virtual int get_arg(std::string_view name, int def) const = 0;
-  virtual std::string get_arg(std::string_view name,
-                              const std::string &def) const = 0;
-  virtual bool get_arg(std::string_view name, bool def) const = 0;
+  // virtual int parse_options(int argc, char **argv) = 0;
+  // virtual int get_arg(std::string_view name, int def) const = 0;
+  // virtual std::string get_arg(std::string_view name,
+  // const std::string &def) const = 0;
+  // virtual bool get_arg(std::string_view name, bool def) const = 0;
   virtual std::string_view get_help() const = 0;
-  virtual std::string_view get_version() const = 0;
+  // virtual std::string_view get_version() const = 0;
 };
 
-typedef struct _Options {
+class Options {
   /// Option name, {option value, option help text}
   app::map_string_args str_args;
   app::map_int_args int_args;
@@ -103,11 +103,9 @@ typedef struct _Options {
   /// Option name, storage for values, description, help
   app::tuple_positional_args pos_arg;
 
+public:
   /// Contains information to show when using -h
-  std::string help;
-  // TODO- Create a version string
-
-  _Options()
+  Options()
       : str_args({{STR_ARG_NVIM,
                    {STR_ARG_NVIM_DEFAULT.data(), STR_ARG_NVIM_DESCRIPTION}},
                   {STR_ARG_NVIM_OPTS,
@@ -124,16 +122,29 @@ typedef struct _Options {
               {BOOL_ARG_VERSION_DEFAULT, BOOL_ARG_VERSION_DESCRIPTION}}}),
         pos_arg({STR_POS_ARG, STR_POS_ARG_DEFAULT, STR_POS_ARG_DESCRIPTION,
                  STR_POS_ARG_HELP}) {}
-} Options;
+  int get_arg(std::string_view name, int def) const;
+  std::string get_arg(std::string_view name, const std::string &def) const;
+  bool get_arg(std::string_view name, bool def) const;
+	const std::vector<std::string>& get_positional_arg() {
+		return std::get<1>(pos_arg);
+	}
 
-static Options options_def;
+  std::string_view get_version() const { return PROGRAM_VERSION; };
+  void set_arg(std::string_view name, int val) const;
+  void set_arg(std::string_view name, std::string_view &val) const;
+  void set_arg(std::string_view name, bool val) const;
+
+};
+
+// TODO This must belong to app::
+// static Options options_def;
 
 /// Local interface to get options
 /// Provides abstraction from external libraries
 class CliArgs : public ICliArgsGetter {
-	/// There can be only one positional argument per program design
-	std::string_view pos_arg;
-	cxxopts::Options opt;
+  /// There can be only one positional argument per program design
+  std::string_view pos_arg;
+  cxxopts::Options opt;
 
 public:
   CliArgs(std::string_view program_name, std::string_view program_description)
@@ -144,14 +155,9 @@ public:
   void add_options(app::map_int_args &int_args) override;
   void add_options(app::map_bool_args &bool_args) override;
   void add_pos_options(app::tuple_positional_args &pos_arg) override;
-  int get_arg(std::string_view name, int def) const override;
-	int parse_options(int argc, char **argv) override;
-  std::string get_arg(std::string_view name,
-                      const std::string &def) const override;
-  bool get_arg(std::string_view name, bool def) const override;
+  cxxopts::ParseResult &&parse_options(int argc, char **argv);
   const std::vector<std::string> &get_positional_arg();
   std::string_view get_help() const override { return opt.help(); }
-  std::string_view get_version() const override { return PROGRAM_VERSION; };
 };
 
 /// Implementation that parses options and makes them available
@@ -160,9 +166,9 @@ public:
 // class CxxOptsArgs {
 
 // public:
-  // CxxOptsArgs() {}
-  // virtual ~CxxOptsArgs() {}
+// CxxOptsArgs() {}
+// virtual ~CxxOptsArgs() {}
 
-  // int init(int argc, char **argv);
+// int init(int argc, char **argv);
 // };
 } // namespace cli
