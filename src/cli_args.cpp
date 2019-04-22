@@ -29,6 +29,14 @@
 int cli::CliArgs::parse_options(int argc, char **argv) {
   try {
 
+		if (argc < 2) {
+			DLOG(INFO) << "[" << __FUNCTION__ << "]: No arguments. Yay!!";
+			return SUCCESS;
+		}
+
+		opt.parse_positional(pos_arg.data());
+		opt.parse(argc, argv);
+
 		return SUCCESS;
   } catch (const cxxopts::OptionException &excep) {
     DLOG(ERROR) << "[" << __FUNCTION__

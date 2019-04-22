@@ -42,6 +42,7 @@ typedef std::tuple<std::string_view, std::vector<std::string>, std::string_view,
 namespace cli {
 constexpr std::string_view PROGRAM_NAME = "gnvim";
 constexpr std::string_view PROGRAM_DESCRIPTION = "gnvim - GUI for neovim";
+constexpr std::string_view PROGRAM_VERSION = "gnvim - GUI for neovim\nv0.0.1";
 
 constexpr std::string_view STR_ARG_NVIM_OPTS = "-";
 constexpr std::string_view STR_ARG_NVIM_OPTS_DEFAULT = "";
@@ -128,10 +129,10 @@ typedef struct _Options {
 /// Local interface to get options
 /// Provides abstraction from external libraries
 class CliArgs : public ICliArgsGetter {
-  /// There can be only one positional argument per program design
-  std::string_view pos_arg;
-  Options options_def;
-  cxxopts::Options opt;
+	/// There can be only one positional argument per program design
+	std::string_view pos_arg;
+	Options options_def;
+	cxxopts::Options opt;
 
 public:
   CliArgs(std::string_view program_name, std::string_view program_description)
@@ -148,8 +149,8 @@ public:
                       const std::string &def) const override;
   bool get_arg(std::string_view name, bool def) const override;
   const std::vector<std::string> &get_positional_arg();
-  std::string_view get_help() const override;
-  std::string_view get_version() const override;
+  std::string_view get_help() const override { return opt.help(); }
+  std::string_view get_version() const override { return PROGRAM_VERSION; };
 };
 
 /// Implementation that parses options and makes them available

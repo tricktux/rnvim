@@ -36,10 +36,7 @@ TEST(cxxopts_args, loading) {
 		std::strncpy(argv_[k], argv[k], 32);
 	}
 
-	CxxOptsArgs parser;
-	parser.init(argc, argv_);
-
-	CliArgs args;
+	cli::CliArgs args("gnvim", "BEST SOFTWARE EVER");
 	std::string opt = args.get_arg("n,nvim", std::string());
 	ASSERT_EQ(argv[2], opt);
 	const std::vector<std::string> &pos = args.get_positional_arg();
@@ -51,6 +48,8 @@ TEST(cxxopts_args, loading) {
 	ASSERT_EQ(max, true);
 	int t = args.get_arg("t,timeout", 0);
 	ASSERT_EQ(t, 13);
+
+	std::cout << args.get_help() << std::endl;
 
 	for (int k = 0; k < argc; k++) {
 		delete[] argv_[k];
