@@ -142,6 +142,7 @@ std::string cli::Options::get_arg(std::string_view name,
 
   return search->second.first;
 }
+
 bool cli::Options::get_arg(std::string_view name, bool def) const {
   if (name.empty())
     return def;
@@ -153,6 +154,36 @@ bool cli::Options::get_arg(std::string_view name, bool def) const {
   return search->second.first;
 }
 
+void cli::Options::set_arg(std::string_view name, int val) {
+	if (name.empty())
+		return;
+
+	auto search = int_args.find(name.data());
+	if (search == int_args.end())
+		return;
+
+	search->second.first = val;
+}
+void cli::Options::set_arg(std::string_view name, std::string_view val) {
+	if (name.empty())
+		return;
+
+	auto search = str_args.find(name.data());
+	if (search == str_args.end())
+		return;
+
+	search->second.first = val;
+}
+void cli::Options::set_arg(std::string_view name, bool val) {
+	if (name.empty())
+		return;
+
+	auto search = bool_args.find(name.data());
+	if (search == bool_args.end())
+		return;
+
+	search->second.first = val;
+}
 /// @brief Parse program arguments
 /// They are then shared with @cli::CliArgs which you can query
 /// @param argc

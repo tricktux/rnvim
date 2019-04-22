@@ -130,9 +130,9 @@ public:
 	}
 
   std::string_view get_version() const { return PROGRAM_VERSION; };
-  void set_arg(std::string_view name, int val) const;
-  void set_arg(std::string_view name, std::string_view &val) const;
-  void set_arg(std::string_view name, bool val) const;
+  void set_arg(std::string_view name, int val);
+  void set_arg(std::string_view name, std::string_view val);
+  void set_arg(std::string_view name, bool val);
 
 };
 
@@ -151,12 +151,12 @@ public:
       : opt(program_name.data(), program_description.data()) {}
   virtual ~CliArgs() {}
 
+	// TODO remove the map_{}_args and just get the names and descriptions
   void add_options(app::map_string_args &string_args) override;
   void add_options(app::map_int_args &int_args) override;
   void add_options(app::map_bool_args &bool_args) override;
   void add_pos_options(app::tuple_positional_args &pos_arg) override;
-  cxxopts::ParseResult &&parse_options(int argc, char **argv);
-  const std::vector<std::string> &get_positional_arg();
+  cxxopts::ParseResult&& parse_options(int argc, char **argv);
   std::string_view get_help() const override { return opt.help(); }
 };
 
