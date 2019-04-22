@@ -35,12 +35,17 @@ typedef std::unordered_map<std::string_view, std::pair<int, std::string_view>>
 typedef std::unordered_map<std::string_view, std::pair<bool, std::string_view>>
     map_bool_args;
 typedef std::tuple<std::string_view, std::vector<std::string>, std::string_view,
-				std::string_view>
+                   std::string_view>
     tuple_positional_args;
 
 } // namespace app
 namespace cli {
 constexpr std::string_view PROGRAM_DESCRIPTION = "gnvim - GUI for neovim";
+
+constexpr std::string_view STR_ARG_NVIM_OPTS = "-";
+constexpr std::string_view STR_ARG_NVIM_OPTS_DEFAULT = "";
+constexpr std::string_view STR_ARG_NVIM_OPTS_DESCRIPTION =
+    "options to pass to neovim";
 
 constexpr std::string_view STR_ARG_NVIM = "n,nvim";
 constexpr std::string_view STR_ARG_NVIM_DEFAULT = "nvim";
@@ -76,7 +81,7 @@ public:
   virtual void add_options(const app::map_string_args &string_args) = 0;
   virtual void add_options(const app::map_int_args &int_args) = 0;
   virtual void add_options(const app::map_bool_args &bool_args) = 0;
-	virtual void add_pos_options(const app::tuple_positional_args &pos_arg) = 0;
+  virtual void add_pos_options(const app::tuple_positional_args &pos_arg) = 0;
   virtual int parse_options(int argc, char **argv) = 0;
   virtual int get_arg(std::string_view name, int def) const = 0;
   virtual std::string get_arg(std::string_view name,
@@ -93,7 +98,7 @@ typedef struct _Options {
   app::map_bool_args bool_args;
 
   /// Storage for poitional args
-	/// Option name, storage for values, description, help
+  /// Option name, storage for values, description, help
   app::tuple_positional_args pos_arg;
 
   /// Contains information to show when using -h
@@ -102,7 +107,10 @@ typedef struct _Options {
 
   _Options()
       : str_args({{STR_ARG_NVIM,
-                   {STR_ARG_NVIM_DEFAULT.data(), STR_ARG_NVIM_DESCRIPTION}}}),
+                   {STR_ARG_NVIM_DEFAULT.data(), STR_ARG_NVIM_DESCRIPTION}},
+                  {STR_ARG_NVIM_OPTS,
+                   {STR_ARG_NVIM_OPTS_DEFAULT.data(),
+                    STR_ARG_NVIM_OPTS_DESCRIPTION}}}),
         int_args({{INT_ARG_TIMEOUT,
                    {INT_ARG_TIMEOUT_DEFAULT, INT_ARG_TIMEOUT_DESCRIPTION}}}),
         bool_args(
@@ -112,14 +120,15 @@ typedef struct _Options {
               {BOOL_ARG_HELP_DEFAULT, BOOL_ARG_HELP_DESCRIPTION}},
              {BOOL_ARG_VERSION,
               {BOOL_ARG_VERSION_DEFAULT, BOOL_ARG_VERSION_DESCRIPTION}}}),
-        pos_arg({STR_POS_ARG, STR_POS_ARG_DEFAULT, STR_POS_ARG_DESCRIPTION}) {}
+        pos_arg({STR_POS_ARG, STR_POS_ARG_DEFAULT, STR_POS_ARG_DESCRIPTION,
+                 STR_POS_ARG_HELP}) {}
 } Options;
 
 /// Local interface to get options
 /// Provides abstraction from external libraries
 class CliArgs : public ICliArgsGetter {
   /// There can be only one positional argument per program design
-	std::string_view pos_arg;
+  std::string_view pos_arg;
   Options options_def;
   cxxopts::Options opt;
 
@@ -131,7 +140,7 @@ public:
   void add_options(const app::map_string_args &string_args) override;
   void add_options(const app::map_int_args &int_args) override;
   void add_options(const app::map_bool_args &bool_args) override;
-	void add_pos_options(const app::tuple_positional_args &pos_arg) override;
+  void add_pos_options(const app::tuple_positional_args &pos_arg) override;
   int get_arg(std::string_view name, int def) const override;
   std::string get_arg(std::string_view name,
                       const std::string &def) const override;
