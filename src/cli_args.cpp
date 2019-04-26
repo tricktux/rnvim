@@ -19,6 +19,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
+#include <variant>
 #include <utility>
 #include <vector>
 
@@ -49,23 +50,33 @@ int cli::CliArgs::parse(int argc, char **argv) {
 /// @brief Adds argument of type positional
 /// Also adds the positional help, enables library to show the positional help
 /// and saves argument name to be used in parse function
-/// @param pos_arg - Tuple that contains, name, default, description and help
+/// @param pos_argument - Tuple that contains, name, default, description and
+/// help
 /// @see @tuple_positional_args
-void cli::CliArgs::add_pos_options(app::tuple_positional_args &pos_arg) {
-  if (std::get<0>(pos_arg).empty()) {
+void cli::CliArgs::add_pos_options(app::tuple_positional_args &pos_argument) {
+	DLOG(INFO) << "[" << __FUNCTION__ << "]: called";
+
+  if (std::get<0>(pos_argument).empty()) {
     DLOG(WARNING) << "[" << __FUNCTION__ << "]: Empty key";
     return;
   }
 
-  opt.add_options()(
-      std::get<0>(pos_arg).data(), std::get<2>(pos_arg).data(),
-      cxxopts::value<std::vector<std::string>>(std::get<1>(pos_arg)));
+  DLOG(INFO) << "[" << __FUNCTION__ << "]: pos_argument[0]: '"
+             << std::get<0>(pos_argument) << "'\n"
+             << "\t" << std::get<1>(pos_argument) << "'\n"
+             << "\t" << std::get<2>(pos_argument) << "'\n"
+             << "\t" << std::get<3>(pos_argument);
 
-  // opt.positional_help(std::get<3>(pos_arg).data());
-  // opt.show_positional_help();
+  opt.add_options()(
+      std::get<0>(pos_argument).data(), std::get<2>(pos_argument).data(),
+      cxxopts::value<std::vector<std::string>>(std::get<1>(pos_argument)));
+
+  opt.positional_help(std::get<3>(pos_argument).data());
+  opt.show_positional_help();
 
   // Copy title of positional arg to be added during parse
-  this->pos_arg = std::get<0>(pos_arg);
+  pos_arg = std::get<0>(pos_argument);
+  DLOG(INFO) << "[" << __FUNCTION__ << "]: pos_arg: '" << pos_arg << "'";
 }
 
 void cli::CliArgs::add_options(app::map_bool_args &bool_args) {
@@ -100,7 +111,7 @@ void cli::CliArgs::add_options(app::map_int_args &int_args) {
 
     opt.add_options()(arg.first.data(), arg.second.second.data(),
                       cxxopts::value<int>(arg.second.first)
-											->default_value(std::to_string(arg.second.first)));
+                          ->default_value(std::to_string(arg.second.first)));
   }
 }
 

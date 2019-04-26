@@ -160,7 +160,7 @@ public:
   void add_options(app::map_string_args &string_args) override;
   void add_options(app::map_int_args &int_args) override;
   void add_options(app::map_bool_args &bool_args) override;
-  void add_pos_options(app::tuple_positional_args &pos_arg) override;
+  void add_pos_options(app::tuple_positional_args &pos_argument) override;
   std::string_view get_help() const override { return opt.help({""}); }
 
 	int parse(int argc, char **argv);
