@@ -18,6 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "cxxopts.hpp"
 #include "cli_args.hpp"
 #include <gtest/gtest.h>
 
@@ -38,8 +39,9 @@ TEST(cxxopts_args, loading) {
   }
 
   cli::Options opt;
-	{
+	// {
 		cli::CliArgs args(cli::PROGRAM_NAME, cli::PROGRAM_DESCRIPTION);
+		// cli::CliArgs args("cool program name", "cool program description");
 
 		args.add_options(opt.bool_args);
 		args.add_options(opt.str_args);
@@ -48,7 +50,7 @@ TEST(cxxopts_args, loading) {
 		std::cout << args.get_help() << std::endl;
 
 		ASSERT_EQ(args.parse(argc, argv_), 0);
-	}
+	// }
   std::string nvim = opt.get_arg("n,nvim", std::string());
   ASSERT_EQ(argv[2], nvim);
   const std::vector<std::string> &pos = opt.get_pos_arg();
@@ -67,4 +69,21 @@ TEST(cxxopts_args, loading) {
     delete[] argv_[k];
   }
   delete[] argv_;
+}
+
+TEST(cxxopts_args, new_version) {
+	std::string_view name = "example";
+	std::string_view desc = " - example command line options";
+	cxxopts::Options options(name.data(), desc.data());
+
+	options.add_options()
+		("a,apple", "an apple", cxxopts::value<bool>())
+		("b,bob", "Bob")
+		("t,true", "True", cxxopts::value<bool>()->default_value("true"));
+
+	options
+		.positional_help("[optional args]")
+		.show_positional_help();
+
+	std::cout << options.help() << std::endl;
 }

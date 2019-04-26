@@ -61,8 +61,8 @@ void cli::CliArgs::add_pos_options(app::tuple_positional_args &pos_arg) {
       std::get<0>(pos_arg).data(), std::get<2>(pos_arg).data(),
       cxxopts::value<std::vector<std::string>>(std::get<1>(pos_arg)));
 
-  opt.positional_help(std::get<3>(pos_arg).data());
-  opt.show_positional_help();
+  // opt.positional_help(std::get<3>(pos_arg).data());
+  // opt.show_positional_help();
 
   // Copy title of positional arg to be added during parse
   this->pos_arg = std::get<0>(pos_arg);
