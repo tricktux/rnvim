@@ -27,7 +27,7 @@
 #include "cxxopts.hpp"
 #include "easylogging/easylogging++.h"
 
-int cli::CliArgs::parse_and_save_options(int argc, char **argv) {
+int cli::CliArgs::parse(int argc, char **argv) {
   try {
 
     if (argc < 2) {

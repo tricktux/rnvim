@@ -47,7 +47,7 @@ TEST(cxxopts_args, loading) {
 		args.add_pos_options(opt.pos_arg);
 		std::cout << args.get_help() << std::endl;
 
-		ASSERT_EQ(args.parse_and_save_options(argc, argv_), 0);
+		ASSERT_EQ(args.parse(argc, argv_), 0);
 	}
   std::string nvim = opt.get_arg("n,nvim", std::string());
   ASSERT_EQ(argv[2], nvim);
