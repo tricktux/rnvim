@@ -27,8 +27,7 @@
 #include "cxxopts.hpp"
 #include "easylogging/easylogging++.h"
 
-int cli::CliArgs::parse_and_save_options(int argc, char **argv,
-                                         cli::Options &opt_save) {
+int cli::CliArgs::parse_and_save_options(int argc, char **argv) {
   try {
 
     if (argc < 2) {
@@ -38,30 +37,6 @@ int cli::CliArgs::parse_and_save_options(int argc, char **argv,
 
     opt.parse_positional(pos_arg.data());
     auto res = opt.parse(argc, argv);
-
-		// const char *p;
-		// for (auto &arg : opt_save.str_args) {
-			// p = arg.first.data();
-			// if (res.count(p)) {
-				// arg.second.first = res[p].as<std::string>();
-			// }
-		// }
-		// for (auto &arg : opt_save.int_args) {
-			// p = arg.first.data();
-			// if (res.count(p)) {
-				// arg.second.first = res[p].as<int>();
-			// }
-		// }
-		// for (auto &arg : opt_save.bool_args) {
-			// p = arg.first.data();
-			// if (res.count(p)) {
-				// arg.second.first = res[p].as<bool>();
-			// }
-		// }
-		// p = std::get<0>(opt_save.pos_arg).data();
-		// if (res.count(p)) {
-			// opt_save.set_pos_arg(res[p].as<std::vector<std::string>>());
-		// }
 
     return SUCCESS;
   } catch (const cxxopts::OptionException &excep) {

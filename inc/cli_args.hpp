@@ -163,7 +163,7 @@ public:
   void add_pos_options(app::tuple_positional_args &pos_arg) override;
   std::string_view get_help() const override { return opt.help(); }
 
-	int parse_and_save_options(int argc, char **argv, Options &opt_save);
+	int parse_and_save_options(int argc, char **argv);
 };
 
 } // namespace cli
