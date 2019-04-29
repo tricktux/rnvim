@@ -40,13 +40,19 @@ TEST(cxxopts_args, loading) {
 
   cli::Options opt;
 	{
-		cli::CliArgs args(cli::PROGRAM_NAME, cli::PROGRAM_DESCRIPTION);
+		cli::CliArgs args;
+		// cli::CliArgs args(cli::PROGRAM_NAME, cli::PROGRAM_DESCRIPTION);
 		// cli::CliArgs args("cool program name", "cool program description");
+
+		std::cout << "Printing help 1" << std::endl;
+		std::cout << args.get_help() << std::endl;
 
 		args.add_options(opt.bool_args);
 		args.add_options(opt.str_args);
 		args.add_options(opt.int_args);
 		args.add_pos_options(opt.pos_arg);
+
+		std::cout << "Printing help 2" << std::endl;
 		std::cout << args.get_help() << std::endl;
 
 		ASSERT_EQ(args.parse(argc, argv_), 0);
@@ -83,7 +89,8 @@ TEST(cxxopts_args, no_args) {
 
 	cli::Options opt;
 	{
-		cli::CliArgs args(cli::PROGRAM_NAME, cli::PROGRAM_DESCRIPTION);
+		// cli::CliArgs args(cli::PROGRAM_NAME, cli::PROGRAM_DESCRIPTION);
+		cli::CliArgs args;
 
 		args.add_options(opt.bool_args);
 		args.add_options(opt.str_args);
@@ -117,6 +124,8 @@ TEST(cxxopts_args, new_version) {
 	std::string_view name = "example";
 	std::string_view desc = " - example command line options";
 	cxxopts::Options options(name.data(), desc.data());
+
+	cxxopts::Options cool(options);
 
 	options.add_options()
 		("a,apple", "an apple", cxxopts::value<bool>())

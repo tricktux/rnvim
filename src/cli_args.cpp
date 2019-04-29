@@ -21,18 +21,19 @@
 #include <string>
 #include <variant>
 #include <utility>
+#include <tuple>
 #include <vector>
 
-#include "cli_args.hpp"
 #include "common.hpp"
 #include "cxxopts.hpp"
 #include "easylogging/easylogging++.h"
+#include "cli_args.hpp"
 
 int cli::CliArgs::parse(int argc, char **argv) {
   try {
 
     if (argc < 2) {
-      DLOG(INFO) << "[" << __FUNCTION__ << "]: No arguments. Yay!!";
+			DLOG(INFO) << "[" << __FUNCTION__ << "]: No arguments. Yay!!";
       return SUCCESS;
     }
 
@@ -41,8 +42,8 @@ int cli::CliArgs::parse(int argc, char **argv) {
 
     return SUCCESS;
   } catch (const cxxopts::OptionException &excep) {
-    DLOG(ERROR) << "[" << __FUNCTION__
-                << "]: Error parsing options: " << excep.what();
+		DLOG(ERROR) << "[" << __FUNCTION__
+								<< "]: Error parsing options: " << excep.what();
     return -100;
   }
 }
@@ -57,15 +58,15 @@ void cli::CliArgs::add_pos_options(app::tuple_positional_args &pos_argument) {
 	DLOG(INFO) << "[" << __FUNCTION__ << "]: called";
 
   if (std::get<0>(pos_argument).empty()) {
-    DLOG(WARNING) << "[" << __FUNCTION__ << "]: Empty key";
+		DLOG(WARNING) << "[" << __FUNCTION__ << "]: Empty key";
     return;
   }
 
-  DLOG(INFO) << "[" << __FUNCTION__ << "]: pos_argument[0]: '"
-             << std::get<0>(pos_argument) << "'\n"
-             << "\t" << std::get<1>(pos_argument) << "'\n"
-             << "\t" << std::get<2>(pos_argument) << "'\n"
-             << "\t" << std::get<3>(pos_argument);
+	// DLOG(INFO) << "[" << __FUNCTION__ << "]: pos_argument[0]: '"
+						 // << std::get<0>(pos_argument) << "'\n"
+						 // << "\t" << std::get<1>(pos_argument) << "'\n"
+						 // << "\t" << std::get<2>(pos_argument) << "'\n"
+						 // << "\t" << std::get<3>(pos_argument);
 
   opt.add_options()(
       std::get<0>(pos_argument).data(), std::get<2>(pos_argument).data(),
@@ -76,18 +77,18 @@ void cli::CliArgs::add_pos_options(app::tuple_positional_args &pos_argument) {
 
   // Copy title of positional arg to be added during parse
   pos_arg = std::get<0>(pos_argument);
-  DLOG(INFO) << "[" << __FUNCTION__ << "]: pos_arg: '" << pos_arg << "'";
+	DLOG(INFO) << "[" << __FUNCTION__ << "]: pos_arg: '" << pos_arg << "'";
 }
 
 void cli::CliArgs::add_options(app::map_bool_args &bool_args) {
   if (bool_args.empty()) {
-    DLOG(WARNING) << "[" << __FUNCTION__ << "]: Empty map of options detected";
+		DLOG(WARNING) << "[" << __FUNCTION__ << "]: Empty map of options detected";
     return;
   }
 
   for (auto &arg : bool_args) {
     if (arg.first.empty()) {
-      DLOG(WARNING) << "[" << __FUNCTION__ << "]: Empty option name detected";
+			DLOG(WARNING) << "[" << __FUNCTION__ << "]: Empty option name detected";
       continue;
     }
 
@@ -99,13 +100,13 @@ void cli::CliArgs::add_options(app::map_bool_args &bool_args) {
 
 void cli::CliArgs::add_options(app::map_int_args &int_args) {
   if (int_args.empty()) {
-    DLOG(WARNING) << "[" << __FUNCTION__ << "]: Empty map of options detected";
+		DLOG(WARNING) << "[" << __FUNCTION__ << "]: Empty map of options detected";
     return;
   }
 
   for (auto &arg : int_args) {
     if (arg.first.empty()) {
-      DLOG(WARNING) << "[" << __FUNCTION__ << "]: Empty option name detected";
+			DLOG(WARNING) << "[" << __FUNCTION__ << "]: Empty option name detected";
       continue;
     }
 
@@ -117,13 +118,13 @@ void cli::CliArgs::add_options(app::map_int_args &int_args) {
 
 void cli::CliArgs::add_options(app::map_string_args &string_args) {
   if (string_args.empty()) {
-    DLOG(WARNING) << "[" << __FUNCTION__ << "]: Empty map of options detected";
+		DLOG(WARNING) << "[" << __FUNCTION__ << "]: Empty map of options detected";
     return;
   }
 
   for (auto &arg : string_args) {
     if (arg.first.empty()) {
-      DLOG(WARNING) << "[" << __FUNCTION__ << "]: Empty option name detected";
+			DLOG(WARNING) << "[" << __FUNCTION__ << "]: Empty option name detected";
       continue;
     }
 

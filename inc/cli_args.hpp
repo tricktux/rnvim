@@ -152,8 +152,9 @@ class CliArgs : public ICliArgsGetter {
   cxxopts::Options opt;
 
 public:
-  CliArgs(std::string_view program_name, std::string_view program_description)
-      : opt(program_name.data(), program_description.data()) {}
+  // CliArgs(std::string_view program_name, std::string_view program_description)
+	CliArgs()
+			: pos_arg(std::string_view()), opt("casa", "company") {}
   virtual ~CliArgs() {}
 
 	// TODO remove the map_{}_args and just get the names and descriptions
