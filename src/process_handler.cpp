@@ -93,19 +93,3 @@ int ReprocHandler::stop(unsigned int timeout) {
 
   return exit_status;
 }
-
-
-/// @brief Check if process is currently running
-/// Implementation based on comments here:
-/// https://github.com/DaanDeMeyer/reproc/issues/9
-bool ReprocHandler::is_running() {
-	unsigned int exit_status = 0;
-	std::error_code ec;
-
-	ec = p.wait(reproc::milliseconds(0), &exit_status);
-
-	if (ec == reproc::errc::wait_timeout)
-		return true;
-
-	return false;
-}

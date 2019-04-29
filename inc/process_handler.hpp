@@ -22,6 +22,8 @@
 
 #include <string>
 #include <vector>
+#include <reproc++/reproc.hpp>
+#include <reproc++/sink.hpp>
 
 class IProcessHandler {
 protected:
@@ -46,7 +48,7 @@ public:
       p.kill();
   }
 
-  virtual int start(const std::vector<std::string> &cmd) final;
-  virtual int stop(unsigned int timeout) final;
-	virtual bool is_running() final;
+  int start(const std::vector<std::string> &cmd) final override;
+  int stop(unsigned int timeout) final override;
+	bool is_running() final override { return p.running(); }
 };
