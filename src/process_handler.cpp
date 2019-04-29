@@ -72,18 +72,17 @@ int ReprocHandler::start(const std::vector<std::string> &cmd) {
 /// @param timeout Time in milliseconds to wait for application to close
 /// @return Process exit status
 int ReprocHandler::stop(unsigned int timeout) {
-  unsigned int exit_status = 0;
   std::error_code ec;
 
   if (!is_running()) {
     DLOG(WARNING) << "[" << __FUNCTION__ << "]: Process stopped already";
-    return exit_status;
+    return p.exit_status();
   }
 
   DLOG(INFO) << "[" << __FUNCTION__ << "]: Stopping process";
   ec = p.stop(reproc::wait, reproc::milliseconds(timeout / 3),
               reproc::terminate, reproc::milliseconds(timeout / 3),
-              reproc::kill, reproc::milliseconds(timeout / 3), &exit_status);
+              reproc::kill, reproc::milliseconds(timeout / 3));
 
   if (ec) {
     DLOG(ERROR) << "[" << __FUNCTION__ << "]: Failed to stop the application"
@@ -91,5 +90,5 @@ int ReprocHandler::stop(unsigned int timeout) {
                 << " ec.message = '" << ec.value() << "'";
   }
 
-  return exit_status;
+  return p.exit_status();
 }
