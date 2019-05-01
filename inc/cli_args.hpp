@@ -83,7 +83,7 @@ public:
   virtual void add_options(app::map_string_args &string_args) = 0;
   virtual void add_options(app::map_int_args &int_args) = 0;
   virtual void add_options(app::map_bool_args &bool_args) = 0;
-  virtual void add_pos_options(app::tuple_positional_args &pos_arg) = 0;
+  virtual void add_pos_options(app::tuple_positional_args &pos_argument) = 0;
   // virtual int parse_options(int argc, char **argv) = 0;
   // virtual int get_arg(std::string_view name, int def) const = 0;
   // virtual std::string get_arg(std::string_view name,
@@ -125,45 +125,40 @@ public:
   int get_arg(std::string_view name, int def) const;
   std::string get_arg(std::string_view name, const std::string &def) const;
   bool get_arg(std::string_view name, bool def) const;
-	const std::vector<std::string>& get_pos_arg() {
-		return std::get<1>(pos_arg);
-	}
+  const std::vector<std::string> &get_pos_arg() { return std::get<1>(pos_arg); }
 
   std::string_view get_version() const { return PROGRAM_VERSION; };
 
-	// TODO = not really used
+  // TODO = not really used
   void set_arg(std::string_view name, int val);
   void set_arg(std::string_view name, std::string_view val);
   void set_arg(std::string_view name, bool val);
-	void set_pos_arg(const std::vector<std::string> &val) {
-		std::get<1>(pos_arg) = val;
-	}
-
+  void set_pos_arg(const std::vector<std::string> &val) {
+    std::get<1>(pos_arg) = val;
+  }
 };
-
-// TODO This must belong to app::
-// static Options options_def;
 
 /// Local interface to get options
 /// Provides abstraction from external libraries
 class CliArgs : public ICliArgsGetter {
   /// There can be only one positional argument per program design
-  std::string_view pos_arg;
+  std::string pos_arg_name;
   cxxopts::Options opt;
 
 public:
-	CliArgs(std::string_view program_name, std::string_view program_description)
-			: opt(program_name.data(), program_description.data()) {}
+  CliArgs(std::string_view program_name, std::string_view program_description)
+      : pos_arg_name(std::string()),
+        opt(program_name.data(), program_description.data()) {}
   virtual ~CliArgs() {}
 
-	// TODO remove the map_{}_args and just get the names and descriptions
+  // TODO remove the map_{}_args and just get the names and descriptions
   void add_options(app::map_string_args &string_args) override;
   void add_options(app::map_int_args &int_args) override;
   void add_options(app::map_bool_args &bool_args) override;
   void add_pos_options(app::tuple_positional_args &pos_argument) override;
   std::string get_help() const override { return opt.help(); }
 
-	int parse(int argc, char **argv);
+  int parse(int argc, char **argv);
 };
 
 } // namespace cli
