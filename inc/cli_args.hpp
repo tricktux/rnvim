@@ -148,7 +148,9 @@ class CliArgs : public ICliArgsGetter {
 public:
   CliArgs(std::string_view program_name, std::string_view program_description)
       : pos_arg_name(std::string()),
-        opt(program_name.data(), program_description.data()) {}
+        opt(program_name.data(), program_description.data()) {
+					opt .positional_help("[optional coolness]") .show_positional_help();
+				}
   virtual ~CliArgs() {}
 
   // TODO remove the map_{}_args and just get the names and descriptions

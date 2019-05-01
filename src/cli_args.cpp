@@ -37,9 +37,11 @@ int cli::CliArgs::parse(int argc, char **argv) {
       return SUCCESS;
     }
 
-    DLOG(INFO) << "[" << __FUNCTION__ << "]: pos_arg_name: '" << pos_arg_name
-               << "'";
-    opt.parse_positional(pos_arg_name);
+    if (!pos_arg_name.empty()) {
+      DLOG(INFO) << "[" << __FUNCTION__ << "]: Parsing positional arg: '"
+                 << pos_arg_name << "'";
+      opt.parse_positional(pos_arg_name);
+    }
     opt.parse(argc, argv);
 
     return SUCCESS;
@@ -64,24 +66,16 @@ void cli::CliArgs::add_pos_options(app::tuple_positional_args &pos_argument) {
     return;
   }
 
-  DLOG(INFO) << "[" << __FUNCTION__ << "]: pos_argument[0]: '"
-             << std::get<0>(pos_argument);
-  // DLOG(INFO) << "[" << __FUNCTION__ << "]: pos_argument[1]: '"
-  // << std::get<1>(pos_argument);
-  DLOG(INFO) << "[" << __FUNCTION__ << "]: pos_argument[2]: '"
-             << std::get<2>(pos_argument);
-  DLOG(INFO) << "[" << __FUNCTION__ << "]: pos_argument[3]: '"
-             << std::get<3>(pos_argument);
-  // << "\t" << std::get<1>(pos_argument) << "'\n"
-  // << "\t" << std::get<2>(pos_argument) << "'\n"
-  // << "\t" << std::get<3>(pos_argument);
+  DLOG(INFO) << "[" << __FUNCTION__ << "]: pos_argument: \n"
+             << "\t" << std::get<0>(pos_argument) << "\n"
+             << "\t" << std::get<2>(pos_argument) << "\n"
+             << "\t" << std::get<3>(pos_argument);
 
   opt.add_options()(
       std::get<0>(pos_argument).data(), std::get<2>(pos_argument).data(),
       cxxopts::value<std::vector<std::string>>(std::get<1>(pos_argument)));
 
-  opt.positional_help(std::get<3>(pos_argument).data());
-  opt.show_positional_help();
+  // opt.positional_help(std::get<3>(pos_argument).data()).show_positional_help();
 
   // Copy title of positional arg to be added during parse
   pos_arg_name = std::get<0>(pos_argument);

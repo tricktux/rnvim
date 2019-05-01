@@ -55,15 +55,11 @@ TEST(cxxopts_args, loading) {
   {
     cli::CliArgs args(cli::PROGRAM_NAME, cli::PROGRAM_DESCRIPTION);
 
-    std::cout << "Printing help 1" << std::endl;
-    std::cout << args.get_help() << std::endl;
-
     args.add_options(opt.bool_args);
     args.add_options(opt.str_args);
     args.add_options(opt.int_args);
     args.add_pos_options(opt.pos_arg);
 
-    std::cout << "Printing help 2" << std::endl;
     std::cout << args.get_help() << std::endl;
 
     ASSERT_EQ(args.parse(argc, argv_), 0);
@@ -139,7 +135,7 @@ TEST(cxxopts_args, new_version) {
       cxxopts::value<std::vector<std::string>>())(
       "t,true", "True", cxxopts::value<bool>()->default_value("true"));
 
-  options.parse_positional({"positional"});
+  options.parse_positional("positional");
   options.positional_help("[optional args]").show_positional_help();
 
   std::cout << options.help() << std::endl;
