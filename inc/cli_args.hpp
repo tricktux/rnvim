@@ -89,7 +89,7 @@ public:
   // virtual std::string get_arg(std::string_view name,
   // const std::string &def) const = 0;
   // virtual bool get_arg(std::string_view name, bool def) const = 0;
-  virtual std::string_view get_help() const = 0;
+  virtual std::string get_help() const = 0;
   // virtual std::string_view get_version() const = 0;
 };
 
@@ -152,9 +152,8 @@ class CliArgs : public ICliArgsGetter {
   cxxopts::Options opt;
 
 public:
-  // CliArgs(std::string_view program_name, std::string_view program_description)
-	CliArgs()
-			: pos_arg(std::string_view()), opt("casa", "company") {}
+	CliArgs(std::string_view program_name, std::string_view program_description)
+			: opt(program_name.data(), program_description.data()) {}
   virtual ~CliArgs() {}
 
 	// TODO remove the map_{}_args and just get the names and descriptions
@@ -162,7 +161,7 @@ public:
   void add_options(app::map_int_args &int_args) override;
   void add_options(app::map_bool_args &bool_args) override;
   void add_pos_options(app::tuple_positional_args &pos_argument) override;
-  std::string_view get_help() const override { return opt.help({""}); }
+  std::string get_help() const override { return opt.help(); }
 
 	int parse(int argc, char **argv);
 };
