@@ -34,9 +34,48 @@ public:
   Args() : opt("vim", "cool") {}
 };
 
+class NeoArgs {
+	cxxopts::Options opt;
+
+	public:
+		NeoArgs() : opt("vim", "cool") {}
+};
+
 TEST(cxxopts_args, baseline) {
   Args args;
   std::cout << args.opt.help() << std::endl;
+}
+
+TEST(CliArgs, pos_arg) {
+	const char *argv[] = {"gnvim",       "-n",      "/usr/bin/nvim",
+		"--maximized", "--help",  "--timeout=13",
+		"file2.cpp",   "filee3.h"};
+
+	int argc = sizeof(argv) / sizeof(char *);
+	char **argv_ = new char *[argc];
+	for (int k = 0; k < argc; k++) {
+		argv_[k] = new char[32];
+		std::strncpy(argv_[k], argv[k], 32);
+	}
+
+	cli::Options opt;
+	{
+		cli::CliArgs args(cli::PROGRAM_NAME, cli::PROGRAM_DESCRIPTION);
+
+		args.add_options(opt.bool_args);
+		args.add_options(opt.str_args);
+		args.add_options(opt.int_args);
+		args.add_pos_options(opt.pos_arg);
+
+		ASSERT_EQ(args.parse(argc, argv_), 0);
+
+		std::cout << args.get_help() << std::endl;
+	}
+
+	for (int k = 0; k < argc; k++) {
+		delete[] argv_[k];
+	}
+	delete[] argv_;
 }
 
 TEST(cxxopts_args, loading) {
@@ -60,9 +99,9 @@ TEST(cxxopts_args, loading) {
     args.add_options(opt.int_args);
     args.add_pos_options(opt.pos_arg);
 
-    std::cout << args.get_help() << std::endl;
-
     ASSERT_EQ(args.parse(argc, argv_), 0);
+
+		std::cout << args.get_help() << std::endl;
   }
   std::string nvim = opt.get_arg("n,nvim", std::string());
   ASSERT_EQ(argv[2], nvim);
@@ -102,9 +141,9 @@ TEST(cxxopts_args, no_args) {
     args.add_options(opt.str_args);
     args.add_options(opt.int_args);
     args.add_pos_options(opt.pos_arg);
-    std::cout << args.get_help() << std::endl;
 
     ASSERT_EQ(args.parse(argc, argv_), 0);
+		std::cout << args.get_help() << std::endl;
   }
 
   bool max = opt.get_arg("m,maximized", false);
