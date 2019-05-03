@@ -27,57 +27,6 @@
 
 INITIALIZE_EASYLOGGINGPP
 
-class Args {
-
-public:
-  cxxopts::Options opt;
-  Args() : opt("vim", "cool") {}
-};
-
-class NeoArgs {
-	cxxopts::Options opt;
-
-	public:
-		NeoArgs() : opt("vim", "cool") {}
-};
-
-TEST(cxxopts_args, baseline) {
-  Args args;
-  std::cout << args.opt.help() << std::endl;
-}
-
-TEST(CliArgs, pos_arg) {
-	const char *argv[] = {"gnvim",       "-n",      "/usr/bin/nvim",
-		"--maximized", "--help",  "--timeout=13",
-		"file2.cpp",   "filee3.h"};
-
-	int argc = sizeof(argv) / sizeof(char *);
-	char **argv_ = new char *[argc];
-	for (int k = 0; k < argc; k++) {
-		argv_[k] = new char[32];
-		std::strncpy(argv_[k], argv[k], 32);
-	}
-
-	cli::Options opt;
-	{
-		cli::CliArgs args(cli::PROGRAM_NAME, cli::PROGRAM_DESCRIPTION);
-
-		args.add_options(opt.bool_args);
-		args.add_options(opt.str_args);
-		args.add_options(opt.int_args);
-		args.add_pos_options(opt.pos_arg);
-
-		ASSERT_EQ(args.parse(argc, argv_), 0);
-
-		std::cout << args.get_help() << std::endl;
-	}
-
-	for (int k = 0; k < argc; k++) {
-		delete[] argv_[k];
-	}
-	delete[] argv_;
-}
-
 TEST(cxxopts_args, loading) {
   const char *argv[] = {"gnvim",       "-n",      "/usr/bin/nvim",
                         "--maximized", "--help",  "--timeout=13",
@@ -159,23 +108,35 @@ TEST(cxxopts_args, no_args) {
   delete[] argv_;
 }
 
-TEST(cxxopts_args, new_version) {
-  std::string_view name = "example";
-  std::string_view desc = " - example command line options";
-  cxxopts::Options options(name.data(), desc.data());
+TEST(CliArgs, pos_arg) {
+	const char *argv[] = {"gnvim",       "-n",      "/usr/bin/nvim",
+		"--maximized", "--help",  "--timeout=13",
+		"file2.cpp",   "filee3.h"};
 
-  cxxopts::Options cool(options);
+	int argc = sizeof(argv) / sizeof(char *);
+	char **argv_ = new char *[argc];
+	for (int k = 0; k < argc; k++) {
+		argv_[k] = new char[32];
+		std::strncpy(argv_[k], argv[k], 32);
+	}
 
-  options.add_options()("a,apple", "an apple", cxxopts::value<bool>())("b,bob",
-                                                                       "Bob")(
-      "positional",
-      "Positional arguments: these are the arguments that are entered "
-      "without an option",
-      cxxopts::value<std::vector<std::string>>())(
-      "t,true", "True", cxxopts::value<bool>()->default_value("true"));
+	cli::Options opt;
+	{
+		cli::CliArgs args(cli::PROGRAM_NAME, cli::PROGRAM_DESCRIPTION);
 
-  options.parse_positional("positional");
-  options.positional_help("[optional args]").show_positional_help();
+		args.add_options(opt.bool_args);
+		args.add_options(opt.str_args);
+		args.add_options(opt.int_args);
+		args.add_pos_options(opt.pos_arg);
 
-  std::cout << options.help() << std::endl;
+		ASSERT_EQ(args.parse(argc, argv_), 0);
+
+		std::cout << args.get_help() << std::endl;
+	}
+
+	for (int k = 0; k < argc; k++) {
+		delete[] argv_[k];
+	}
+	delete[] argv_;
 }
+
