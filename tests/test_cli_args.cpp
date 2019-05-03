@@ -50,9 +50,9 @@ TEST(cxxopts_args, loading) {
 
     ASSERT_EQ(args.parse(argc, argv_), 0);
 
-		std::cout << args.get_help() << std::endl;
+    std::cout << args.get_help() << std::endl;
   }
-  std::string nvim = opt.get_arg("n,nvim", std::string());
+  std::string_view nvim = opt.get_arg("n,nvim", std::string_view());
   ASSERT_EQ(argv[2], nvim);
   const std::vector<std::string> &pos = opt.get_pos_arg();
   ASSERT_EQ(pos.size(), 2);
@@ -92,7 +92,6 @@ TEST(cxxopts_args, no_args) {
     args.add_pos_options(opt.pos_arg);
 
     ASSERT_EQ(args.parse(argc, argv_), 0);
-		std::cout << args.get_help() << std::endl;
   }
 
   bool max = opt.get_arg("m,maximized", false);
@@ -108,35 +107,55 @@ TEST(cxxopts_args, no_args) {
   delete[] argv_;
 }
 
-TEST(CliArgs, pos_arg) {
-	const char *argv[] = {"gnvim",       "-n",      "/usr/bin/nvim",
-		"--maximized", "--help",  "--timeout=13",
-		"file2.cpp",   "filee3.h"};
+TEST(cxxopts_args, nvim_args) {
+  const char *argv[] = {"gnvim",
+                        "-n",
+                        "/usr/bin/nvim",
+                        "--maximized",
+                        "--help",
+                        "--timeout=13",
+                        "-a",
+												"\"set termguicolors | set background=light\"",
+                        "file2.cpp",
+                        "filee3.h"};
 
-	int argc = sizeof(argv) / sizeof(char *);
-	char **argv_ = new char *[argc];
-	for (int k = 0; k < argc; k++) {
-		argv_[k] = new char[32];
-		std::strncpy(argv_[k], argv[k], 32);
+  int argc = sizeof(argv) / sizeof(char *);
+  char **argv_ = new char *[argc];
+  for (int k = 0; k < argc; k++) {
+    argv_[k] = new char[32];
+    std::strncpy(argv_[k], argv[k], 32);
+  }
+
+  cli::Options opt;
+  {
+    cli::CliArgs args(cli::PROGRAM_NAME, cli::PROGRAM_DESCRIPTION);
+
+    args.add_options(opt.bool_args);
+    args.add_options(opt.str_args);
+    args.add_options(opt.int_args);
+    args.add_pos_options(opt.pos_arg);
+
+    ASSERT_EQ(args.parse(argc, argv_), 0);
+  }
+	std::string_view nvim = opt.get_arg("n,nvim", std::string_view());
+	ASSERT_EQ(argv[2], nvim);
+	const std::vector<std::string> &pos = opt.get_pos_arg();
+	ASSERT_EQ(pos.size(), 2);
+	for (int k = 8; k < argc; k++) {
+		ASSERT_EQ(argv[k], pos[k - 8]);
 	}
+	bool max = opt.get_arg("m,maximized", false);
+	ASSERT_EQ(max, true);
+	int t = opt.get_arg("t,timeout", 0);
+	ASSERT_EQ(t, 13);
+	bool h = opt.get_arg("h,help", false);
+	ASSERT_EQ(h, true);
 
-	cli::Options opt;
-	{
-		cli::CliArgs args(cli::PROGRAM_NAME, cli::PROGRAM_DESCRIPTION);
+	std::string_view nargs = opt.get_arg("a,nvim_args", std::string_view());
+	ASSERT_EQ(argv[7], nargs);
 
-		args.add_options(opt.bool_args);
-		args.add_options(opt.str_args);
-		args.add_options(opt.int_args);
-		args.add_pos_options(opt.pos_arg);
-
-		ASSERT_EQ(args.parse(argc, argv_), 0);
-
-		std::cout << args.get_help() << std::endl;
-	}
-
-	for (int k = 0; k < argc; k++) {
-		delete[] argv_[k];
-	}
-	delete[] argv_;
+  for (int k = 0; k < argc; k++) {
+    delete[] argv_[k];
+  }
+  delete[] argv_;
 }
-
