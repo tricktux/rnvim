@@ -40,7 +40,7 @@ int cli::CliArgs::parse(int argc, char **argv) {
     if (!pos_arg_name.empty()) {
       DLOG(INFO) << "[" << __FUNCTION__ << "]: Parsing positional arg: '"
                  << pos_arg_name << "'";
-      opt.parse_positional(pos_arg_name);
+      opt.parse_positional(pos_arg_name.data());
     }
     opt.parse(argc, argv);
 
@@ -75,7 +75,8 @@ void cli::CliArgs::add_pos_options(app::tuple_positional_args &pos_argument) {
       std::get<0>(pos_argument).data(), std::get<2>(pos_argument).data(),
       cxxopts::value<std::vector<std::string>>(std::get<1>(pos_argument)));
 
-  // opt.positional_help(std::get<3>(pos_argument).data()).show_positional_help();
+	opt.positional_help(std::get<3>(pos_argument).data());
+	opt.show_positional_help();
 
   // Copy title of positional arg to be added during parse
   pos_arg_name = std::get<0>(pos_argument);

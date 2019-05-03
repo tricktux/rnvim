@@ -142,15 +142,13 @@ public:
 /// Provides abstraction from external libraries
 class CliArgs : public ICliArgsGetter {
   /// There can be only one positional argument per program design
-  std::string pos_arg_name;
+  std::string_view pos_arg_name;
   cxxopts::Options opt;
 
 public:
   CliArgs(std::string_view program_name, std::string_view program_description)
       : pos_arg_name(std::string()),
-        opt(program_name.data(), program_description.data()) {
-					opt .positional_help("[optional coolness]") .show_positional_help();
-				}
+        opt(program_name.data(), program_description.data()) {}
   virtual ~CliArgs() {}
 
   // TODO remove the map_{}_args and just get the names and descriptions
