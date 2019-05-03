@@ -123,9 +123,11 @@ public:
         pos_arg({STR_POS_ARG, STR_POS_ARG_DEFAULT, STR_POS_ARG_DESCRIPTION,
                  STR_POS_ARG_HELP}) {}
   int get_arg(std::string_view name, int def) const;
-  std::string get_arg(std::string_view name, const std::string &def) const;
+  std::string_view get_arg(std::string_view name, std::string_view def) const;
   bool get_arg(std::string_view name, bool def) const;
-  const std::vector<std::string> &get_pos_arg() { return std::get<1>(pos_arg); }
+  const std::vector<std::string>& get_pos_arg() const {
+    return std::get<1>(pos_arg);
+  }
 
   std::string_view get_version() const { return PROGRAM_VERSION; };
 

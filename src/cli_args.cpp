@@ -32,6 +32,11 @@
 int cli::CliArgs::parse(int argc, char **argv) {
   try {
 
+    if (argv == nullptr) {
+      DLOG(INFO) << "[" << __FUNCTION__ << "]: Invalid argv provided";
+      return -1;
+    }
+
     if (argc < 2) {
       DLOG(INFO) << "[" << __FUNCTION__ << "]: No arguments. Yay!!";
       return SUCCESS;
@@ -75,8 +80,8 @@ void cli::CliArgs::add_pos_options(app::tuple_positional_args &pos_argument) {
       std::get<0>(pos_argument).data(), std::get<2>(pos_argument).data(),
       cxxopts::value<std::vector<std::string>>(std::get<1>(pos_argument)));
 
-	opt.positional_help(std::get<3>(pos_argument).data());
-	opt.show_positional_help();
+  opt.positional_help(std::get<3>(pos_argument).data());
+  opt.show_positional_help();
 
   // Copy title of positional arg to be added during parse
   pos_arg_name = std::get<0>(pos_argument);
@@ -145,8 +150,8 @@ int cli::Options::get_arg(std::string_view name, int def) const {
 
   return search->second.first;
 }
-std::string cli::Options::get_arg(std::string_view name,
-                                  const std::string &def) const {
+std::string_view cli::Options::get_arg(std::string_view name,
+                                  std::string_view def) const {
   if (name.empty())
     return def;
 
