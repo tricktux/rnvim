@@ -12,24 +12,24 @@ cmake_minimum_required(VERSION 3.11)
 # Set ProjectName
 project(gnvim)
 
-option(DOWNLOAD_DEPENDENCIES "Download Dependencies" OFF)
-if (DOWNLOAD_DEPENDENCIES)
-	message (STATUS "Downloading dependencies ...")
-	include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/download/fetch_deps.cmake")
-else ()
-	message (STATUS "Searching for dependencies ...")
-	find_package(GTest REQUIRED)
+# option(DOWNLOAD_DEPENDENCIES "Download Dependencies" OFF)
+# if (DOWNLOAD_DEPENDENCIES)
+	# message (STATUS "Downloading dependencies ...")
+	# include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/download/fetch_deps.cmake")
+# else ()
+	# message (STATUS "Searching for dependencies ...")
+	# find_package(GTest REQUIRED)
 
-	set(CMAKE_THREAD_PREFER_PTHREAD ON)
-	find_package(Threads REQUIRED)
+	# set(CMAKE_THREAD_PREFER_PTHREAD ON)
+	# find_package(Threads REQUIRED)
 
 	## If you want to link SFML statically
-	set(SFML_STATIC_LIBRARIES TRUE)
+	# set(SFML_STATIC_LIBRARIES TRUE)
 
 	## In most cases better set in the CMake cache
-	set(SFML_DIR "${CMAKE_BINARY_DIR}/external/SFML")
-	find_package(SFML 2.5 COMPONENTS network system graphics REQUIRED)
-endif ()
+	# set(SFML_DIR "${CMAKE_BINARY_DIR}/external/SFML")
+	# find_package(SFML 2 COMPONENTS network system graphics REQUIRED)
+# endif ()
 
 
 # Download some dependencies
@@ -125,7 +125,7 @@ add_subdirectory("src")
 # TODO Fix cmake for doxygen
 # add_subdirectory("docs")
 
-option(ENABLE_TESTS "Build tests" ON)
+option(ENABLE_TESTS "Build tests" OFF)
 if(ENABLE_TESTS)
 	enable_testing()
 	add_subdirectory("tests")
