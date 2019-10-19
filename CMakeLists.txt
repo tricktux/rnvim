@@ -29,9 +29,10 @@ endif ()
 
 
 # Download some dependencies
-file(GLOB GNVIM_DEPS_SUBDIR
-	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/deps/*.cmake")
-foreach (GNVIM_DEPS ${GNVIM_DEPS_SUBDIR})
+file(GLOB GNVIM_EXTERNAL_SUBDIR
+	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/external/*.cmake")
+
+foreach (GNVIM_DEPS ${GNVIM_EXTERNAL_SUBDIR})
 	include(${GNVIM_DEPS})
 endforeach ()
 
