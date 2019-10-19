@@ -64,6 +64,7 @@ option(USE_CLANG "build application with clang" ON) # ON is the default
 if (USE_CLANG)
 	if (UNIX AND NOT APPLE)
 		set (CMAKE_CXX_COMPILER "/usr/bin/clang++" )
+		# TODO use the prefix compilar flag
 		set (CMAKE_AR           "/usr/bin/llvm-ar" )
 		set (CMAKE_LINKER       "/usr/bin/llvm-ld" )
 		set (CMAKE_NM           "/usr/bin/llvm-nm" )
