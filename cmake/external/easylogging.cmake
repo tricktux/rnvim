@@ -15,8 +15,7 @@ ExternalProject_Add(
 	INSTALL_DIR ${easylogging_INSTALL}
 	CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 						-DCMAKE_INSTALL_PREFIX=${easylogging_INSTALL}
-						-DBUILD_STATIC_LIBS=ON
-						-DBUILD_TEST=OFF
+						-Dbuild_static_lib=ON
 
 	LOG_DOWNLOAD 1
 	LOG_INSTALL 1
