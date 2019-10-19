@@ -23,8 +23,12 @@ else ()
 	set(CMAKE_THREAD_PREFER_PTHREAD ON)
 	find_package(Threads REQUIRED)
 
-	# set(BUILD_SHARED_LIBS FALSE)
-	find_package(SFML 2 COMPONENTS network system graphics REQUIRED)
+	## If you want to link SFML statically
+	set(SFML_STATIC_LIBRARIES TRUE)
+
+	## In most cases better set in the CMake cache
+	set(SFML_DIR "${CMAKE_BINARY_DIR}/external/SFML")
+	find_package(SFML 2.5 COMPONENTS network system graphics REQUIRED)
 endif ()
 
 
