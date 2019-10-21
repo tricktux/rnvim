@@ -18,11 +18,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http:www.gnu.org/licenses/>.
 
-// #include "nvc/libnvc.hpp"
 #include "application.hpp"
+#include "libnvc.hpp"
 #include <cinttypes>
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 
 // #include <SFML/Window.hpp>
@@ -31,44 +31,44 @@
 INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char **argv) {
-	START_EASYLOGGINGPP(argc, argv);
+  START_EASYLOGGINGPP(argc, argv);
 
-	DLOG(INFO) << "This is what I am looking for";
-	DLOG(ERROR) << "This is what I am looking for";
-	VLOG(1) << "This is what I am looking for";
-	VLOG(2) << "This is what I am looking for";
-	VLOG(3) << "This is what I am looking for";
-	// Application app;
-	// app.init(argc, argv);
+  DLOG(INFO) << "This is what I am looking for";
+  DLOG(ERROR) << "This is what I am looking for";
+  VLOG(1) << "This is what I am looking for";
+  VLOG(2) << "This is what I am looking for";
+  VLOG(3) << "This is what I am looking for";
+  // Application app;
+  // app.init(argc, argv);
 
-	// sf::Window window(sf::VideoMode(800, 600), "My Window");
+  // sf::Window window(sf::VideoMode(800, 600), "My Window");
 
-  // libnvc::asio_socket socket;
-  // if (!socket.connect("localhost", 6666)) {
-    // throw std::runtime_error("failed to connect to localhost:6666");
-  // }
-	// const std::map<std::string, libnvc::object> options;
-  // libnvc::api_client client(&socket);
-	// client.nvim_ui_attach(800, 600, options);
-  // client.forward<libnvc::reqid("nvim_input")>(
-      // {"$i123<CR>123<ESC>"}, [](int64_t len_done) {
-        // char buf[128];
-        // std::sprintf(buf, "nvim_input returns: %" PRIi64, len_done);
-        // libnvc::log(libnvc::LOG_INFO, buf);
-      // });
+  libnvc::asio_socket socket;
+  if (!socket.connect("localhost", 6666)) {
+    throw std::runtime_error("failed to connect to localhost:6666");
+  }
+  const std::map<std::string, libnvc::object> options;
+  libnvc::api_client client(&socket);
+  client.nvim_ui_attach(800, 600, options);
+  client.forward<libnvc::reqid("nvim_input")>(
+      {"$i123<CR>123<ESC>"}, [](int64_t len_done) {
+        char buf[128];
+        std::sprintf(buf, "nvim_input returns: %" PRIi64, len_done);
+        libnvc::log(libnvc::LOG_INFO, buf);
+      });
 
-  // client.forward<libnvc::reqid("nvim_buf_set_name")>(
-      // {1, "1234"},
-      // []() { libnvc::log(libnvc::LOG_INFO, "nvim_buf_set_name done"); },
-      // [](int64_t ec, std::string emsg) {
-        // std::printf("nvim reports error: [%d, %s]", (int)(ec), emsg.c_str());
-      // });
+  client.forward<libnvc::reqid("nvim_buf_set_name")>(
+      {1, "1234"},
+      []() { libnvc::log(libnvc::LOG_INFO, "nvim_buf_set_name done"); },
+      [](int64_t ec, std::string emsg) {
+        std::printf("nvim reports error: [%d, %s]", (int)(ec), emsg.c_str());
+      });
 
-  // client.forward<libnvc::reqid("nvim_command")>(
-      // {":echomsg \"hello world\""},
-      // []() { libnvc::log(libnvc::LOG_INFO, "nvim_command done"); });
+  client.forward<libnvc::reqid("nvim_command")>(
+      {":echomsg \"hello world\""},
+      []() { libnvc::log(libnvc::LOG_INFO, "nvim_command done"); });
 
-  // while (true) {
-    // client.poll();
-  // }
+  while (true) {
+    client.poll();
+  }
 }
