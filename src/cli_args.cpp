@@ -27,7 +27,7 @@
 #include "cli_args.hpp"
 #include "common.hpp"
 #include "cxxopts.hpp"
-#include "easylogging/easylogging++.h"
+#include "easylogging++.h"
 
 int cli::CliArgs::parse(int argc, char **argv) {
   try {

@@ -21,7 +21,7 @@
 #include "application.hpp"
 #include <string>
 #include "common.hpp"
-#include "easylogging/easylogging++.h"
+#include "easylogging++.h"
 
 /// @brief Initializes all members of the Application
 /// @param argc Number of arguments passed to the application
