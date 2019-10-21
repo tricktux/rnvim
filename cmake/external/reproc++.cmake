@@ -24,4 +24,6 @@ ExternalProject_Add(
 
 set(REPROC++_FOUND TRUE)
 set(REPROC++_INCLUDE_DIRS ${reproc++_INSTALL}/include)
+set(REPROC++_LIBRARIES ${reproc++_INSTALL}/lib/libreproc++.a)
+set(REPROC++_LIBRARY_DIRS ${reproc++_INSTALL}/lib)
 set(REPROC++_EXTERNAL TRUE)

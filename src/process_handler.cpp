@@ -18,13 +18,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <reproc++/reproc.hpp>
-#include <reproc++/sink.hpp>
+#include "reproc++/reproc.hpp"
+#include "reproc++/sink.hpp"
 #include <string>
 #include <chrono>
 
 #include "common.hpp"
-#include "easylogging/easylogging++.h"
+#include "easylogging++.h"
 #include "process_handler.hpp"
 
 /// @brief Starts the process provided in @cmd
