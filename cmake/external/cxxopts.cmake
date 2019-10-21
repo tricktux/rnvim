@@ -24,6 +24,4 @@ ExternalProject_Add(
 
 set(CXXOPTS_FOUND TRUE)
 set(CXXOPTS_INCLUDE_DIRS ${cxxopts_INSTALL}/include)
-set(CXXOPTS_LIBRARIES ${cxxopts_INSTALL}/lib/cxxopts.so)
-set(CXXOPTS_LIBRARY_DIRS ${cxxopts_INSTALL}/lib)
 set(CXXOPTS_EXTERNAL TRUE)
