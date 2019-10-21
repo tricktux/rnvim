@@ -5,7 +5,6 @@ set(cxxopts_PREFIX ${CMAKE_BINARY_DIR}/external/cxxopts-prefix)
 # install directory
 set(cxxopts_INSTALL ${CMAKE_BINARY_DIR}/external/cxxopts-install)
 
-find_package (Threads)
 ExternalProject_Add(
 	cxxopts
 	PREFIX ${libnvc_PREFIX}
