@@ -12,87 +12,59 @@ cmake_minimum_required(VERSION 3.11)
 # Set ProjectName
 project(gnvim)
 
-# option(DOWNLOAD_DEPENDENCIES "Download Dependencies" OFF)
-# if (DOWNLOAD_DEPENDENCIES)
-	# message (STATUS "Downloading dependencies ...")
-	# include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/download/fetch_deps.cmake")
-# else ()
-	# message (STATUS "Searching for dependencies ...")
-	# find_package(GTest REQUIRED)
+# Manually include dependencies
+set (_modules
+		"${CMAKE_SOURCE_DIR}/cmake"
+		"${CMAKE_SOURCE_DIR}/cmake/sanitizers"
+		"${CMAKE_SOURCE_DIR}/cmake/external"
+	)
 
-	# set(CMAKE_THREAD_PREFER_PTHREAD ON)
-	# find_package(Threads REQUIRED)
+set (CMAKE_MODULE_PATH _modules)
 
-	## If you want to link SFML statically
-	# set(SFML_STATIC_LIBRARIES TRUE)
+include("${CMAKE_SOURCE_DIR}/cmake/external/gsl.cmake")
 
-	## In most cases better set in the CMake cache
-	# set(SFML_DIR "${CMAKE_BINARY_DIR}/external/SFML")
-	# find_package(SFML 2 COMPONENTS network system graphics REQUIRED)
-# endif ()
+# Set a default build type if none was specified
+set(CMAKE_BUILD_TYPE "Debug" CACHE
+	STRING "Choose the type of build." FORCE)
+# Set the possible values of build type for cmake-gui
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+	"Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 
+# Options
+# You can achieve the same behavior by doing CC=clang CXX=clang++ cmake ..
+option(USE_CLANG "Build application with clang" OFF)
+# Depends on clang and llvm being installed
+# cmake -DSANITIZE_ADDRESS=ON ..
+# ./bin/<executable_name>
+option(SANITIZE_ADDRESS "Enable Address Sanitizer" OFF)
+option(SANITIZE_MEMORY "Enable Memory Sanitizer" OFF)
+option(SANITIZE_THREAD "Enable Thread Sanitizer" OFF)
+option(SANITIZE_UNDEFINED "Enable Undefined Behavior Sanitizer" OFF)
+option(SANITIZE_LINK_STATIC "Try to link static against sanitizers." OFF)
 
-# Download some dependencies
-file(GLOB GNVIM_EXTERNAL_SUBDIR
-	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/external/*.cmake")
-
-foreach (GNVIM_DEPS ${GNVIM_EXTERNAL_SUBDIR})
-	include(${GNVIM_DEPS})
-endforeach ()
-
-if(NOT CMAKE_BUILD_TYPE)
-	set(CMAKE_BUILD_TYPE "Debug" CACHE STRING
-		"Choose the type of build, options are: Debug Release
-		RelWithDebInfo MinSizeRel."
-		FORCE)
-endif(NOT CMAKE_BUILD_TYPE)
-
-option (ENABLE_ASAN "Enable ASAN" OFF)
-if (ENABLE_ASAN)
-	message (STATUS "ASAN enabled")
-	set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
-endif ()
-
-option (ENABLE_USAN "Enable USAN" OFF)
-if (ENABLE_USAN)
-	message (STATUS "USAN enabled")
-	set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=undefined")
-endif ()
-
-option(ENABLE_TSAN "Enable TSAN" OFF)
-if (ENABLE_TSAN)
-	message(STATUS "TSAN enabled")
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=thread")
-endif ()
-
-option(USE_CLANG "build application with clang" ON) # ON is the default
-if (USE_CLANG)
-	if (UNIX AND NOT APPLE)
-		set (CMAKE_CXX_COMPILER "/usr/bin/clang++" )
-		# TODO use the prefix compilar flag
-		set (CMAKE_AR           "/usr/bin/llvm-ar" )
-		set (CMAKE_LINKER       "/usr/bin/llvm-ld" )
-		set (CMAKE_NM           "/usr/bin/llvm-nm" )
-		set (CMAKE_OBJDUMP      "/usr/bin/llvm-objdump" )
-		set (CMAKE_RANLIB       "/usr/bin/llvm-ranlib" )
-	endif (UNIX AND NOT APPLE)
-endif (USE_CLANG)
-
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
+option(ENABLE_TESTS "Build tests" OFF)
+option(ENABLE_CLANG_TIDY "Use clang-tidy" OFF)
 
 # Build with c++17 support
-IF(COMPILER_SUPPORTS_CXX17)
-	SET(CMAKE_CXX_STANDARD 17)
-ELSE()
-	MESSAGE(FATAL_ERROR
-		"The compiler ${CMAKE_CXX_COMPILER} has no C++17 support.")
-ENDIF()
+include(CheckCXXCompilerFlag)
+set (_cpp_version "17")
+if (MSVC AND MSVC_VERSION GREATER_EQUAL "1900")
+	check_cxx_compiler_flag("/std:c++latest" _cpp_latest_flag_supported)
+	if (_cpp_latest_flag_supported)
+		add_compile_options("/std:c++latest")
+	endif()
+else ()
+	check_cxx_compiler_flag("-std=c++${_cpp_version}"
+		_cpp_latest_flag_supported)
+	if (_cpp_latest_flag_supported)
+		add_compile_options("-std=c++${_cpp_version}")
+	endif()
+endif()
 
 # add flags to release mode
 # by default won't use release mode
 if (MSVC)
-	# FIXME: put Windows specific options here.
+	add_compile_options(/W4 /WX /EHsc)
 else ()
 	set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS}")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
@@ -118,15 +90,43 @@ endif ()
 
 # Specify output directories.
 set(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")
+set (RUNTIME_OUTPUT_DIR "${EXECUTABLE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}")
+message( STATUS "RUNTIME_OUTPUT_DIR: " ${RUNTIME_OUTPUT_DIR} )
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# Find packages
+if (WIN32)
+	set (wxWidgets_ROOT_DIR "C:/Program Files (x86)/wxWidgets")
+	set (wxWidgets_LIB_DIR "${wxWidgets_ROOT_DIR}/lib/vc_lib")
+elseif (UNIX)
+	# set(AWSSDK_DIR /usr/local/lib/cmake/AWSSDK)
+endif()
+
+find_package(wxWidgets COMPONENTS core base REQUIRED)
+include(${wxWidgets_USE_FILE})
+
+if (SANITIZE_ADDRESS OR SANITIZE_MEMORY OR SANITIZE_THREAD OR
+		SANITIZE_UNDEFINED)
+	find_package(Sanitizers REQUIRED)
+endif ()
+
 
 add_subdirectory("src")
 # TODO Fix cmake for doxygen
 # add_subdirectory("docs")
 
-option(ENABLE_TESTS "Build tests" OFF)
-if(ENABLE_TESTS)
+if(ENABLE_TESTS AND EXISTS "${CMAKE_SOURCE_DIR}/tests")
 	enable_testing()
 	add_subdirectory("tests")
 endif()
+
+include (GNUInstallDirs)
+# install (TARGETS aws-text)
+# Copy all config files to /etc
+if (EXISTS "${CMAKE_SOURCE_DIR}/config")
+	install (FILES
+		GLOB "${CMAKE_SOURCE_DIR}/config/*.*"
+		DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}
+		)
+endif ()
