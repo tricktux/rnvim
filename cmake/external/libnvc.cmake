@@ -1,29 +1,32 @@
 include(ExternalProject)
 
 # build directory
-set(libnvc_PREFIX ${CMAKE_BINARY_DIR}/external/libnvc-prefix)
+set(nvc_PREFIX ${CMAKE_BINARY_DIR}/external/nvc-prefix)
 # install directory
-set(libnvc_INSTALL ${CMAKE_BINARY_DIR}/external/libnvc-install)
+set(nvc_INSTALL ${CMAKE_BINARY_DIR}/external/nvc-install)
 
 find_package (Threads)
-ExternalProject_Add(
-	libnvc
-	PREFIX ${libnvc_PREFIX}
-	GIT_REPOSITORY https://github.com/etorth/libnvc
-	GIT_SHALLOW		 1
-	GIT_PROGRESS	 1
-	CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-					-DCMAKE_INSTALL_PREFIX=${libnvc_INSTALL}
-					-DENABLE_ASAN=${ENABLE_ASAN}
-					-DENABLE_USAN=${ENABLE_USAN}
-					-DENABLE_TSAN=${ENABLE_TSAN}
 
-	LOG_DOWNLOAD 1
-	LOG_INSTALL 1
+set(nvc_LIBS
+	${nvc_INSTALL}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}nvc${CMAKE_STATIC_LIBRARY_SUFFIX}
 	)
 
-set(LIBNVC_FOUND TRUE)
-set(LIBNVC_INCLUDE_DIRS ${libnvc_INSTALL}/include)
-set(LIBNVC_LIBRARIES ${libnvc_INSTALL}/lib/libnvc.a ${CMAKE_THREAD_LIBS_INIT})
-set(LIBNVC_LIBRARY_DIRS ${libnvc_INSTALL}/lib)
-set(LIBNVC_EXTERNAL TRUE)
+ExternalProject_Add(
+	nvc
+	PREFIX ${nvc_PREFIX}
+	GIT_REPOSITORY https://github.com/etorth/libnvc
+	GIT_SHALLOW		 TRUE
+	GIT_PROGRESS	 TRUE
+	CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+					-DCMAKE_INSTALL_PREFIX=${nvc_INSTALL}
+
+	BUILD_BYPRODUCTS ${nvc_LIBS}
+	LOG_DOWNLOAD TRUE
+	LOG_INSTALL TRUE
+	)
+
+set(NVC_FOUND TRUE)
+set(NVC_INCLUDE_DIRS ${nvc_INSTALL}/include)
+set(NVC_LIBRARIES ${nvc_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+set(NVC_LIBRARY_DIRS ${nvc_INSTALL}/lib)
+set(NVC_EXTERNAL TRUE)

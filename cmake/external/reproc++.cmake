@@ -1,29 +1,34 @@
 include(ExternalProject)
 
 # build directory
-set(reproc++_PREFIX ${CMAKE_BINARY_DIR}/external/reproc++-prefix)
+set(reproc_PREFIX ${CMAKE_BINARY_DIR}/external/reproc-prefix)
 # install directory
-set(reproc++_INSTALL ${CMAKE_BINARY_DIR}/external/reproc++-install)
+set(reproc_INSTALL ${CMAKE_BINARY_DIR}/external/reproc-install)
+
+set(reproc_LIBS
+	${reproc_INSTALL}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}reproc++${CMAKE_STATIC_LIBRARY_SUFFIX}
+	)
 
 ExternalProject_Add(
-	reproc++
+	reproc
 	PREFIX ${libnvc_PREFIX}
 	GIT_REPOSITORY https://github.com/DaanDeMeyer/reproc
 	GIT_TAG				 v9.0.0
-	GIT_SHALLOW		 1
-	GIT_PROGRESS	 1
+	GIT_SHALLOW		 TRUE
+	GIT_PROGRESS	 TRUE
 	CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-						-DCMAKE_INSTALL_PREFIX=${reproc++_INSTALL}
+						-DCMAKE_INSTALL_PREFIX=${reproc_INSTALL}
 						-DREPROC++=ON
 						-DREPROC_TEST=OFF
 						-DREPROC_EXAMPLES=OFF
 
-	LOG_DOWNLOAD 1
-	LOG_INSTALL 1
+	BUILD_BYPRODUCTS ${reproc_LIBS}
+	LOG_DOWNLOAD TRUE
+	LOG_INSTALL TRUE
 	)
 
-set(REPROC++_FOUND TRUE)
-set(REPROC++_INCLUDE_DIRS ${reproc++_INSTALL}/include)
-set(REPROC++_LIBRARIES ${reproc++_INSTALL}/lib/libreproc++.a)
-set(REPROC++_LIBRARY_DIRS ${reproc++_INSTALL}/lib)
-set(REPROC++_EXTERNAL TRUE)
+set(REPROC_FOUND TRUE)
+set(REPROC_INCLUDE_DIRS ${reproc_INSTALL}/include)
+set(REPROC_LIBRARIES ${reproc_LIBS})
+set(REPROC_LIBRARY_DIRS ${reproc_INSTALL}/lib)
+set(REPROC_EXTERNAL TRUE)
