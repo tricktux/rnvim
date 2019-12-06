@@ -6,6 +6,7 @@ file(GLOB SOURCES
 	"${CMAKE_SOURCE_DIR}/src/cli_args.cpp"
 )
 
+# Includes
 include_directories(${CMAKE_SOURCE_DIR}/inc)
 include_directories(${wxWidgets_INCLUDE_DIRS})
 
@@ -21,8 +22,30 @@ endif ()
 if (REPROC++_FOUND)
 	include_directories(${REPROC++_INCLUDE_DIRS})
 endif ()
+if (GSL_FOUND)
+	include_directories(SYSTEM ${GSL_INCLUDE_DIRS})
+endif ()
 
+# Executables
 add_executable(${PROJECT_NAME} ${SOURCES})
+
+# Dependencies
+if (GSL_FOUND)
+	add_dependencies(${PROJECT_NAME} gsl)
+endif ()
+if (EASYLOGGING_FOUND)
+	add_dependencies(${PROJECT_NAME} easylogging)
+endif ()
+if (LIBNVC_FOUND)
+	add_dependencies(${PROJECT_NAME} libnvc)
+endif ()
+if (CXXOPTS_FOUND)
+	add_dependencies(${PROJECT_NAME} cxxopts)
+endif ()
+if (REPROC++_FOUND)
+	add_dependencies(${PROJECT_NAME} reproc++)
+endif ()
+
 # Sanitizers
 if (SANITIZERS_FOUND)
 	add_sanitizers(aws-text)
