@@ -28,7 +28,7 @@ ExternalProject_Add(
 
 set(EASYLOGGING_FOUND TRUE)
 set(EASYLOGGING_INCLUDE_DIRS ${easylogging_INSTALL}/include)
-set(EASYLOGGING_LIBRARIES easylogging_LIBS)
+set(EASYLOGGING_LIBRARIES ${easylogging_LIBS})
 set(EASYLOGGING_LIBRARY_DIRS ${easylogging_INSTALL}/lib)
 set(EASYLOGGING_EXTERNAL TRUE)
 # TODO if (WIN32) copy dynamic lib to RUNTIME_OUTPUT_DIR?
