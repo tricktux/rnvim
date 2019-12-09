@@ -52,10 +52,11 @@ int ReprocHandler::start(const std::vector<std::string> &cmd) {
     DLOG(ERROR) << "[" << __FUNCTION__ << "]: Failed to start process."
                 << " ec.value = '" << ec.value() << "'."
                 << " ec.message = '" << ec.value() << "'";
-    if (ec == reproc::errc::file_not_found)
+    if (ec == std::errc::no_such_file_or_directory) {
       DLOG(ERROR)
           << "[" << __FUNCTION__ << "]: "
-          << "Program not found. Make sure it's available from the PATH.";
+          << "Nvim executable not found. Make sure it's available from the PATH.";
+		}
     return -2;
   }
 

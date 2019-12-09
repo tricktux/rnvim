@@ -38,11 +38,13 @@ public:
 
 class ReprocHandler : public IProcessHandler {
   reproc::process p;
+	reproc::options options;
 
 public:
   ReprocHandler(unsigned int _timeout)
       : p(reproc::terminate, reproc::milliseconds(_timeout/2), reproc::kill,
-           reproc::milliseconds(_timeout/2)) {}
+           reproc::milliseconds(_timeout/2)) {
+			}
   virtual ~ReprocHandler() {
     if (is_running())
       p.kill();
