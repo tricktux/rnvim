@@ -1,9 +1,9 @@
 # All the source files for the bot.
 file(GLOB SOURCES
 	"${CMAKE_SOURCE_DIR}/src/main.cpp"
-	"${CMAKE_SOURCE_DIR}/src/application.cpp"
-	"${CMAKE_SOURCE_DIR}/src/process_handler.cpp"
-	"${CMAKE_SOURCE_DIR}/src/cli_args.cpp"
+	# "${CMAKE_SOURCE_DIR}/src/application.cpp"
+	# "${CMAKE_SOURCE_DIR}/src/process_handler.cpp"
+	# "${CMAKE_SOURCE_DIR}/src/cli_args.cpp"
 )
 
 # Includes

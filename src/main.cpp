@@ -33,42 +33,12 @@ INITIALIZE_EASYLOGGINGPP
 int main(int argc, char **argv) {
   START_EASYLOGGINGPP(argc, argv);
 
-  DLOG(INFO) << "This is what I am looking for";
-  DLOG(ERROR) << "This is what I am looking for";
-  VLOG(1) << "This is what I am looking for";
-  VLOG(2) << "This is what I am looking for";
-  VLOG(3) << "This is what I am looking for";
-  // Application app;
-  // app.init(argc, argv);
+	libnvc::reproc_device reproc_dev;
+	reproc_dev.spawn();
 
-  // sf::Window window(sf::VideoMode(800, 600), "My Window");
-
-  libnvc::asio_socket socket;
-  if (!socket.connect("localhost", 6666)) {
-    throw std::runtime_error("failed to connect to localhost:6666");
-  }
-  const std::map<std::string, libnvc::object> options;
-  libnvc::api_client client(&socket);
-  client.nvim_ui_attach(800, 600, options);
-  client.forward<libnvc::reqid("nvim_input")>(
-      {"$i123<CR>123<ESC>"}, [](int64_t len_done) {
-        char buf[128];
-        std::sprintf(buf, "nvim_input returns: %" PRIi64, len_done);
-        libnvc::log(libnvc::LOG_INFO, buf);
-      });
-
-  client.forward<libnvc::reqid("nvim_buf_set_name")>(
-      {1, "1234"},
-      []() { libnvc::log(libnvc::LOG_INFO, "nvim_buf_set_name done"); },
-      [](int64_t ec, std::string emsg) {
-        std::printf("nvim reports error: [%d, %s]", (int)(ec), emsg.c_str());
-      });
-
-  client.forward<libnvc::reqid("nvim_command")>(
-      {":echomsg \"hello world\""},
-      []() { libnvc::log(libnvc::LOG_INFO, "nvim_command done"); });
-
-  while (true) {
-    client.poll();
-  }
+	libnvc::api_client client(&reproc_dev);
+	client.nvim_ui_attach(100, 80, {{"rgb", true}, {"ext_linegrid", true}});
+	client.nvim_input("$i123<CR>123<ESC>");
+	client.nvim_buf_set_name(1, "1234");
+	while (1) {}
 }
