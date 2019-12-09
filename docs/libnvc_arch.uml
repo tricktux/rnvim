@@ -1,6 +1,30 @@
 
 @startuml
 
+class libnvc::io_device {
+	+virtual size_t send(const char *, size_t)
+	+virtual size_t send(string_view)
+	+virtual size_t recv(char *, size_t)
+}
 
+class libnvc::reproc_device {
+	+std::unique_ptr<reproc_device_impl> m_impl;
+
+	+void spawn(char **argv)
+	+void kill()
+}
+
+class libnvc::reproc_device_impl {
+	-reproc::process m_process;
+	-std::mutex m_lock;
+	-std::string m_output;
+	-std::future<std::error_code> m_drain_async;
+
+	+void spawn(char *argv[] = nullptr);
+	+void kill();
+}
+
+libnvc::io_device <|-- libnvc::reproc_device
+libnvc::reproc_device *-- libnvc::reproc_device_impl : unique_ptr::m_impl
 
 @enduml
