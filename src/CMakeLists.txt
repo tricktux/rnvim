@@ -46,6 +46,8 @@ if (REPROC_FOUND)
 	add_dependencies(${PROJECT_NAME} reproc)
 endif ()
 
+add_dependencies(${PROJECT_NAME} jinja2_proc)
+
 # Sanitizers
 if (SANITIZERS_FOUND)
 	add_sanitizers(${PROJECT_NAME})

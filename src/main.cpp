@@ -25,7 +25,6 @@
 #include <stdexcept>
 #include <string>
 
-// #include <SFML/Window.hpp>
 #include "easylogging++.h"
 
 INITIALIZE_EASYLOGGINGPP
