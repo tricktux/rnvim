@@ -1,16 +1,15 @@
 # All the source files for the bot.
 file(GLOB SOURCES
-	"${CMAKE_SOURCE_DIR}/src/main.cpp"
-	# "${CMAKE_SOURCE_DIR}/src/application.cpp"
-	# "${CMAKE_SOURCE_DIR}/src/process_handler.cpp"
-	# "${CMAKE_SOURCE_DIR}/src/cli_args.cpp"
-)
+		"${CMAKE_SOURCE_DIR}/src/main.cpp"
+		# "${CMAKE_SOURCE_DIR}/src/application.cpp"
+		# "${CMAKE_SOURCE_DIR}/src/process_handler.cpp"
+		# "${CMAKE_SOURCE_DIR}/src/cli_args.cpp"
+		"${CMAKE_SOURCE_DIR}/src/api_client/reprocdevice.cpp"
+		"${CMAKE_SOURCE_DIR}/src/api_client/mpinterf.cpp"
+	)
 
 file(GLOB NVC_API_SOURCES
 		"${JINJA2_OUTPUT_DIR}/apiclient.cpp"
-		# "${JINJA2_OUTPUT_DIR}/asiosocket.cpp"
-		"${JINJA2_OUTPUT_DIR}/reprocdevice.cpp"
-		"${JINJA2_OUTPUT_DIR}/mpinterf.cpp"
 	)
 
 # Includes
