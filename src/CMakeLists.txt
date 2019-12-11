@@ -6,6 +6,13 @@ file(GLOB SOURCES
 	# "${CMAKE_SOURCE_DIR}/src/cli_args.cpp"
 )
 
+file(GLOB NVC_API_SOURCES
+		"${JINJA2_OUTPUT_DIR}/apiclient.cpp"
+		# "${JINJA2_OUTPUT_DIR}/asiosocket.cpp"
+		"${JINJA2_OUTPUT_DIR}/reprocdevice.cpp"
+		"${JINJA2_OUTPUT_DIR}/mpinterf.cpp"
+	)
+
 # Includes
 include_directories(${CMAKE_SOURCE_DIR}/inc)
 include_directories(${wxWidgets_INCLUDE_DIRS})
@@ -25,9 +32,10 @@ endif ()
 if (GSL_FOUND)
 	include_directories(SYSTEM ${GSL_INCLUDE_DIRS})
 endif ()
+include_directories(${JINJA2_OUTPUT_DIR})
 
 # Executables
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES} ${NVC_API_SOURCES})
 
 # Dependencies
 if (GSL_FOUND)

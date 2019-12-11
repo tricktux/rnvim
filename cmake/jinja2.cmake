@@ -1,6 +1,6 @@
 
 set(JINJA2_INPUT_DIR  "${CMAKE_SOURCE_DIR}/src/api_client")
-set(JINJA2_OUTPUT_DIR "${CMAKE_SOURCE_DIR}/src/generated")
+set(JINJA2_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/src/generated")
 
 file(GLOB JINJA2_ALL_TEMPLATE_SRC "${JINJA2_INPUT_DIR}/*.[hc]pp")
 

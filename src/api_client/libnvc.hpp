@@ -269,29 +269,6 @@ namespace libnvc
             virtual void disconnect()               = 0;
     };
 
-    class asio_socket: public libnvc::socket
-    {
-        private:
-            class asio_socket_impl;
-
-        private:
-            std::unique_ptr<asio_socket_impl> m_impl;
-
-        public:
-            asio_socket();
-
-        public:
-            virtual ~asio_socket();
-
-        public:
-            virtual bool connect(const char *, int);
-            virtual void disconnect();
-
-        public:
-            virtual size_t send(const char *, size_t);
-            virtual size_t recv(      char *, size_t);
-    };
-
     class reproc_device: public libnvc::io_device
     {
         private:
