@@ -71,6 +71,7 @@ if (REPROC_FOUND)
 	target_link_libraries(${PROJECT_NAME} ${REPROC_LIBRARIES})
 endif ()
 target_link_libraries(${PROJECT_NAME} ${wxWidgets_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} fmt::fmt)
 
 # target_link_libraries(gnvim stdc++fs)
 # target_link_libraries(gnvim sfml-system sfml-graphics)

@@ -16,13 +16,11 @@ project(gnvim)
 set (_modules
 		"${CMAKE_SOURCE_DIR}/cmake"
 		"${CMAKE_SOURCE_DIR}/cmake/sanitizers"
-		"${CMAKE_SOURCE_DIR}/cmake/external"
 	)
 
 set (CMAKE_MODULE_PATH _modules)
 
 include("${CMAKE_SOURCE_DIR}/cmake/external/gsl.cmake")
-# include("${CMAKE_SOURCE_DIR}/cmake/external/libnvc.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/easylogging.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/reproc++.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/cxxopts.cmake")
@@ -110,6 +108,8 @@ endif()
 
 find_package(wxWidgets COMPONENTS core base REQUIRED)
 include(${wxWidgets_USE_FILE})
+
+find_package(fmt)
 
 if (SANITIZE_ADDRESS OR SANITIZE_MEMORY OR SANITIZE_THREAD OR
 		SANITIZE_UNDEFINED)
