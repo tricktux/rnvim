@@ -18,7 +18,6 @@
 
 #include "libnvc.hpp"
 #include "mpack.h"
-#include "strfunc.hpp"
 #include <array>
 #include <cstdint>
 #include <map>
@@ -52,8 +51,8 @@ void libnvc::mpinterf::writer::flush() {
   if (m_writer_alive) {
     if (mpack_writer_destroy(reinterpret_cast<mpack_writer_t *>(storage())) !=
         mpack_ok) {
-      throw std::runtime_error(str_fflprintf(
-          ": Failed to call mpack_writer_destroy() to flush data"));
+      throw std::runtime_error(
+          ": Failed to call mpack_writer_destroy() to flush data");
     }
     m_writer_alive = false;
   }
@@ -62,7 +61,7 @@ void libnvc::mpinterf::writer::flush() {
 std::string_view libnvc::mpinterf::writer::pack() {
   this->flush();
   if (m_data == nullptr) {
-    throw std::runtime_error(str_fflprintf(": Try to pack an empty writer"));
+    throw std::runtime_error(": Try to pack an empty writer");
   }
   return {m_data, m_size};
 }
@@ -126,8 +125,7 @@ void libnvc::mpinterf::writer::write(const libnvc::object &obj) {
   }
 
   else {
-    throw std::runtime_error(
-        str_fflprintf(": libnvc::object holds unknown type"));
+    throw std::runtime_error(": libnvc::object holds unknown type");
   }
 }
 

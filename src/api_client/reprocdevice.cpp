@@ -17,7 +17,6 @@
  */
 
 #include "libnvc.hpp"
-#include "strfunc.hpp"
 #include <future>
 #include <mutex>
 #include <reproc++/reproc.hpp>
