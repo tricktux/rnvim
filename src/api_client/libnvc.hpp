@@ -121,9 +121,11 @@ namespace libnvc {
         nullptr,
 
         // requests
+					// clang-format off
 {% for req in nvim_reqs %}
         "req::{{req.name}}",
 {% endfor %}
+// clang-format on
 
         // notifications
         "notif::test",
@@ -324,11 +326,15 @@ namespace libnvc {
       const libnvc::object &ref() const { return *(m_ptr.get()); }
     };
 
-    using resp_variant = std::variant < libnvc::void_type, {% for result_type in nvim_reqs|map(attribute='return_type')|unique %
-    }
-    { % if result_type != 'void' % }
-    {{result_type}} { % if not loop.last % }
-    , { % endif % } { % endif % } { % endfor % } > ;
+    // clang-format off
+    using resp_variant = std::variant<libnvc::void_type,
+{% for result_type in nvim_reqs|map(attribute='return_type')|unique %}
+    {% if result_type != 'void' %}
+        {{result_type}}{% if not loop.last %},{% endif %} 
+    {% endif %}
+{% endfor %}
+    >;
+    // clang-format on
     }
 
     namespace libnvc {
@@ -444,23 +450,35 @@ namespace libnvc {
     namespace libnvc {
     template <size_t> struct req;
 
-    {% for req in nvim_reqs %
-    }
-    template <> struct req<libnvc::reqid("{{req.name}}")> {
-      using parms_tuple = std::tuple < {% for arg in req.args %
-      }
-      {{arg.type_out}} { % if not loop.last % }
-      , { % endif % } { % endfor % } > ;
+    // clang-format off
+{% for req in nvim_reqs %}
+    template<> struct req<libnvc::reqid("{{req.name}}")>
+    {
+        using parms_tuple = std::tuple<
+{% for arg in req.args %}
+            {{arg.type_out}}{% if not loop.last %},{% endif %} 
+{% endfor %}
+        >;
 
-      using resp_type = {{req.return_type}};
+        using resp_type = {{req.return_type}};
 
-      constexpr int since() const { return {{req.since}}; }
+        constexpr int since() const
+        {
+            return {{req.since}};
+        }
 
-      constexpr size_t id() const { return libnvc::strid("req::{{req.name}}"); }
+        constexpr size_t id() const
+        {
+            return libnvc::strid("req::{{req.name}}");
+        }
 
-      constexpr const char *name() const { return reqstr(id()); }
+        constexpr const char *name() const
+        {
+            return reqstr(id());
+        }
     };
-    { % endfor % }
+{% endfor %}
+    // clang-format on
     }
 
     namespace libnvc {
@@ -618,63 +636,53 @@ namespace libnvc {
       // when got error reported from nvim server these function throw [errc,
       // errmsg]
 
-      {% for req in nvim_reqs %
-      }
-      {{req.return_type}} {
-          {req.name}}({ % for arg in req.args % } {{arg.type}} {{arg.name}} {
-        % if not loop.last %
-      },
-                      { % endif % } { % endfor % }) {
-        { % if req.return_type != 'void' % }
-        {
-          { req.return_type }
-        }
-        r;
-        auto on_resp = [&r]({
-          { req.return_type }
-        } res) { r = res; };
-        { % else % }
-        auto on_resp = []() {};
-        { % endif % }
-        auto on_resperr = [](int64_t ec, std::string emsg) {
-          throw std::runtime_error(
-              ((std::string("Error for request \"{{req.name}}\": [") +
-                std::to_string(ec) + ", ") +
-               emsg) +
-              "]");
-        };
+      // clang-format off
+{% for req in nvim_reqs %}
+            {{req.return_type}} {{req.name}}({% for arg in req.args %}{{arg.type}} {{arg.name}}{% if not loop.last %}, {% endif %}{% endfor %})
+            {
+{% if req.return_type != 'void' %}
+                {{req.return_type}} r;
+                auto on_resp = [&r]({{req.return_type}} res)
+                {
+                    r = res;
+                };
+{% else %}
+                auto on_resp = []()
+                {
+                };
+{% endif %}
+                auto on_resperr = [](int64_t ec, std::string emsg)
+                {
+                    throw std::runtime_error(((std::string("Error for request \"{{req.name}}\": [") + std::to_string(ec) + ", ") + emsg) + "]");
+                };
 
-        constexpr size_t req_id = libnvc::reqid("{{req.name}}");
-        auto msgid =
-            forward<req_id>(libnvc::req<req_id>::parms_tuple(
-                                { % for arg in req.args % } {{arg.name}} {
-                                  % if not loop.last %
-                                },
-                                { % endif % } { % endfor % }),
-                            on_resp, on_resperr);
-        poll_wait(msgid);
-        { % if req.return_type != 'void' % }
-        return r;
-        { % else % }
-        return;
-        { % endif % }
-      }
+                constexpr size_t req_id = libnvc::reqid("{{req.name}}");
+                auto msgid = forward<req_id>(libnvc::req<req_id>::parms_tuple({% for arg in req.args %}{{arg.name}}{% if not loop.last %}, {% endif %}{% endfor %}), on_resp, on_resperr);
+                poll_wait(msgid);
+{% if req.return_type != 'void' %}
+                return r;
+{% else %}
+                return;
+{% endif %}
+            }
 
-      { % endfor % }
+{% endfor %}
+
+      // clang-format on
 
     public:
       // ui notifications
       // notif doesn't have return value, do nothing by default
       // it's impossible for jinja2 to generate proper code for each
       // notification
-      {% for notif in nvim_notifs %
-      }
-      virtual void on_{{notif.name}}({ % for arg in notif.args % } {
-                                         {arg.type}} { % if not loop.last % },
-                                     { % endif % } { % endfor % }) {
-        libnvc::log(libnvc::LOG_DEBUG, "Ignored notif: {{notif.name}}");
-      }
-      { % endfor % }
+      // clang-format off
+{% for notif in nvim_notifs %}
+            virtual void on_{{notif.name}}({% for arg in notif.args%}{{arg.type}}{% if not loop.last %}, {% endif %}{% endfor %})
+            {
+                libnvc::log(libnvc::LOG_DEBUG, "Ignored notif: {{notif.name}}");
+            }
+{% endfor %}
+      // clang-format on
     };
     }
 

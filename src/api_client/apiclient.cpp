@@ -18,7 +18,6 @@
 
 #include "libnvc.hpp"
 #include "mpack.h"
-#include "strfunc.hpp"
 #include <cstdint>
 #include <cstring>
 #include <optional>
@@ -32,8 +31,7 @@ private:
 public:
   stream_decoder(libnvc::io_device *piodev) : m_tree() {
     if (!piodev) {
-      throw std::invalid_argument(
-          str_fflprintf(": Invalid io device: (nullptr)"));
+      throw std::invalid_argument(": Invalid io device: (nullptr)");
     }
     // checked the code
     // seems this function always succeeds
@@ -62,8 +60,8 @@ public:
       return {};
     }
     default: {
-      throw std::runtime_error(str_fflprintf(": Get mpack_tree_error(): %s",
-                                             mpack_error_to_string(ec)));
+      throw std::runtime_error(": Get mpack_tree_error(): " +
+                               mpack_error_to_string(ec));
     }
     }
   }
@@ -332,15 +330,16 @@ static void inn_dispatch_req(
   // only call this function in api_client::poll
 
   switch (reqid) {
-    {% for req in nvim_reqs %
-    }
-  case libnvc::reqid("{{req.name}}"): {
-    resp_pool[msgid](
-        inn_make_resp_variant<libnvc::reqid("{{req.name}}")>(node));
-    resp_pool.erase(msgid);
-    break;
-  }
-    { % endfor % }
+    // clang-format off
+{% for req in nvim_reqs %}
+        case libnvc::reqid("{{req.name}}"):
+            {
+                resp_pool[msgid](inn_make_resp_variant<libnvc::reqid("{{req.name}}")>(node));
+                resp_pool.erase(msgid);
+                break;
+            }
+{% endfor %}
+    // clang-format on
   default: {
     throw std::invalid_argument(str_fflprintf(": Invalid reqid: %zu", reqid));
   }
@@ -361,31 +360,28 @@ static void inn_dispatch_notif(const char *notif_name, mpack_node_t event_node,
   }
 
   if (false) {
-    {% for notif in nvim_notifs %
-    }
-  } else if (std::strcmp(notif_name, "{{notif.name}}") == 0) {
-    { % if notif.args | length == 0 % }
-    pclient->on_{{notif.name}}();
-    return;
-    { % else % }
-    const size_t notif_parms_count = {{notif.args | length}};
-    const size_t array_length = mpack_node_array_length(event_node);
+    // clang-format off
+{% for notif in nvim_notifs %}
+    }else if(std::strcmp(notif_name, "{{notif.name}}") == 0){
+{% if notif.args|length == 0 %}
+        pclient->on_{{notif.name}}();
+        return;
+{% else %}
+        const size_t notif_parms_count = {{notif.args|length}};
+        const size_t array_length = mpack_node_array_length(event_node);
 
-    if (notif_parms_count != array_length) {
-      throw std::runtime_error(
-          str_fflprintf(": Incorrect parameter count: %zu, expecting %zu",
-                        array_length, notif_parms_count));
-    }
+        if(notif_parms_count != array_length){
+            throw std::runtime_error(str_fflprintf(": Incorrect parameter count: %zu, expecting %zu", array_length, notif_parms_count));
+        }
 
-    {% for arg in notif.args %
-    }
-    auto {{arg.name}} = mp_read<{{arg.type_out}}>(
-        mpack_node_array_at(event_node, {{loop.index0}}));
-    { % endfor % } pclient->on_{{notif.name}}(
-        { % for arg in notif.args % } {{arg.name}} { % if not loop.last % },
-        { % endif % } { % endfor % });
-    return;
-    { % endif % } { % endfor % }
+{% for arg in notif.args %}
+        auto {{arg.name}} = mp_read<{{arg.type_out}}>(mpack_node_array_at(event_node, {{loop.index0}}));
+{% endfor %}
+        pclient->on_{{notif.name}}({% for arg in notif.args %}{{arg.name}}{% if not loop.last %}, {% endif %}{% endfor %});
+        return;
+{% endif %}
+{% endfor %}
+    // clang-format on
   } else {
     throw std::runtime_error(
         str_fflprintf(": Get unknown notification: %s", notif_name));
