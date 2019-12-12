@@ -496,11 +496,12 @@ namespace libnvc {
       libnvc::io_device *m_iodev;
 
     private:
-      std::map<int64_t, std::function<void(libnvc::resp_variant)>> m_onresp;
-      std::map<int64_t, std::function<void(int64_t, std::string)>> m_onresperr;
+      // std::map<int64_t, std::function<void(libnvc::resp_variant)>> m_onresp;
+      // std::map<int64_t, std::function<void(int64_t, std::string)>> m_onresperr;
 
     public:
-      api_client(libnvc::io_device *);
+      // api_client(libnvc::io_device *);
+			api_client();
 
     public:
       // seems I can't use the default dtor
@@ -520,40 +521,40 @@ namespace libnvc {
     private:
       template <size_t reqid, typename on_resp_t>
       inline void regcb_resp(on_resp_t on_resp) {
-        auto msg_id = libnvc::msgid(reqid, seqid());
-        if (true /* on_resp */) {
-          if (m_onresp.find(msg_id) != m_onresp.end()) {
-            throw std::runtime_error(
-                ((std::string("response handler already resgistered: req = ") +
-                  libnvc::idstr(reqid)) +
-                 ", seqid = ") +
-                std::to_string(seqid()));
-          }
+        // auto msg_id = libnvc::msgid(reqid, seqid());
+        if (on_resp) {
+          // if (m_onresp.find(msg_id) != m_onresp.end()) {
+            // throw std::runtime_error(
+                // ((std::string("response handler already resgistered: req = ") +
+                  // libnvc::idstr(reqid)) +
+                 // ", seqid = ") +
+                // std::to_string(seqid()));
+          // }
 
-          m_onresp[msg_id] = [this, on_resp](libnvc::resp_variant result) {
-            if constexpr (std::is_void_v<
-                              typename libnvc::req<reqid>::resp_type>) {
-              on_resp();
-            } else {
-              on_resp(std::get<typename libnvc::req<reqid>::resp_type>(result));
-            }
-          };
+          // m_onresp[msg_id] = [this, on_resp](libnvc::resp_variant result) {
+            // if constexpr (std::is_void_v<
+                              // typename libnvc::req<reqid>::resp_type>) {
+              // on_resp();
+            // } else {
+              // on_resp(std::get<typename libnvc::req<reqid>::resp_type>(result));
+            // }
+          // };
         }
       }
 
       template <size_t reqid, typename on_resperr_t>
       inline void regcb_resperr(on_resperr_t on_resperr) {
-        auto msg_id = libnvc::msgid(reqid, seqid());
-        if (true /* on_resperr */) {
-          if (m_onresperr.find(msg_id) != m_onresperr.end()) {
-            throw std::runtime_error(
-                ((std::string(
-                      "response error handler already resgistered: req = ") +
-                  libnvc::idstr(reqid)) +
-                 ", seqid = ") +
-                std::to_string(seqid()));
-          }
-          m_onresperr[msg_id] = on_resperr;
+        // auto msg_id = libnvc::msgid(reqid, seqid());
+        if (on_resperr) {
+          // if (m_onresperr.find(msg_id) != m_onresperr.end()) {
+            // throw std::runtime_error(
+                // ((std::string(
+                      // "response error handler already resgistered: req = ") +
+                  // libnvc::idstr(reqid)) +
+                 // ", seqid = ") +
+                // std::to_string(seqid()));
+          // }
+          // m_onresperr[msg_id] = on_resperr;
         }
       }
 
@@ -616,9 +617,9 @@ namespace libnvc {
 
     public:
       void poll_all() {
-        while (!m_onresp.empty() || !m_onresperr.empty()) {
-          poll();
-        }
+        // while (!m_onresp.empty() || !m_onresperr.empty()) {
+          // poll();
+        // }
       }
 
     public:

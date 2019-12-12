@@ -1,10 +1,11 @@
 
-set(JINJA2_INPUT_DIR  "${CMAKE_SOURCE_DIR}/src/api_client")
-set(JINJA2_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/src/generated")
+set(JINJA2_INPUT_DIR  "${CMAKE_SOURCE_DIR}/lib")
+set(JINJA2_OUTPUT_DIR "${PROJECT_BINARY_DIR}/lib/generated")
 
 file(GLOB JINJA2_ALL_TEMPLATE_SRC
 		"${JINJA2_INPUT_DIR}/libnvc.hpp"
 		"${JINJA2_INPUT_DIR}/apiclient.cpp"
+		"${JINJA2_INPUT_DIR}/reprocdevice.cpp"
 	)
 
 set(JINJA2_SRC "")

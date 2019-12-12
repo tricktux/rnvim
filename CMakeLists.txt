@@ -22,9 +22,7 @@ set (CMAKE_MODULE_PATH _modules)
 
 include("${CMAKE_SOURCE_DIR}/cmake/external/gsl.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/easylogging.cmake")
-include("${CMAKE_SOURCE_DIR}/cmake/external/reproc++.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/cxxopts.cmake")
-include("${CMAKE_SOURCE_DIR}/cmake/jinja2.cmake")
 
 # Set a default build type if none was specified
 set(CMAKE_BUILD_TYPE "Debug" CACHE
@@ -33,9 +31,11 @@ set(CMAKE_BUILD_TYPE "Debug" CACHE
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
 	"Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 
+SET(CMAKE_COLOR_MAKEFILE ON)
+
 # Options
 # You can achieve the same behavior by doing CC=clang CXX=clang++ cmake ..
-option(USE_CLANG "Build application with clang" OFF)
+option(USE_CLANG "Build application with clang" OFF) # Ignored at the moment
 # Depends on clang and llvm being installed
 # cmake -DSANITIZE_ADDRESS=ON ..
 # ./bin/<executable_name>
@@ -74,21 +74,22 @@ else ()
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fno-strict-aliasing")
 	set(CMAKE_CXX_FLAGS_RELEASE
 		"${CMAKE_CXX_FLAGS_RELEASE} -Wall -Wfatal-errors -Wextra -Wunused -Werror")
-	if (USE_CLANG)
+	if (USE_CLANG OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 		set(CMAKE_CXX_FLAGS_RELEASE
 			"${CMAKE_CXX_FLAGS_RELEASE} -Wno-unused-lambda-capture")
-	endif (USE_CLANG)
+	endif ()
 
 	set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS}")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fdiagnostics-color=always")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -ggdb3 -pedantic")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-strict-aliasing")
 	set(CMAKE_CXX_FLAGS_DEBUG
 		"${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -Wunused -Werror")
-	if (USE_CLANG)
+	if (USE_CLANG OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 		set(CMAKE_CXX_FLAGS_DEBUG
 			"${CMAKE_CXX_FLAGS_DEBUG} -Wno-unused-lambda-capture")
-	endif (USE_CLANG)
+	endif ()
 endif ()
 
 # Specify output directories.
@@ -117,6 +118,7 @@ if (SANITIZE_ADDRESS OR SANITIZE_MEMORY OR SANITIZE_THREAD OR
 endif ()
 
 
+add_subdirectory("lib")
 add_subdirectory("src")
 # TODO Fix cmake for doxygen
 # add_subdirectory("docs")
