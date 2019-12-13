@@ -24,6 +24,16 @@ class libnvc::reproc_device_impl {
 	+void kill();
 }
 
+class g_nvim_api_reserved_string_tbl {
+	+CharArrayListOfAllApiFuncNames
+}
+
+class idstr {
+	+GetCharFromArrayById
+}
+
+g_nvim_api_reserved_string_tbl -- idstr
+
 libnvc::io_device <|-- libnvc::reproc_device
 libnvc::reproc_device *-- libnvc::reproc_device_impl : unique_ptr::m_impl
 
