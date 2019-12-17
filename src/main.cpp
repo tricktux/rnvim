@@ -32,12 +32,12 @@ INITIALIZE_EASYLOGGINGPP
 int main(int argc, char **argv) {
   START_EASYLOGGINGPP(argc, argv);
 
-	libnvc::reproc_device reproc_dev;
-	reproc_dev.spawn();
+	// libnvc::reproc_device reproc_dev;
+	// reproc_dev.spawn();
 
-	libnvc::api_client client(&reproc_dev);
-	client.nvim_ui_attach(100, 80, {{"rgb", true}, {"ext_linegrid", true}});
-	client.nvim_input("$i123<CR>123<ESC>");
-	client.nvim_buf_set_name(1, "1234");
-	while (1) {}
+	// libnvc::api_client client(&reproc_dev);
+	// client.nvim_ui_attach(100, 80, {{"rgb", true}, {"ext_linegrid", true}});
+	// client.nvim_input("$i123<CR>123<ESC>");
+	// client.nvim_buf_set_name(1, "1234");
+	// while (1) {}
 }
