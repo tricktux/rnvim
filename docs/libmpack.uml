@@ -1,0 +1,34 @@
+' File:           libmpack.uml
+' Description:     Code Description
+' Author:		    Reinaldo Molina
+' Email:          me at molinamail dot com
+' Revision:	    0.0.0
+' Created:        Tue Dec 17 2019 10:44
+' Last Modified:  Tue Dec 17 2019 10:44
+
+@startuml
+
+enum mpack_token_type_t {
+	MPACK_TOKEN_NIL       = 1,
+	MPACK_TOKEN_BOOLEAN   = 2,
+	MPACK_TOKEN_UINT      = 3,
+	MPACK_TOKEN_SINT      = 4,
+	MPACK_TOKEN_FLOAT     = 5,
+	MPACK_TOKEN_CHUNK     = 6,
+	MPACK_TOKEN_ARRAY     = 7,
+	MPACK_TOKEN_MAP       = 8,
+	MPACK_TOKEN_BIN       = 9,
+	MPACK_TOKEN_STR       = 10,
+	MPACK_TOKEN_EXT       = 11
+} 
+
+class mpack_tokbuf_t {
+	char pending[MPACK_MAX_TOKEN_LEN];
+	mpack_token_t pending_tok;
+	size_t ppos, plen;
+	mpack_uint32_t passthrough;
+}
+
+class MPACK_TOKBUF_INITIAL_VALUE
+
+@enduml

@@ -1,20 +1,22 @@
 
 @startuml
 
-class libnvc::io_device {
+set namespaceSeparator ::
+
+class io_device {
 	+virtual size_t send(const char *, size_t)
 	+virtual size_t send(string_view)
 	+virtual size_t recv(char *, size_t)
 }
 
-class libnvc::reproc_device {
+class reproc_device {
 	+std::unique_ptr<reproc_device_impl> m_impl;
 
 	+void spawn(char **argv)
 	+void kill()
 }
 
-class libnvc::reproc_device_impl {
+class reproc_device_impl {
 	-reproc::process m_process;
 	-std::mutex m_lock;
 	-std::string m_output;
@@ -32,9 +34,37 @@ class idstr {
 	+GetCharFromArrayById
 }
 
- g_nvim_api_reserved_string_tbl -- idstr
+class stream_decoder {
+	-mpack_tree_t m_tree;
+	-static size_t read_iodev(mpack_tree_t *ptree, char *buf, size_t count)
 
-libnvc::io_device <|-- libnvc::reproc_device
-libnvc::reproc_device *-- libnvc::reproc_device_impl : unique_ptr::m_impl
+	+std::optional<mpack_node_t> poll()
+}
+
+class api_client {
+	-std::unique_ptr<stream_decoder> m_decoder;
+	-int64_t m_seqid;
+	-io_device *m_iodev;
+	-const char *build_signature() const
+	-void add_seqid(int64_t add)
+	-inline void regcb_resp(on_resp_t on_resp)
+	-inline void regcb_resperr(on_resperr_t on_resperr)
+	+inline int64_t forward(const parms_tuple &parms, on_resp_t on_resp)
+	+inline int64_t forward(const parms_tuple &parms, on_resp_t on_resp, on_resperr_t on_resperr)
+	+void poll()
+	+int64_t poll_one();
+	+int64_t poll_any()
+	+void poll_all()
+	+void poll_wait(int64_t msgid)
+	+int64_t seqid() const
+}
+
+api_client *-- io_device : *m_iodev
+api_client *-- stream_decoder : *m_decoder
+
+g_nvim_api_reserved_string_tbl -- idstr
+
+io_device <|-- reproc_device
+reproc_device *-- reproc_device_impl : unique_ptr::m_impl
 
 @enduml
