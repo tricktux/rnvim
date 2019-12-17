@@ -1,0 +1,49 @@
+
+@startuml
+
+set namespaceSeparator ::
+
+class nvim::IoDevice {
+	+virtual size_t send(const char *, size_t)
+	+virtual size_t send(string_view)
+	+virtual size_t recv(char *, size_t)
+}
+
+class nvim::ReprocDevice {
+	-reproc::process m_process;
+	-std::mutex m_lock;
+	-std::string m_output;
+	-std::future<std::error_code> m_drain_async;
+
+	+void spawn(char **argv)
+	+void kill()
+}
+
+
+' class reproc_device_impl {
+	' -reproc::process m_process;
+	' -std::mutex m_lock;
+	' -std::string m_output;
+	' -std::future<std::error_code> m_drain_async;
+
+	' +void spawn(char *argv[] = nullptr);
+	' +void kill();
+' }
+
+class nvim::StreamDecoder {
+	-mpack_tree_t m_tree;
+	-static size_t read_iodev(mpack_tree_t *ptree, char *buf, size_t count)
+
+	+std::optional<mpack_node_t> poll()
+}
+
+class nvim::Client {
+	-nvim::IoDevice &device;
+	-StreamDecoder stream;
+}
+
+nvim::Client *-- nvim::StreamDecoder
+nvim::IoDevice <|-- nvim::ReprocDevice
+nvim::StreamDecoder -- nvim::IoDevice : uses >
+
+@enduml
