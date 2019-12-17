@@ -3,7 +3,7 @@
 
 set namespaceSeparator ::
 
-class nvim::IoDevice {
+interface nvim::IoDevice {
 	+virtual size_t send(const char *, size_t)
 	+virtual size_t send(string_view)
 	+virtual size_t recv(char *, size_t)
@@ -43,6 +43,7 @@ class nvim::Client {
 }
 
 nvim::Client *-- nvim::StreamDecoder
+nvim::Client *-left- nvim::IoDevice
 nvim::IoDevice <|-- nvim::ReprocDevice
 nvim::StreamDecoder -- nvim::IoDevice : uses >
 
