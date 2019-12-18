@@ -29,6 +29,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "mpack.h"
+
 namespace nvim {
 
 class IoDevice {

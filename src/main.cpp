@@ -19,7 +19,7 @@
 // along with this program.  If not, see <http:www.gnu.org/licenses/>.
 
 #include "application.hpp"
-#include "libnvc.hpp"
+// #include "libnvc.hpp"
 #include <cinttypes>
 #include <iostream>
 #include <stdexcept>

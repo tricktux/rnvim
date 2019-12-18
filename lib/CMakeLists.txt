@@ -1,6 +1,7 @@
 
 # include("${CMAKE_SOURCE_DIR}/cmake/jinja2.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/reproc++.cmake")
+include("${CMAKE_SOURCE_DIR}/cmake/external/mpack.cmake")
 
 set(LIB_NAME "nvim")
 set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -8,7 +9,7 @@ find_package (Threads)
 
 file(GLOB LIB_SRC
 	"${CMAKE_SOURCE_DIR}/lib/nvim.cpp"
-	# "${CMAKE_SOURCE_DIR}/lib/mpinterf.cpp"
+	"${MPACK_SRC}/mpack.c"
 	)
 
 add_library(${LIB_NAME} STATIC ${JINJA2_SRC} ${LIB_SRC})
@@ -22,6 +23,10 @@ if (REPROC_FOUND)
 	target_include_directories(${LIB_NAME} PUBLIC ${REPROC_INCLUDE_DIRS})
 	target_link_libraries(${LIB_NAME} PRIVATE ${REPROC_LIBRARIES})
 endif ()
+if (MPACK_FOUND)
+	add_dependencies(${LIB_NAME} mpack)
+	target_include_directories(${LIB_NAME} PUBLIC ${MPACK_SRC})
+endif()
 # add_dependencies(${LIB_NAME} jinja2_proc)
 
 # target_include_directories(${LIB_NAME} PUBLIC "${MPACK_INCLUDE_DIRS}")
