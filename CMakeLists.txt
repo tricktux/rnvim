@@ -10,7 +10,7 @@
 cmake_minimum_required(VERSION 3.11)
 
 # Set ProjectName
-project(gnvim)
+project(rnvim)
 
 # Manually include dependencies
 set (_modules
