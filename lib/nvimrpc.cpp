@@ -118,11 +118,11 @@ size_t nvim::ReprocDevice::send(const char *buf, size_t size) {
   return size;
 }
 
-/** 
- * @brief Receive 
+/**
+ * @brief Receive
  * @param buf
  * @param size
- * @return 
+ * @return
  */
 size_t nvim::ReprocDevice::recv(char *buf, size_t size) {
   if (!process.running()) {

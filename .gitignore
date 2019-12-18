@@ -3,6 +3,7 @@ build
 debug
 release
 *.plist
+!.clang-format
 
 # generated
 CMakeCache.txt
