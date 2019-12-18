@@ -29,6 +29,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "fmt/core.h"
 #include "easylogging++.h"
 #include "mpack.h"
 
@@ -60,16 +61,16 @@ public:
    * @param argv Command line and arguments to execute
    * @param timeout Number of seconds to wait for process to start
    * Note: Will wait an extra 2 seconds in order to send the terminate and kill
-	 * @return 0 in case of success, less than that otherwise
+   * @return 0 in case of success, less than that otherwise
    */
   int spawn(std::string_view argv, int timeout) {
     if (timeout <= 0) {
-      LOG(WARNING, "Invalid timeout sent, using 4");
+      LOG(WARNING) << "Invalid timeout sent, using 4";
       timeout = 4;
     }
 
     if (argv.empty()) {
-      LOG(ERROR, "Empty argv argument");
+      LOG(ERROR) << "Empty argv argument";
       return -1;
     }
 
@@ -83,6 +84,7 @@ public:
     options.stop_actions = stop_actions;
 
     if (const auto ec = process.start(argv.data(), options)) {
+			LOG(ERROR) << "Error occurred trying to spawn: '" << argv.data() << "'";
       if (ec == std::errc::no_such_file_or_directory)
         throw std::runtime_error(
             "Executable not found, make sure it's in PATH");
