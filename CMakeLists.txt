@@ -46,7 +46,7 @@ option(SANITIZE_THREAD "Enable Thread Sanitizer" OFF)
 option(SANITIZE_UNDEFINED "Enable Undefined Behavior Sanitizer" OFF)
 option(SANITIZE_LINK_STATIC "Try to link static against sanitizers." OFF)
 
-option(ENABLE_TESTS "Build tests" OFF)
+option(ENABLE_TESTS "Build tests" ON)
 option(ENABLE_CLANG_TIDY "Use clang-tidy" OFF)
 
 # Build with c++17 support
