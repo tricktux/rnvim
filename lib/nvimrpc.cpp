@@ -19,7 +19,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "easylogging++.h"
-#include "nvim.hpp"
+#include "nvimrpc.hpp"
 
 /**
  * @brief Spawns and waits for it to start

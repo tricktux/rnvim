@@ -3,12 +3,12 @@
 include("${CMAKE_SOURCE_DIR}/cmake/external/reproc++.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/mpack.cmake")
 
-set(LIB_NAME "nvim")
+set(LIB_NAME "nvimrpc")
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package (Threads)
 
 file(GLOB LIB_SRC
-	"${CMAKE_SOURCE_DIR}/lib/nvim.cpp"
+	"${CMAKE_SOURCE_DIR}/lib/nvimrpc.cpp"
 	"${MPACK_SRC}/mpack.c"
 	)
 
@@ -38,12 +38,12 @@ endif ()
 # target_include_directories(${LIB_NAME} PUBLIC "${JINJA2_OUTPUT_DIR}")
 # endif ()
 
-set(NVC_FOUND TRUE)
-set(NVC_INCLUDE_DIRS ${JINJA2_OUTPUT_DIR})
-set(NVC_LIBRARIES 
+set(NVIMRPC_FOUND TRUE)
+set(NVIMRPC_INCLUDE_DIRS ${JINJA2_OUTPUT_DIR} "${CMAKE_SOURCE_DIR}/lib")
+set(NVIMRPC_LIBRARIES 
 	${CMAKE_STATIC_LIBRARY_PREFIX}${LIB_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX}
 	${CMAKE_THREAD_LIBS_INIT})
-set(NVC_LIBRARY_DIRS ${EXECUTABLE_OUTPUT_PATH})
+set(NVIMRPC_LIBRARY_DIRS ${EXECUTABLE_OUTPUT_PATH})
 
-# install(TARGETS ${LIB_NAME} DESTINATION lib)
-# install(FILES ${JINJA2_OUTPUT_DIR}/libnvc.hpp DESTINATION include)
+install(TARGETS ${LIB_NAME} DESTINATION lib)
+install(FILES "${CMAKE_SOURCE_DIR}/lib/nvimrpc.hpp" DESTINATION include)
