@@ -27,7 +27,8 @@
  * Note: Will wait an extra 2 seconds in order to send the terminate and kill
  * @return 0 in case of success, less than that otherwise
  */
-int nvim::ReprocDevice::spawn(std::string_view argv, int timeout) {
+int nvim::ReprocDevice::spawn(const std::vector<const char *> &argv,
+                              int timeout) {
   if (timeout <= 0) {
     DLOG(WARNING) << "Invalid timeout sent, using 4 seconds";
     timeout = 4;
@@ -47,9 +48,9 @@ int nvim::ReprocDevice::spawn(std::string_view argv, int timeout) {
   reproc::options options;
   options.stop_actions = stop_actions;
 
-  if (const auto ec = process.start(argv.data(), options)) {
+  if (auto ec = process.start(argv.data(), options)) {
     DLOG(ERROR) << "Error occurred trying to spawn: '" << argv.data()
-                   << "'. Error message: '" << ec.message() << "'";
+                << "'. Error message: '" << ec.message() << "'";
     if (ec == std::errc::no_such_file_or_directory)
       throw std::runtime_error("Executable not found, make sure it's in PATH");
     throw std::runtime_error(ec.message());

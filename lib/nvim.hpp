@@ -52,7 +52,7 @@ public:
   ReprocDevice() = default;
   virtual ~ReprocDevice() {}
 
-  int spawn(std::string_view, int);
+  int spawn(const std::vector<const char*>&, int);
 
   void kill() {}
 
