@@ -125,6 +125,8 @@ add_subdirectory("src")
 # add_subdirectory("docs")
 
 if(ENABLE_TESTS AND EXISTS "${CMAKE_SOURCE_DIR}/tests")
+	find_package(Threads REQUIRED)
+	find_package(GTest REQUIRED)
 	enable_testing()
 	add_subdirectory("tests")
 endif()

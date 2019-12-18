@@ -18,3 +18,14 @@
 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+#include <gtest/gtest.h>
+#include "easylogging++.h"
+#include "nvimrpc.hpp"
+
+INITIALIZE_EASYLOGGINGPP
+
+TEST(nvimrpc, start_stop) {
+
+}

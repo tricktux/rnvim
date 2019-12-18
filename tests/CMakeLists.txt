@@ -1,9 +1,15 @@
-# include_directories(${CMAKE_SOURCE_DIR}/inc)
+include_directories(${CMAKE_SOURCE_DIR}/inc)
 
-# include_directories(SYSTEM "${GTEST_INCLUDE_DIRS}")
-# link_libraries(${EASYLOGGING_LIBNAME})
-# link_libraries(${GTEST_BOTH_LIBRARIES})
-# link_libraries(Threads::Threads)
+if (GTEST_FOUND)
+	include_directories(SYSTEM "${GTEST_INCLUDE_DIRS}")
+	link_libraries(${GTEST_BOTH_LIBRARIES})
+	link_libraries(${CMAKE_THREAD_LIBS_INIT})
+endif()
+
+if (EASYLOGGING_FOUND)
+	include_directories(${EASYLOGGING_INCLUDE_DIRS})
+	link_libraries(${EASYLOGGING_LIBRARIES})
+endif()
 
 # add_executable(test_process_handler test_process_handler.cpp
 	# "${CMAKE_SOURCE_DIR}/src/process_handler.cpp")
@@ -21,3 +27,24 @@
 # target_link_libraries(test_cli_args cxxopts)
 
 # add_test(test_cli_args ${EXECUTABLE_OUTPUT_PATH})
+
+# ------------nvimrpc--------------
+add_executable(test_nvimrpc
+		"${CMAKE_SOURCE_DIR}/tests/test_nvimrpc.cpp"
+	)
+
+add_dependencies(test_nvimrpc
+		# reproc
+		nvimrpc
+		easylogging
+	)
+
+target_include_directories(test_nvimrpc
+		PUBLIC ${NVIMRPC_INCLUDE_DIRS}
+	)
+
+message(STATUS "NVIMRPC_INCLUDE_DIRS = ${NVIMRPC_INCLUDE_DIRS}")
+
+target_link_libraries(test_nvimrpc
+		PUBLIC ${NVIMRPC_LIBRARIES}
+	)
