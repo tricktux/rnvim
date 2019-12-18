@@ -18,7 +18,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "easylogging++.h"
 #include <cstring>
 #include <future>
 #include <mutex>
@@ -27,6 +26,7 @@
 #include <string>
 #include <string_view>
 #include <system_error>
+#include <vector>
 
 namespace nvim {
 
@@ -44,83 +44,19 @@ public:
 class ReprocDevice : public IoDevice {
 private:
   reproc::process process;
-  std::mutex m;
-  std::string output;
+  std::mutex m;       /// `Mutex` used by the drain sink to protect output
+  std::string output; /// Storage for child process `stdout` and `stderr`
+                      /// Future to read async from `stdout` and `stderr` into
+                      /// output using the `recv` function
   std::future<std::error_code> drain_async;
 
 public:
-  ReprocDevice() = default;
+  ReprocDevice() { output.reserve(1048576); }
   virtual ~ReprocDevice() {}
 
   int spawn(const std::vector<const char *> &, int);
-
-  void kill() {
-    if (!process.running()) {
-			DLOG(WARNING) << "Child process already dead";
-			return;
-		}
-
-    reproc::stop_actions stop_actions{
-        {reproc::stop::wait, reproc::milliseconds(1000)},
-        {reproc::stop::terminate, reproc::milliseconds(1000)},
-        {reproc::stop::kill, reproc::milliseconds(1000)},
-    };
-
-    if (auto ec = process.stop(stop_actions)) {
-      DLOG(ERROR) << "Error: '" << ec.message()
-                  << "' occurred while killing child process";
-			return;
-    }
-
-    DLOG(INFO) << "Gracefully closed child process whit exit code: "
-               << process.exit_status();
-  }
-
-  size_t send(const char *buf, size_t size) {
-    if (!process.running()) {
-      DLOG(FATAL) << "Child process is not running!";
-      throw std::runtime_error("Child process is not running!");
-    }
-
-    if ((buf == nullptr) || (buf[0] == 0)) {
-      DLOG(WARNING) << "Invalid buf pointer";
-      return 0;
-    }
-
-    if (size == 0) {
-      DLOG(WARNING) << "Size zero provided";
-      return 0;
-    }
-
-    if (auto ec = process.write(reinterpret_cast<const uint8_t *>(buf), size)) {
-      DLOG(ERROR) << "Failed to send: '" << buf << "'. Error message: '"
-                  << ec.message() << "'";
-      throw std::runtime_error(ec.message());
-    }
-    return size;
-  }
-
-  size_t recv(char *buf, size_t size) {
-    if (!process.running()) {
-      DLOG(FATAL) << "Child process is not running!";
-      throw std::runtime_error("Child process is not running!");
-    }
-
-    if (buf == nullptr) {
-      DLOG(WARNING) << "Invalid buf pointer";
-      return 0;
-    }
-
-    if (size == 0) {
-      DLOG(WARNING) << "Size zero provided";
-      return 0;
-    }
-
-    std::lock_guard<std::mutex> guard(m);
-    size_t read_size = std::min<size_t>(size, output.size());
-    std::memcpy(buf, output.data(), read_size);
-    output.erase(output.begin(), output.begin() + read_size);
-    return read_size;
-  }
+  void kill();
+  size_t send(const char *buf, size_t size);
+  size_t recv(char *buf, size_t size);
 };
 } // namespace nvim
