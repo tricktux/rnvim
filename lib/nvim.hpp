@@ -18,6 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "easylogging++.h"
 #include <cstring>
 #include <future>
 #include <mutex>
@@ -49,7 +50,7 @@ private:
 
 public:
   ReprocDevice() = default;
-	virtual ~ReprocDevice() {}
+  virtual ~ReprocDevice() {}
 
   int spawn(std::string_view, int);
 
@@ -58,6 +59,8 @@ public:
   size_t send(const char *buf, size_t size) {
     const auto ec = process.write(reinterpret_cast<const uint8_t *>(buf), size);
     if (ec) {
+      DLOG(ERROR) << "Failed to send: '" << buf << "'. Error message: '"
+                  << ec.message() << "'";
       throw std::runtime_error(ec.message());
     }
     return size;
@@ -65,7 +68,7 @@ public:
 
   size_t recv(char *buf, size_t size) {
     std::lock_guard<std::mutex> guard(m);
-    const auto read_size = std::min<size_t>(size, output.size());
+    size_t read_size = std::min<size_t>(size, output.size());
     std::memcpy(buf, output.data(), read_size);
     output.erase(output.begin(), output.begin() + read_size);
     return read_size;
