@@ -11,6 +11,11 @@ if (EASYLOGGING_FOUND)
 	link_libraries(${EASYLOGGING_LIBRARIES})
 endif()
 
+if (REPROC_FOUND)
+	include_directories(SYSTEM ${REPROC_INCLUDE_DIRS})
+	link_libraries(${REPROC_LIBRARIES})
+endif ()
+
 # add_executable(test_process_handler test_process_handler.cpp
 	# "${CMAKE_SOURCE_DIR}/src/process_handler.cpp")
 
@@ -30,21 +35,22 @@ endif()
 
 # ------------nvimrpc--------------
 add_executable(test_nvimrpc
+		"${CMAKE_SOURCE_DIR}/src/rpc/nvimrpc.cpp"
 		"${CMAKE_SOURCE_DIR}/tests/test_nvimrpc.cpp"
 	)
+if (REPROC_FOUND)
+	add_dependencies(test_nvimrpc reproc)
+	# target_include_directories(test_nvimrpc SYSTEM PUBLIC ${REPROC_INCLUDE_DIRS})
+	# target_link_libraries(test_nvimrpc PUBLIC ${REPROC_LIBRARIES})
+	# message(STATUS "REPROC_LIBRARIES = ${REPROC_LIBRARIES}")
+endif ()
+if (EASYLOGGING_FOUND)
+	add_dependencies(test_nvimrpc easylogging)
+endif ()
 
-add_dependencies(test_nvimrpc
-		# reproc
-		nvimrpc
-		easylogging
-	)
 
-target_include_directories(test_nvimrpc
-		PUBLIC ${NVIMRPC_INCLUDE_DIRS}
-	)
-
-message(STATUS "NVIMRPC_INCLUDE_DIRS = ${NVIMRPC_INCLUDE_DIRS}")
-
-target_link_libraries(test_nvimrpc
-		PUBLIC ${NVIMRPC_LIBRARIES}
-	)
+add_test(test_nvimrpc ${EXECUTABLE_OUTPUT_PATH})
+# if (MPACK_FOUND)
+	# add_dependencies(test_nvimrpc mpack)
+	# target_include_directories(test_nvimrpc PUBLIC ${MPACK_SRC})
+# endif()

@@ -24,6 +24,7 @@ include("${CMAKE_SOURCE_DIR}/cmake/external/gsl.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/easylogging.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/cxxopts.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/fmt.cmake")
+include("${CMAKE_SOURCE_DIR}/cmake/external/reproc++.cmake")
 
 # Set a default build type if none was specified
 set(CMAKE_BUILD_TYPE "Debug" CACHE
@@ -119,7 +120,7 @@ if (SANITIZE_ADDRESS OR SANITIZE_MEMORY OR SANITIZE_THREAD OR
 endif ()
 
 
-add_subdirectory("lib")
+# add_subdirectory("lib")
 add_subdirectory("src")
 # TODO Fix cmake for doxygen
 # add_subdirectory("docs")

@@ -22,7 +22,7 @@
 
 #include <gtest/gtest.h>
 #include "easylogging++.h"
-#include "nvimrpc.hpp"
+#include "rpc/nvimrpc.hpp"
 
 INITIALIZE_EASYLOGGINGPP
 
