@@ -1,7 +1,7 @@
 # All the source files for the bot.
 file(GLOB SOURCES
 		"${CMAKE_SOURCE_DIR}/src/main.cpp"
-		# "${CMAKE_SOURCE_DIR}/src/application.cpp"
+		"${CMAKE_SOURCE_DIR}/src/rpc/nvimrpc.cpp"
 		# "${CMAKE_SOURCE_DIR}/src/process_handler.cpp"
 		# "${CMAKE_SOURCE_DIR}/src/cli_args.cpp"
 		# "${CMAKE_SOURCE_DIR}/src/api_client/reprocdevice.cpp"
@@ -25,9 +25,9 @@ endif ()
 if (CXXOPTS_FOUND)
 	include_directories(${CXXOPTS_INCLUDE_DIRS})
 endif ()
-# if (REPROC_FOUND)
-	# include_directories(${REPROC_INCLUDE_DIRS})
-# endif ()
+if (REPROC_FOUND)
+	include_directories(${REPROC_INCLUDE_DIRS})
+endif ()
 if (GSL_FOUND)
 	include_directories(SYSTEM ${GSL_INCLUDE_DIRS})
 endif ()
@@ -49,9 +49,9 @@ endif ()
 if (CXXOPTS_FOUND)
 	add_dependencies(${PROJECT_NAME} cxxopts)
 endif ()
-# if (REPROC_FOUND)
-	# add_dependencies(${PROJECT_NAME} reproc)
-# endif ()
+if (REPROC_FOUND)
+	add_dependencies(${PROJECT_NAME} reproc)
+endif ()
 
 # add_dependencies(${PROJECT_NAME} jinja2_proc)
 
@@ -67,9 +67,9 @@ endif ()
 if (NVC_FOUND)
 	target_link_libraries(${PROJECT_NAME} ${NVC_LIBRARIES})
 endif ()
-# if (REPROC_FOUND)
-	# target_link_libraries(${PROJECT_NAME} ${REPROC_LIBRARIES})
-# endif ()
+if (REPROC_FOUND)
+	target_link_libraries(${PROJECT_NAME} ${REPROC_LIBRARIES})
+endif ()
 target_link_libraries(${PROJECT_NAME} ${wxWidgets_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} fmt::fmt)
 
