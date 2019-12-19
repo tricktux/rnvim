@@ -34,7 +34,7 @@ endif()
 
 # ------------nvimrpc--------------
 add_executable(test_nvimrpc
-		"${CMAKE_SOURCE_DIR}/src/rpc/nvimrpc.cpp"
+		"${CMAKE_SOURCE_DIR}/src/rpc/iodevice.cpp"
 		"${CMAKE_SOURCE_DIR}/tests/test_nvimrpc.cpp"
 	)
 if (REPROC_FOUND)

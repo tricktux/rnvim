@@ -23,7 +23,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 #include "easylogging++.h"
-#include "rpc/nvimrpc.hpp"
+#include "rpc/iodevice.hpp"
 
 INITIALIZE_EASYLOGGINGPP
 

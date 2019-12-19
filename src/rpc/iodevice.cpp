@@ -1,4 +1,4 @@
-/// @file nvim.cpp
+/// @file iodevice.cpp
 /// @brief Code for a neovim rpc client
 /// @author Reinaldo Molina
 /// @version  0.0
@@ -19,7 +19,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "easylogging++.h"
-#include "rpc/nvimrpc.hpp"
+#include "rpc/iodevice.hpp"
 
 /**
  * @brief Spawns and waits for it to start

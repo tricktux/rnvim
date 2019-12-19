@@ -1,4 +1,4 @@
-/// @file nvim.hpp
+/// @file iodevice.hpp
 /// @brief Code for a neovim rpc client
 /// @author Reinaldo Molina
 /// @version  0.0
