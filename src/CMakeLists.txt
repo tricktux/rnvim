@@ -8,9 +8,9 @@ file(GLOB SOURCES
 	)
 
 # aux_source_directory(${MPACK_SRC} MPACK_SRCS)
-# file(GLOB MPACK_SRCS
-		# "${MPACK_SRC}/*.c"
-	# )
+file(GLOB MPACK_SRCS
+		"${CMAKE_SOURCE_DIR}/third-party/mpack/mpack.c"
+	)
 
 # Includes
 include_directories(${CMAKE_SOURCE_DIR}/inc)
@@ -31,22 +31,12 @@ endif ()
 if (GSL_FOUND)
 	include_directories(SYSTEM ${GSL_INCLUDE_DIRS})
 endif ()
-if (MPACK_FOUND)
-	include_directories(${MPACK_SRC})
-endif ()
+include_directories("${CMAKE_SOURCE_DIR}/third-party/mpack")
 # include_directories(${JINJA2_OUTPUT_DIR})
 
 # Executables
 add_executable(${PROJECT_NAME} ${SOURCES} ${MPACK_SRCS})
-message(STATUS "SRC_MPACK FOUND!!!")
-message(STATUS "SRC_MPACK_SRCS = ${MPACK_SRCS}")
-message(STATUS "SRC_MPACK_SRC = ${MPACK_SRC}")
-
 # Dependencies
-if (MPACK_FOUND)
-	add_dependencies(${PROJECT_NAME} mpack-download)
-	# add_dependencies(${PROJECT_NAME} mpack)
-endif ()
 if (GSL_FOUND)
 	add_dependencies(${PROJECT_NAME} gsl)
 endif ()
@@ -68,7 +58,6 @@ endif ()
 if (SANITIZERS_FOUND)
 	add_sanitizers(${PROJECT_NAME})
 endif ()
-
 
 if (EASYLOGGING_FOUND)
 	target_link_libraries(${PROJECT_NAME} ${EASYLOGGING_LIBRARIES})
