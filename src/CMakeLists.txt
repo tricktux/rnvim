@@ -8,8 +8,8 @@ file(GLOB SOURCES
 		# "${CMAKE_SOURCE_DIR}/src/api_client/mpinterf.cpp"
 	)
 
-file(GLOB NVC_API_SOURCES
-		# "${JINJA2_OUTPUT_DIR}/apiclient.cpp"
+file(GLOB MPACK_SRCS
+		"${MPACK_SRC}/mpack.c"
 	)
 
 # Includes
@@ -31,10 +31,13 @@ endif ()
 if (GSL_FOUND)
 	include_directories(SYSTEM ${GSL_INCLUDE_DIRS})
 endif ()
+if (MPACK_FOUND)
+	include_directories(${MPACK_SRC})
+endif ()
 # include_directories(${JINJA2_OUTPUT_DIR})
 
 # Executables
-add_executable(${PROJECT_NAME} ${SOURCES} ${NVC_API_SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES} ${MPACK_SRCS})
 
 # Dependencies
 if (GSL_FOUND)
