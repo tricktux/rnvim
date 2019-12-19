@@ -18,6 +18,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifndef IODEVICE_HPP
+#define IODEVICE_HPP
+
 #include <cstring>
 #include <future>
 #include <mutex>
@@ -65,3 +68,5 @@ public:
 };
 
 } // namespace nvimrpc
+
+#endif

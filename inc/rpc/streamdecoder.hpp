@@ -19,6 +19,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifndef STREAMDECODER_HPP
+#define STREAMDECODER_HPP
+
 #include "easylogging++.h"
 #include "mpack.h"
 #include "rpc/iodevice.hpp"
@@ -74,3 +77,5 @@ public:
 };
 
 } // namespace nvimrpc
+
+#endif
