@@ -2,10 +2,9 @@
 file(GLOB SOURCES
 		"${CMAKE_SOURCE_DIR}/src/main.cpp"
 		"${CMAKE_SOURCE_DIR}/src/rpc/iodevice.cpp"
+		"${CMAKE_SOURCE_DIR}/src/rpc/streamdecoder.cpp"
 		# "${CMAKE_SOURCE_DIR}/src/process_handler.cpp"
 		# "${CMAKE_SOURCE_DIR}/src/cli_args.cpp"
-		# "${CMAKE_SOURCE_DIR}/src/api_client/reprocdevice.cpp"
-		# "${CMAKE_SOURCE_DIR}/src/api_client/mpinterf.cpp"
 	)
 
 file(GLOB MPACK_SRCS
@@ -38,6 +37,9 @@ endif ()
 
 # Executables
 add_executable(${PROJECT_NAME} ${SOURCES} ${MPACK_SRCS})
+message(STATUS "SRC_MPACK FOUND!!!")
+message(STATUS "SRC_MPACK_SRCS = ${MPACK_SRCS}")
+message(STATUS "SRC_MPACK_SRC = ${MPACK_SRC}")
 
 # Dependencies
 if (GSL_FOUND)
