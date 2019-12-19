@@ -28,7 +28,7 @@
 INITIALIZE_EASYLOGGINGPP
 
 TEST(nvimrpc, start_stop) {
-	nvim::ReprocDevice device;
+	nvimrpc::ReprocDevice device;
 
 	int timeout = 10;
 	char received[1024];

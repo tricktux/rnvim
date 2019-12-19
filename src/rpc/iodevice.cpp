@@ -28,7 +28,7 @@
  * Note: Will wait an extra 2 seconds in order to send the terminate and kill
  * @return 0 in case of success, less than that otherwise
  */
-int nvim::ReprocDevice::spawn(const std::vector<const char *> &argv,
+int nvimrpc::ReprocDevice::spawn(const std::vector<const char *> &argv,
                               int timeout) {
   if (timeout <= 0) {
     DLOG(WARNING) << "Invalid timeout sent, using 4 seconds";
@@ -66,7 +66,7 @@ int nvim::ReprocDevice::spawn(const std::vector<const char *> &argv,
 }
 
 /** @brief Terminates the child process */
-void nvim::ReprocDevice::kill() {
+void nvimrpc::ReprocDevice::kill() {
   if (!process.running()) {
     DLOG(WARNING) << "Child process already dead";
     return;
@@ -94,7 +94,7 @@ void nvim::ReprocDevice::kill() {
  * @param size Number of bytes
  * @return Number of bytes sent
  */
-size_t nvim::ReprocDevice::send(const char *buf, size_t size) {
+size_t nvimrpc::ReprocDevice::send(const char *buf, size_t size) {
   if (!process.running()) {
     DLOG(FATAL) << "Child process is not running!";
     throw std::runtime_error("Child process is not running!");
@@ -124,7 +124,7 @@ size_t nvim::ReprocDevice::send(const char *buf, size_t size) {
  * @param size
  * @return
  */
-size_t nvim::ReprocDevice::recv(char *buf, size_t size) {
+size_t nvimrpc::ReprocDevice::recv(char *buf, size_t size) {
   if (!process.running()) {
     DLOG(FATAL) << "Child process is not running!";
     throw std::runtime_error("Child process is not running!");

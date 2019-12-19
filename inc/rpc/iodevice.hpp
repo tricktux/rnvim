@@ -28,7 +28,7 @@
 #include <system_error>
 #include <vector>
 
-namespace nvim {
+namespace nvimrpc {
 
 /** @brief Input Output device abstraction used to communicate with Neovim */
 class IoDevice {
@@ -64,5 +64,4 @@ public:
   size_t recv(char *buf, size_t size) override;
 };
 
-
-} // namespace nvim
+} // namespace nvimrpc
