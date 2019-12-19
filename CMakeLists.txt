@@ -22,10 +22,10 @@ set (CMAKE_MODULE_PATH _modules)
 
 # include("${CMAKE_SOURCE_DIR}/cmake/external/gsl.cmake")
 # include("${CMAKE_SOURCE_DIR}/cmake/external/fmt.cmake")
+include("${CMAKE_SOURCE_DIR}/cmake/external/mpack.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/easylogging.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/cxxopts.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/reproc++.cmake")
-include("${CMAKE_SOURCE_DIR}/cmake/external/mpack.cmake")
 
 # Set a default build type if none was specified
 set(CMAKE_BUILD_TYPE "Debug" CACHE
@@ -48,7 +48,7 @@ option(SANITIZE_THREAD "Enable Thread Sanitizer" OFF)
 option(SANITIZE_UNDEFINED "Enable Undefined Behavior Sanitizer" OFF)
 option(SANITIZE_LINK_STATIC "Try to link static against sanitizers." OFF)
 
-option(ENABLE_TESTS "Build tests" ON)
+option(ENABLE_TESTS "Build tests" OFF)
 option(ENABLE_CLANG_TIDY "Use clang-tidy" OFF)
 
 # Build with c++17 support

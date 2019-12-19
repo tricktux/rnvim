@@ -7,9 +7,10 @@ file(GLOB SOURCES
 		# "${CMAKE_SOURCE_DIR}/src/cli_args.cpp"
 	)
 
-file(GLOB MPACK_SRCS
-		"${MPACK_SRC}/mpack.c"
-	)
+# aux_source_directory(${MPACK_SRC} MPACK_SRCS)
+# file(GLOB MPACK_SRCS
+		# "${MPACK_SRC}/*.c"
+	# )
 
 # Includes
 include_directories(${CMAKE_SOURCE_DIR}/inc)
@@ -42,6 +43,9 @@ message(STATUS "SRC_MPACK_SRCS = ${MPACK_SRCS}")
 message(STATUS "SRC_MPACK_SRC = ${MPACK_SRC}")
 
 # Dependencies
+if (MPACK_FOUND)
+	add_dependencies(${PROJECT_NAME} mpack)
+endif ()
 if (GSL_FOUND)
 	add_dependencies(${PROJECT_NAME} gsl)
 endif ()
@@ -57,7 +61,6 @@ endif ()
 if (REPROC_FOUND)
 	add_dependencies(${PROJECT_NAME} reproc)
 endif ()
-
 # add_dependencies(${PROJECT_NAME} jinja2_proc)
 
 # Sanitizers

@@ -9,6 +9,7 @@ ExternalProject_Add(
 		UPDATE_DISCONNECTED TRUE
 		CONFIGURE_COMMAND ""
 		BUILD_COMMAND ""
+		BUILD_BYPRODUCTS ${SOURCE_DIR}/src/mpack/mpack.c
 		INSTALL_COMMAND ""
 		TEST_COMMAND ""
 		LOG_DOWNLOAD TRUE
@@ -24,6 +25,7 @@ ADD_DEFINITIONS(-DMPACK_WRITE_TRACKING)
 ExternalProject_Get_property(mpack SOURCE_DIR)
 set(MPACK_FOUND TRUE)
 set(MPACK_SRC ${SOURCE_DIR}/src/mpack)
+set(MPACK_SRCS ${SOURCE_DIR}/src/mpack/mpack.c)
 set(MPACK_EXTERNAL TRUE)
 
-add_custom_target(mpack_downloaded DEPENDS mpack)
+# add_custom_target(mpack_downloaded DEPENDS mpack)

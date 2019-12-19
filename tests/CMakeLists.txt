@@ -1,6 +1,4 @@
-file(GLOB MPACK_SRCS CONFIGURE_DEPENDS
-		"${MPACK_SRC}/mpack.c"
-	)
+aux_source_directory(${MPACK_SRC} MPACK_SRCS)
 
 file(GLOB TEST_NVIMRPC_SRCS
 		"${CMAKE_SOURCE_DIR}/src/rpc/iodevice.cpp"
@@ -26,7 +24,7 @@ if (MPACK_FOUND)
 	message(STATUS "MPACK FOUND!!!")
 	message(STATUS "MPACK_SRCS = ${MPACK_SRCS}")
 	message(STATUS "MPACK_SRC = ${MPACK_SRC}")
-	add_dependencies(test_nvimrpc mpack_downloaded)
+	add_dependencies(test_nvimrpc mpack)
 	target_include_directories(test_nvimrpc PUBLIC ${MPACK_SRC})
 endif()
 if (REPROC_FOUND)
