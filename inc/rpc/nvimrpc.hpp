@@ -30,6 +30,7 @@
 
 namespace nvim {
 
+/** @brief Input Output device abstraction used to communicate with Neovim */
 class IoDevice {
 
 public:
@@ -41,6 +42,9 @@ public:
   size_t send(std::string_view s) { return send(s.data(), s.length()); }
 };
 
+/** @brief Device that communicates over `stdin/stdout/stderr`
+ *  Chosen method of communicate that is more secure and faster than sockets
+ * */
 class ReprocDevice : public IoDevice {
 private:
   reproc::process process;
@@ -56,7 +60,9 @@ public:
 
   int spawn(const std::vector<const char *> &, int);
   void kill();
-  size_t send(const char *buf, size_t size);
-  size_t recv(char *buf, size_t size);
+  size_t send(const char *buf, size_t size) override;
+  size_t recv(char *buf, size_t size) override;
 };
+
+
 } // namespace nvim
