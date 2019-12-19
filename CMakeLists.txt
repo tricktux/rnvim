@@ -20,11 +20,12 @@ set (_modules
 
 set (CMAKE_MODULE_PATH _modules)
 
-include("${CMAKE_SOURCE_DIR}/cmake/external/gsl.cmake")
+# include("${CMAKE_SOURCE_DIR}/cmake/external/gsl.cmake")
+# include("${CMAKE_SOURCE_DIR}/cmake/external/fmt.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/easylogging.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/cxxopts.cmake")
-include("${CMAKE_SOURCE_DIR}/cmake/external/fmt.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/reproc++.cmake")
+include("${CMAKE_SOURCE_DIR}/cmake/external/mpack.cmake")
 
 # Set a default build type if none was specified
 set(CMAKE_BUILD_TYPE "Debug" CACHE
