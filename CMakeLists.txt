@@ -103,16 +103,7 @@ message( STATUS "RUNTIME_OUTPUT_DIR: " ${RUNTIME_OUTPUT_DIR} )
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Find packages
-if (WIN32)
-	set (wxWidgets_ROOT_DIR "C:/Program Files (x86)/wxWidgets")
-	set (wxWidgets_LIB_DIR "${wxWidgets_ROOT_DIR}/lib/vc_lib")
-elseif (UNIX)
-	# set(AWSSDK_DIR /usr/local/lib/cmake/AWSSDK)
-endif()
-
-find_package(wxWidgets COMPONENTS core base REQUIRED)
-include(${wxWidgets_USE_FILE})
-
+find_package(Threads REQUIRED)
 find_package(fmt)
 
 if (SANITIZE_ADDRESS OR SANITIZE_MEMORY OR SANITIZE_THREAD OR
