@@ -7,14 +7,14 @@ file(GLOB SOURCES
 		# "${CMAKE_SOURCE_DIR}/src/cli_args.cpp"
 	)
 
-# aux_source_directory(${MPACK_SRC} MPACK_SRCS)
 file(GLOB MPACK_SRCS
 		"${CMAKE_SOURCE_DIR}/third-party/mpack/mpack.c"
 	)
 
 # Includes
 include_directories(${CMAKE_SOURCE_DIR}/inc)
-include_directories(${wxWidgets_INCLUDE_DIRS})
+include_directories("${CMAKE_SOURCE_DIR}/third-party/mpack")
+# include_directories(${JINJA2_OUTPUT_DIR})
 
 if (EASYLOGGING_FOUND)
 	include_directories(${EASYLOGGING_INCLUDE_DIRS})
@@ -31,8 +31,6 @@ endif ()
 if (GSL_FOUND)
 	include_directories(SYSTEM ${GSL_INCLUDE_DIRS})
 endif ()
-include_directories("${CMAKE_SOURCE_DIR}/third-party/mpack")
-# include_directories(${JINJA2_OUTPUT_DIR})
 
 # Executables
 add_executable(${PROJECT_NAME} ${SOURCES} ${MPACK_SRCS})

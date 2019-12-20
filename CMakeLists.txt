@@ -27,6 +27,14 @@ include("${CMAKE_SOURCE_DIR}/cmake/external/easylogging.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/cxxopts.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/reproc++.cmake")
 
+# MPack defines
+ADD_DEFINITIONS(-DMPACK_DEBUG)
+ADD_DEFINITIONS(-DMPACK_STDIO)
+ADD_DEFINITIONS(-DMPACK_STRINGS)
+ADD_DEFINITIONS(-DMPACK_EXTENSIONS)
+ADD_DEFINITIONS(-DMPACK_READ_TRACKING)
+ADD_DEFINITIONS(-DMPACK_WRITE_TRACKING)
+
 # Set a default build type if none was specified
 set(CMAKE_BUILD_TYPE "Debug" CACHE
 	STRING "Choose the type of build." FORCE)
@@ -48,7 +56,7 @@ option(SANITIZE_THREAD "Enable Thread Sanitizer" OFF)
 option(SANITIZE_UNDEFINED "Enable Undefined Behavior Sanitizer" OFF)
 option(SANITIZE_LINK_STATIC "Try to link static against sanitizers." OFF)
 
-option(ENABLE_TESTS "Build tests" OFF)
+option(ENABLE_TESTS "Build tests" ON)
 option(ENABLE_CLANG_TIDY "Use clang-tidy" OFF)
 
 # Build with c++17 support
