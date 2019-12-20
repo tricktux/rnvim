@@ -1,0 +1,30 @@
+
+@startuml
+
+class Notification {
+	-void parse();
+	-mpack_tree_t _tree;
+	-mpack_node_t _root;
+
+	+std::string methodName() const;
+	+mpack_node_t parameters() const;
+	+mpack_tree_t& tree();
+	+Corrade::Containers::ArrayView<const char> data() const;
+}
+
+class NeovimApi {
+	-Corrade::Net::Socket _socket;
+	-Corrade::Containers::Array<char> _receiveBuffer;
+	-std::vector<std::unique_ptr<Notification>> _notifications;
+	-int _nextMessageId = 0;
+	-int nextMessageId() { return _nextMessageId++; }
+
+	' Here data is written using mpack
+	+Int dispatch(const std::string& func, Args... args);
+	' Here data is read using mpack
+	+auto waitForResponse(Int msgId, Int timeout=-1);
+	+std::unique_ptr<Notification> waitForNotification(Int timeout=-1);
+	+Corrade::Containers::Array<std::unique_ptr<Notification>> pollNotifications() {
+}
+
+@enduml

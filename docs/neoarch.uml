@@ -3,13 +3,13 @@
 
 set namespaceSeparator ::
 
-interface nvim::IoDevice {
+interface nvimrpc::IoDevice {
 	+virtual size_t send(const char *, size_t)
 	+virtual size_t send(string_view)
 	+virtual size_t recv(char *, size_t)
 }
 
-class nvim::ReprocDevice {
+class nvimrpc::ReprocDevice {
 	-reproc::process m_process;
 	-std::mutex m_lock;
 	-std::string m_output;
@@ -19,32 +19,54 @@ class nvim::ReprocDevice {
 	+void kill()
 }
 
-
-' class reproc_device_impl {
-	' -reproc::process m_process;
-	' -std::mutex m_lock;
-	' -std::string m_output;
-	' -std::future<std::error_code> m_drain_async;
-
-	' +void spawn(char *argv[] = nullptr);
-	' +void kill();
-' }
-
-class nvim::StreamDecoder {
+class nvimrpc::StreamDecoder {
 	-mpack_tree_t m_tree;
 	-static size_t read_iodev(mpack_tree_t *ptree, char *buf, size_t count)
 
 	+std::optional<mpack_node_t> poll()
 }
 
-class nvim::Client {
-	-nvim::IoDevice &device;
+class nvimrpc::StreamWorker {
+	-std::thread t;
 	-StreamDecoder stream;
+	-std::queue<mpack_node_t> root_q;
+
+	+std::optional<std::queue<mpack_node_t>> get_messages();
 }
 
-nvim::Client *-- nvim::StreamDecoder
-nvim::Client *-left- nvim::IoDevice
-nvim::IoDevice <|-- nvim::ReprocDevice
-nvim::StreamDecoder -- nvim::IoDevice : uses >
+class nvimrpc::Api {
+	+auto generated_functions_from_api()
+	+virtual auto generated_notifications_handles()
+}
+
+' Example controller
+class nvimrpc::Client {
+	-nvimrpc::IoDevice &device;
+	-StreamWorker stream;
+}
+
+enum nvimrpc::MessageType: <int64_t> {
+	REQUEST = 0,
+	RESPONSE = 1,
+	NOTIFICATION = 2
+}
+
+class nvimrpc::Types {
+	using object = std::variant<
+		bool,
+		int64_t,
+		double,
+		std::string,
+		std::vector<libnvc::object_wrapper>,
+		std::unordered_map<std::string, libnvc::object_wrapper>
+		>;
+}
+class MpackWriter {
+}
+
+nvimrpc::Client *-- nvimrpc::StreamDecoder
+nvimrpc::Client *-left- nvimrpc::IoDevice
+nvimrpc::IoDevice <|-- nvimrpc::ReprocDevice
+nvimrpc::StreamDecoder -- nvimrpc::IoDevice : uses >
 
 @enduml
