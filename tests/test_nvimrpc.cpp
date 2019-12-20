@@ -48,7 +48,7 @@ static void log_server_pack_node(mpack_node_t node) {
 	std::cout << "log_str = '" << log_str << "'" << std::endl;
 }
 
-TEST(nvimrpc, start_stop) {
+TEST(nvimrpc, DISABLED_start_stop) {
 	nvimrpc::ReprocDevice device;
 
 	int timeout = 10;
@@ -69,8 +69,13 @@ TEST(nvimrpc, start_stop) {
 }
 
 TEST(nvimrpc, streamdecoder) {
+	int timeout = 10;
 	nvimrpc::ReprocDevice device;
+	std::vector<const char *> args{ {"nvim", "--embed", nullptr} };
+	ASSERT_EQ(device.spawn(args, timeout), 0);
+
 	nvimrpc::StreamDecoder sd{device};
+
 	auto node = sd.poll();
 	ASSERT_TRUE(node.has_value());
 	log_server_pack_node(node.value());
