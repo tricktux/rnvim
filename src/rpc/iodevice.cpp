@@ -119,10 +119,10 @@ size_t nvimrpc::ReprocDevice::send(const char *buf, size_t size) {
 }
 
 /**
- * @brief Receive
- * @param buf
- * @param size
- * @return
+ * @brief Receive data from buffer
+ * @param buf Pointer to storage for received data
+ * @param size Size of storage
+ * @return Number of bytes copied to buffer
  */
 size_t nvimrpc::ReprocDevice::recv(char *buf, size_t size) {
   if (!process.running()) {
@@ -141,8 +141,19 @@ size_t nvimrpc::ReprocDevice::recv(char *buf, size_t size) {
   }
 
   std::lock_guard<std::mutex> guard(m);
-  size_t read_size = std::min<size_t>(size, output.size());
+	if (output.empty()) {
+		DLOG(INFO) << "No output data";
+		return 0;
+	}
+
+	size_t dsize = output.size();
+  size_t read_size = std::min<size_t>(size, dsize);
+	if (read_size < size) {
+		DLOG(WARNING) << "Leaving " << dsize - size << " bytes unread";
+	}
   std::memcpy(buf, output.data(), read_size);
-  output.erase(output.begin(), output.begin() + read_size);
+	// design: should I clear only read or whole thing?
+	output.clear();
+  // output.erase(output.begin(), output.begin() + read_size);
   return read_size;
 }
