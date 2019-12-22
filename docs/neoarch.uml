@@ -35,6 +35,7 @@ class nvimrpc::StreamWorker {
 }
 
 class nvimrpc::Api {
+	-dispatch(const std::string& func, Args... args)
 	+auto generated_functions_from_api()
 	+virtual auto generated_notifications_handles()
 }
