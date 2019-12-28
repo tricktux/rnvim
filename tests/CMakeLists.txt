@@ -1,6 +1,6 @@
 file(GLOB TEST_NVIMRPC_SRCS
 		"${CMAKE_SOURCE_DIR}/src/rpc/iodevice.cpp"
-		"${CMAKE_SOURCE_DIR}/src/rpc/streamdecoder.cpp"
+		# "${CMAKE_SOURCE_DIR}/src/rpc/streamdecoder.cpp"
 		"${CMAKE_SOURCE_DIR}/tests/test_nvimrpc.cpp"
 	)
 file(GLOB MPACK_SRCS
