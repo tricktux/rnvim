@@ -31,11 +31,8 @@
  * @return 0 in case of success, less than that otherwise
  */
 int nvimrpc::ReprocDevice::spawn(const std::vector<const char *> &argv,
-                                 int timeout) {
-  if (timeout <= 0) {
-    DLOG(WARNING) << "Invalid timeout sent, using 4 seconds";
-    timeout = 4;
-  }
+                                 std::optional<std::chrono::seconds> timeout) {
+	std::chrono::seconds s = timeout.value_or(4);
 
   if (argv.empty()) {
     DLOG(ERROR) << "Empty argv argument";
@@ -43,9 +40,9 @@ int nvimrpc::ReprocDevice::spawn(const std::vector<const char *> &argv,
   }
 
   reproc::stop_actions stop_actions{
-      {reproc::stop::wait, reproc::milliseconds(timeout * 1000)},
-      {reproc::stop::terminate, reproc::milliseconds(1000)},
-      {reproc::stop::kill, reproc::milliseconds(1000)},
+      {reproc::stop::wait, std::chrono::seconds{s}},
+      {reproc::stop::terminate, std::chrono::seconds{1}},
+      {reproc::stop::kill, std::chrono::seconds{1}},
   };
 
   reproc::options options;
@@ -75,9 +72,9 @@ void nvimrpc::ReprocDevice::kill() {
   }
 
   reproc::stop_actions stop_actions{
-      {reproc::stop::wait, reproc::milliseconds(1000)},
-      {reproc::stop::terminate, reproc::milliseconds(1000)},
-      {reproc::stop::kill, reproc::milliseconds(1000)},
+      {reproc::stop::wait, std::chrono::seconds{1}},
+      {reproc::stop::terminate, std::chrono::seconds{1}},
+      {reproc::stop::kill, std::chrono::seconds{1}},
   };
 
   if (auto ec = process.stop(stop_actions)) {
@@ -130,11 +127,6 @@ nvimrpc::ReprocDevice::recv(std::string &data,
     throw std::runtime_error("Child process is not running!");
   }
 
-  if (data.empty()) {
-    DLOG(WARNING) << "Empty send data provided";
-    return 0;
-  }
-
   if (timeout) {
     std::future_status fs = drain_async.wait_for(timeout.value());
     if (fs == std::future_status::timeout) {
@@ -148,7 +140,7 @@ nvimrpc::ReprocDevice::recv(std::string &data,
     return 0;
   }
 
-	data = output;
+  data = output;
   output.clear();
   return data.size();
 }

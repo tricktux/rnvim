@@ -63,7 +63,8 @@ public:
   ReprocDevice() { output.reserve(1048576); }
   virtual ~ReprocDevice() {}
 
-  int spawn(const std::vector<const char *> &, int);
+  int spawn(const std::vector<const char *> &,
+            std::optional<std::chrono::seconds>);
   void kill();
   size_t send(std::string_view data) override;
   size_t recv(std::string &data,
