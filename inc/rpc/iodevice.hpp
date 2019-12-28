@@ -21,9 +21,11 @@
 #ifndef IODEVICE_HPP
 #define IODEVICE_HPP
 
+#include <chrono>
 #include <cstring>
 #include <future>
 #include <mutex>
+#include <optional>
 #include <reproc++/reproc.hpp>
 #include <reproc++/sink.hpp>
 #include <string>
@@ -40,9 +42,9 @@ public:
   IoDevice() = default;
   virtual ~IoDevice() = default;
 
-  virtual size_t send(const char *, size_t) = 0;
-  virtual size_t recv(char *, size_t) = 0;
-  size_t send(std::string_view s) { return send(s.data(), s.length()); }
+  virtual size_t send(std::string_view data) = 0;
+  virtual size_t recv(std::string &data,
+                      std::optional<std::chrono::seconds> timeout) = 0;
 };
 
 /** @brief Device that communicates over `stdin/stdout/stderr`
@@ -63,8 +65,9 @@ public:
 
   int spawn(const std::vector<const char *> &, int);
   void kill();
-  size_t send(const char *buf, size_t size) override;
-  size_t recv(char *buf, size_t size) override;
+  size_t send(std::string_view data) override;
+  size_t recv(std::string &data,
+              std::optional<std::chrono::seconds> timeout) override;
 };
 
 } // namespace nvimrpc

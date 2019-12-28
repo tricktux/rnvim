@@ -20,6 +20,8 @@
 
 #include "easylogging++.h"
 #include "rpc/iodevice.hpp"
+#include <algorithm>
+#include <vector>
 
 /**
  * @brief Spawns and waits for it to start
@@ -29,7 +31,7 @@
  * @return 0 in case of success, less than that otherwise
  */
 int nvimrpc::ReprocDevice::spawn(const std::vector<const char *> &argv,
-                              int timeout) {
+                                 int timeout) {
   if (timeout <= 0) {
     DLOG(WARNING) << "Invalid timeout sent, using 4 seconds";
     timeout = 4;
@@ -94,66 +96,59 @@ void nvimrpc::ReprocDevice::kill() {
  * @param size Number of bytes
  * @return Number of bytes sent
  */
-size_t nvimrpc::ReprocDevice::send(const char *buf, size_t size) {
+size_t nvimrpc::ReprocDevice::send(std::string_view data) {
   if (!process.running()) {
     DLOG(FATAL) << "Child process is not running!";
     throw std::runtime_error("Child process is not running!");
   }
 
-  if ((buf == nullptr) || (buf[0] == 0)) {
-    DLOG(WARNING) << "Invalid buf pointer";
+  if (data.empty()) {
+    DLOG(WARNING) << "Empty send data provided";
     return 0;
   }
 
-  if (size == 0) {
-    DLOG(WARNING) << "Size zero provided";
-    return 0;
-  }
-
-  if (auto ec = process.write(reinterpret_cast<const uint8_t *>(buf), size)) {
-    DLOG(ERROR) << "Failed to send: '" << buf << "'. Error message: '"
+  if (auto ec = process.write(reinterpret_cast<const uint8_t *>(data.data()),
+                              data.size())) {
+    DLOG(ERROR) << "Failed to send: '" << data << "'. Error message: '"
                 << ec.message() << "'";
     throw std::runtime_error(ec.message());
   }
-  return size;
+  return data.size();
 }
 
 /**
- * @brief Receive data from buffer
+ * @brief Receive data from buffer, wait for @seconds
  * @param buf Pointer to storage for received data
  * @param size Size of storage
  * @return Number of bytes copied to buffer
  */
-size_t nvimrpc::ReprocDevice::recv(char *buf, size_t size) {
+size_t
+nvimrpc::ReprocDevice::recv(std::string &data,
+                            std::optional<std::chrono::seconds> timeout) {
   if (!process.running()) {
     DLOG(FATAL) << "Child process is not running!";
     throw std::runtime_error("Child process is not running!");
   }
 
-  if (buf == nullptr) {
-    DLOG(WARNING) << "Invalid buf pointer";
+  if (data.empty()) {
+    DLOG(WARNING) << "Empty send data provided";
     return 0;
   }
 
-  if (size == 0) {
-    DLOG(WARNING) << "Size zero provided";
-    return 0;
+  if (timeout) {
+    std::future_status fs = drain_async.wait_for(timeout.value());
+    if (fs == std::future_status::timeout) {
+      DLOG(INFO) << "Timed out waiting for data";
+      return 0;
+    }
   }
-
   std::lock_guard<std::mutex> guard(m);
-	if (output.empty()) {
-		DLOG(INFO) << "No output data";
-		return 0;
-	}
+  if (output.empty()) {
+    DLOG(INFO) << "No output data";
+    return 0;
+  }
 
-	size_t dsize = output.size();
-  size_t read_size = std::min<size_t>(size, dsize);
-	if (read_size < size) {
-		DLOG(WARNING) << "Leaving " << dsize - size << " bytes unread";
-	}
-  std::memcpy(buf, output.data(), read_size);
-	// design: should I clear only read or whole thing?
-	output.clear();
-  // output.erase(output.begin(), output.begin() + read_size);
-  return read_size;
+	data = output;
+  output.clear();
+  return data.size();
 }
