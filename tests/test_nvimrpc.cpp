@@ -25,29 +25,29 @@
 #include <chrono>
 #include "easylogging++.h"
 #include "rpc/iodevice.hpp"
-#include "rpc/streamdecoder.hpp"
+// #include "rpc/streamdecoder.hpp"
 // #include "mpack.h"
 
 INITIALIZE_EASYLOGGINGPP
 
-static void log_server_pack_node(mpack_node_t node) {
-	std::string log_str;
-	auto callback = [](void *context, const char *data, size_t data_len)
-	{
-		auto pstring = (std::string *)(context);
-		pstring->insert(pstring->end(), data, data + data_len);
-	};
-	mpack_node_print_to_callback(node, callback, &log_str);
+// static void log_server_pack_node(mpack_node_t node) {
+	// std::string log_str;
+	// auto callback = [](void *context, const char *data, size_t data_len)
+	// {
+		// auto pstring = (std::string *)(context);
+		// pstring->insert(pstring->end(), data, data + data_len);
+	// };
+	// mpack_node_print_to_callback(node, callback, &log_str);
 
-	while(true){
-		auto index = log_str.find("\n", 0);
-		if(index == std::string::npos){
-			break;
-		}
-		log_str.replace(index, 1, "\\n");
-	}
-	std::cout << "log_str = '" << log_str << "'" << std::endl;
-}
+	// while(true){
+		// auto index = log_str.find("\n", 0);
+		// if(index == std::string::npos){
+			// break;
+		// }
+		// log_str.replace(index, 1, "\\n");
+	// }
+	// std::cout << "log_str = '" << log_str << "'" << std::endl;
+// }
 
 TEST(nvimrpc, start_stop) {
 	nvimrpc::ReprocDevice device;

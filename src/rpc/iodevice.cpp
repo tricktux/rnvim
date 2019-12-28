@@ -22,6 +22,7 @@
 #include "rpc/iodevice.hpp"
 #include <algorithm>
 #include <vector>
+#include <chrono>
 
 /**
  * @brief Spawns and waits for it to start
