@@ -1,10 +1,5 @@
-file(GLOB TEST_NVIMRPC_SRCS
-		"${CMAKE_SOURCE_DIR}/src/rpc/iodevice.cpp"
-		# "${CMAKE_SOURCE_DIR}/src/rpc/streamdecoder.cpp"
-		"${CMAKE_SOURCE_DIR}/tests/test_nvimrpc.cpp"
-	)
 file(GLOB MPACK_SRCS
-	"${CMAKE_SOURCE_DIR}/third-party/mpack/mpack.c"
+		"${CMAKE_SOURCE_DIR}/third-party/mpack/mpack.c"
 	)
 
 include_directories(${CMAKE_SOURCE_DIR}/inc)
@@ -21,13 +16,16 @@ if (EASYLOGGING_FOUND)
 endif()
 
 # ------------nvimrpc--------------
-add_executable(test_nvimrpc ${TEST_NVIMRPC_SRCS} ${MPACK_SRCS})
+add_executable(test_iodevice ${MPACK_SRCS}
+		"${CMAKE_SOURCE_DIR}/src/rpc/iodevice.cpp"
+		"${CMAKE_SOURCE_DIR}/tests/test_iodevice.cpp"
+	)
 if (REPROC_FOUND)
-	add_dependencies(test_nvimrpc reproc)
-	target_include_directories(test_nvimrpc PUBLIC SYSTEM ${REPROC_INCLUDE_DIRS})
-	target_link_libraries(test_nvimrpc PRIVATE ${REPROC_LIBRARIES})
+	add_dependencies(test_iodevice reproc)
+	target_include_directories(test_iodevice PUBLIC SYSTEM ${REPROC_INCLUDE_DIRS})
+	target_link_libraries(test_iodevice PRIVATE ${REPROC_LIBRARIES})
 endif ()
 if (EASYLOGGING_FOUND)
-	add_dependencies(test_nvimrpc easylogging)
+	add_dependencies(test_iodevice easylogging)
 endif ()
-add_test(test_nvimrpc ${EXECUTABLE_OUTPUT_PATH})
+add_test(test_iodevice ${EXECUTABLE_OUTPUT_PATH})

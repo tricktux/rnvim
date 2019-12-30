@@ -69,10 +69,10 @@ int nvimrpc::ReprocDevice::spawn(const std::vector<const char *> &argv,
 }
 
 /** @brief Terminates the child process */
-void nvimrpc::ReprocDevice::kill() {
+int nvimrpc::ReprocDevice::kill() {
   if (!process.running()) {
     DLOG(WARNING) << "Child process already dead";
-    return;
+		return process.exit_status();
   }
 
   reproc::stop_actions stop_actions{
@@ -84,11 +84,12 @@ void nvimrpc::ReprocDevice::kill() {
   if (auto ec = process.stop(stop_actions)) {
     DLOG(ERROR) << "Error: '" << ec.message()
                 << "' occurred while killing child process";
-    return;
+    return ec.value();
   }
 
   DLOG(INFO) << "Gracefully closed child process whit exit code: "
              << process.exit_status();
+	return process.exit_status();
 }
 
 /**

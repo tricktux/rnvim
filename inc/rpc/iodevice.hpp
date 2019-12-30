@@ -64,7 +64,7 @@ public:
   virtual ~ReprocDevice() {}
 
   int spawn(const std::vector<const char *> &, int);
-  void kill();
+  int kill();
   size_t send(std::string_view data) override;
   size_t recv(std::string &data,
               std::optional<std::chrono::seconds> timeout) override;

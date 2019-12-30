@@ -49,23 +49,22 @@ INITIALIZE_EASYLOGGINGPP
 	// std::cout << "log_str = '" << log_str << "'" << std::endl;
 // }
 
-TEST(nvimrpc, start_stop) {
+/** 
+ * @brief Test ReprocDevice spawn, recv, and "kill" process
+ */
+TEST(reprocdevice, start_stop) {
 	nvimrpc::ReprocDevice device;
 
 	std::chrono::seconds timeout{10};
 	std::string data;
-	// int brecv = 0;
 	std::vector<const char *> args{ {"cmake", "--help", nullptr} };
 
 	ASSERT_EQ(device.spawn(args, 10), 0);
 
-	// sleep(1);
-	// brecv = device.recv(data, timeout);
-	while (device.recv(data, timeout) != 0) {
-		std::cout << "data: '" << data << "'" << std::endl;
-	}
+	ASSERT_NE(device.recv(data, timeout),0);
+	std::cout << "data: '" << data << "'" << std::endl;
 
-	device.kill();
+	ASSERT_EQ(device.kill(), 0);
 }
 
 TEST(nvimrpc, streamdecoder) {
