@@ -24,10 +24,41 @@
 #include "easylogging++.h"
 #include "mpack.h"
 
+#include <utility>
+#include <memory>
 #include <string>
 #include <string_view>
+#include <unordered_map>
+#include <variant>
+#include <vector>
 
 namespace nvimrpc {
+
+// be careful of std::vector<object> vs std::vector<object_wrapper>
+// this can easily give bug
+class object_wrapper;
+using object = std::variant<bool, int64_t, double, std::string,
+                            std::vector<object_wrapper>,
+                            std::unordered_map<std::string, object_wrapper>>;
+
+class object_wrapper {
+  // use shared_ptr not unique_ptr
+  // the sematics of object_wrapper is a wrapper of an existing object
+  std::shared_ptr<object> m_ptr;
+
+  // don't define operator object ()
+  // since which returns a copy of the included object
+
+public:
+  object_wrapper() = default;
+
+  template <typename T> object_wrapper(T t) {
+    m_ptr = std::make_shared<object>(t);
+  }
+
+  object &ref() { return *(m_ptr.get()); }
+  const object &ref() const { return *(m_ptr.get()); }
+};
 
 class IMpackReqPack {
 
@@ -42,15 +73,69 @@ public:
   virtual std::string build() = 0;
 };
 
+/** @brief Nicely package a msgpack request
+ *
+ * @warning Class expects the following calling order:
+ *	1. `set_msgid`
+ *	2. `set_method`
+ *	3. `set_params`
+ *	4. `build`
+ *
+ * */
 class MPackReqPack : public IMpackReqPack {
   char *data;
   size_t size;
   mpack_writer_t writer;
 
-  void mpack_write(mpack_writer_t *) {}
+  void mpack_write(mpack_writer_t *writer) { mpack_write_nil(writer); }
+  void mpack_write(mpack_writer_t *writer, std::string_view value) {
+    mpack_write(writer, value.data());
+  }
+  void mpack_write(mpack_writer_t *writer, std::string &&value) {
+    mpack_write(writer, value.data());
+  }
+  void mpack_write(mpack_writer_t *writer,
+                   const std::vector<object_wrapper> &object_list) {
+		mpack_start_array(writer, object_list.size());
+		for (const auto &val : object_list) {
+			mpack_write(writer, val);
+		}
+		mpack_finish_array(writer);
+  }
+  void mpack_write(
+      mpack_writer_t *writer,
+      const std::unordered_map<std::string, object_wrapper> &object_map) {
+    mpack_start_map(writer, object_map.size());
+    for (const auto &val : object_map) {
+      mpack_write(writer, val.first);
+      mpack_write(writer, val.second);
+    }
+    mpack_finish_map(writer);
+  }
+  void mpack_write(mpack_writer_t *writer, const object &obj) {
+    if (std::holds_alternative<bool>(obj))
+      return mpack_write(writer, std::get<bool>(obj));
+    if (std::holds_alternative<int64_t>(obj))
+      return mpack_write(writer, std::get<int64_t>(obj));
+    if (std::holds_alternative<double>(obj))
+      return mpack_write(writer, std::get<double>(obj));
+    if (std::holds_alternative<std::string>(obj))
+      return mpack_write(writer, std::get<std::string>(obj));
+    if (std::holds_alternative<std::unordered_map<std::string, object_wrapper>>(
+            obj)) {
+      return mpack_write(
+          writer,
+          std::get<std::unordered_map<std::string, object_wrapper>>(obj));
+    }
+    if (std::holds_alternative<std::vector<object_wrapper>>(obj)) {
+      return mpack_write(writer, std::get<std::vector<object_wrapper>>(obj));
+    }
+
+    DLOG(ERROR) << "Unrecognized object type!";
+  }
 
   template <typename T, typename... Params>
-  void mpack_write(mpack_writer_t *writer, T value, Params&&... params) {
+  void mpack_write(mpack_writer_t *writer, T value, Params &&... params) {
     mpack_write(writer, value);
     mpack_write(writer, std::forward<Params>(params)...);
   }
@@ -90,6 +175,12 @@ public:
     mpack_write_utf8_cstr(&writer, name.data());
   }
   template <class... Params> void set_args(Params &&... params);
+  /**
+   * @brief Finalize the package and return it in binary form
+   *
+   * @return The data in the string return is packaged and ready to be
+   * transmitted.
+   */
   std::string build() override;
 };
 
