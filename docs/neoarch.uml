@@ -34,12 +34,42 @@ class nvimrpc::StreamWorker {
 }
 
 class nvimrpc::Api {
+	-msgid
+	-auto wait_for_response(msgid, timeout);
 	-dispatch(const std::string& func, Args... args)
+	' This function basically calls dispatch and then wait_for_response
 	+auto generated_functions_from_api()
+	' Todo
 	+virtual auto generated_notifications_handles()
 }
 
-class nvimrpc::IDataSerializer {
+class nvimrpc::IMpackNotifUnPack {
+	' -mpack_reader_t reader;
+	' -T mpack_write();
+
+	' TODO in this function check the msg type to ensure its a notification type
+	+int set_data(string);
+	+int get_method_name();
+	+T get_params();
+	' On destruction call
+	'mpack_reader_destroy, see its help
+}
+
+class nvimrpc::IMpackResUnPack {
+	-mpack_reader_t reader;
+	-T mpack_write();
+
+	' TODO in this function check the msg type to ensure its a response type
+	+int set_data(string);
+	+int get_msg_type();
+	+int get_msgid();
+	+int get_error();
+	+auto get_result();
+	' On destruction call
+	'mpack_reader_destroy, see its help
+}
+
+class nvimrpc::IMpackReqPack {
 	-char *data;
 	-size_t data_size;
 
@@ -49,7 +79,8 @@ class nvimrpc::IDataSerializer {
 	+virtual string build();
 }
 
-class nvimrpc::DataSerializer {
+' TODO Call MPACK_FREE(data) on destructor
+class nvimrpc::MpackReqPack {
 	-char *data;
 	-size_t data_size;
 	-mpack_writer_t writer;
