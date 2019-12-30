@@ -4,23 +4,22 @@
 set namespaceSeparator ::
 
 interface nvimrpc::IoDevice {
-	+virtual size_t send(const char *, size_t)
 	+virtual size_t send(string_view)
-	+virtual size_t recv(char *, size_t)
+	+virtual size_t recv(string, timeout)
 }
 
 class nvimrpc::ReprocDevice {
-	-reproc::process m_process;
-	-std::mutex m_lock;
-	-std::string m_output;
-	-std::future<std::error_code> m_drain_async;
+	-reproc::process process;
+	-std::mutex m;
+	-std::string output;
+	-std::future<std::error_code> drain_async;
 
-	+void spawn(char **argv)
-	+void kill()
+	+int spawn(char **argv)
+	+int kill()
 }
 
 class nvimrpc::StreamDecoder {
-	-mpack_tree_t m_tree;
+	-mpack_tree_t tree;
 	-static size_t read_iodev(mpack_tree_t *ptree, char *buf, size_t count)
 
 	+std::optional<mpack_node_t> poll()
@@ -38,6 +37,28 @@ class nvimrpc::Api {
 	-dispatch(const std::string& func, Args... args)
 	+auto generated_functions_from_api()
 	+virtual auto generated_notifications_handles()
+}
+
+class nvimrpc::IDataSerializer {
+	-char *data;
+	-size_t data_size;
+
+	+virtual void set_msgid(int);
+	+virtual void set_funcname(string);
+	+virtual void set_args(Args... args);
+	+virtual string build();
+}
+
+class nvimrpc::DataSerializer {
+	-char *data;
+	-size_t data_size;
+	-mpack_writer_t writer;
+	-void mpack_write();
+
+	+virtual void set_msgid(int);
+	+virtual void set_funcname(string);
+	+virtual void set_args(Args... args);
+	+virtual string build();
 }
 
 ' Example controller
