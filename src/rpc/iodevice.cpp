@@ -21,8 +21,8 @@
 #include "easylogging++.h"
 #include "rpc/iodevice.hpp"
 #include <algorithm>
-#include <vector>
 #include <chrono>
+#include <vector>
 
 /**
  * @brief Spawns and waits for it to start
@@ -32,8 +32,11 @@
  * @return 0 in case of success, less than that otherwise
  */
 int nvimrpc::ReprocDevice::spawn(const std::vector<const char *> &argv,
-                                 std::optional<std::chrono::seconds> timeout) {
-	std::chrono::seconds s = timeout.value_or(4);
+                                 int timeout) {
+  if (timeout <= 0) {
+    DLOG(WARNING) << "Invalid timeout sent, using 4 seconds";
+    timeout = 4;
+  }
 
   if (argv.empty()) {
     DLOG(ERROR) << "Empty argv argument";
@@ -41,9 +44,9 @@ int nvimrpc::ReprocDevice::spawn(const std::vector<const char *> &argv,
   }
 
   reproc::stop_actions stop_actions{
-      {reproc::stop::wait, std::chrono::seconds{s}},
-      {reproc::stop::terminate, std::chrono::seconds{1}},
-      {reproc::stop::kill, std::chrono::seconds{1}},
+      {reproc::stop::wait, reproc::milliseconds(timeout * 1000)},
+      {reproc::stop::terminate, reproc::milliseconds(1000)},
+      {reproc::stop::kill, reproc::milliseconds(1000)},
   };
 
   reproc::options options;

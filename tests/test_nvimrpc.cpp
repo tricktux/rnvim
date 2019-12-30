@@ -57,7 +57,7 @@ TEST(nvimrpc, start_stop) {
 	// int brecv = 0;
 	std::vector<const char *> args{ {"cmake", "--help", nullptr} };
 
-	ASSERT_EQ(device.spawn(args, timeout), 0);
+	ASSERT_EQ(device.spawn(args, 10), 0);
 
 	// sleep(1);
 	// brecv = device.recv(data, timeout);
