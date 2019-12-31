@@ -1,5 +1,5 @@
 /// @file test_nvimrpc.cpp
-/// @brief Tests for the nvimrpc library
+/// @brief Tests for the nvim input output device
 /// @author Reinaldo Molina
 /// @version  0.0
 /// @date Dec 18 2019
@@ -67,7 +67,7 @@ TEST(reprocdevice, start_stop) {
 	ASSERT_EQ(device.kill(), 0);
 }
 
-TEST(nvimrpc, streamdecoder) {
+TEST(nvimrpc, DISABLED_streamdecoder) {
 	// int timeout = 10;
 	// nvimrpc::ReprocDevice device;
 	// std::vector<const char *> args{ {"nvim", "--embed", nullptr} };

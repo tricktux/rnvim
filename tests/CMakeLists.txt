@@ -15,7 +15,7 @@ if (EASYLOGGING_FOUND)
 	link_libraries(${EASYLOGGING_LIBRARIES})
 endif()
 
-# ------------nvimrpc--------------
+# ------------iodevice--------------
 add_executable(test_iodevice ${MPACK_SRCS}
 		"${CMAKE_SOURCE_DIR}/src/rpc/iodevice.cpp"
 		"${CMAKE_SOURCE_DIR}/tests/test_iodevice.cpp"
@@ -29,3 +29,21 @@ if (EASYLOGGING_FOUND)
 	add_dependencies(test_iodevice easylogging)
 endif ()
 add_test(test_iodevice ${EXECUTABLE_OUTPUT_PATH})
+
+# ------------nvimapi--------------
+add_executable(test_nvimapi ${MPACK_SRCS}
+	"${CMAKE_SOURCE_DIR}/src/rpc/iodevice.cpp"
+	"${CMAKE_SOURCE_DIR}/src/rpc/template/nvimapi.cpp"
+	"${CMAKE_SOURCE_DIR}/tests/test_nvimapi.cpp"
+	)
+if (REPROC_FOUND)
+	add_dependencies(test_nvimapi reproc)
+	target_include_directories(test_nvimapi PUBLIC SYSTEM ${REPROC_INCLUDE_DIRS})
+	target_link_libraries(test_nvimapi PRIVATE ${REPROC_LIBRARIES})
+endif ()
+if (EASYLOGGING_FOUND)
+	add_dependencies(test_nvimapi easylogging)
+endif ()
+target_include_directories(test_nvimapi PUBLIC ${JINJA2_OUTPUT_DIR})
+add_dependencies(test_nvimapi jinja2_proc)
+add_test(test_nvimapi ${EXECUTABLE_OUTPUT_PATH})
