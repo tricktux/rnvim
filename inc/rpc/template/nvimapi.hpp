@@ -36,6 +36,7 @@ class NvimApi {
 
 	template <typename... Params>
 	size_t dispatch(std::string_view func, Params&& ... params);
+	template<typename T> auto poll(size_t msgid, size_t timeout);
 
 public:
 	explicit NvimApi(IoDevice &_device) : msgid(0), device(_device) {}
