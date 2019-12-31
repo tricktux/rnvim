@@ -4,17 +4,19 @@ C++ source code generator to create bindings from nvim functions
 Based generate_bindings.py from https://github.com/Squareys/magnum-neovim-api
 """
 
-import uuid
-import filecmp
-import pprint
 import argparse
-import msgpack
-import sys
-import subprocess
-import os
-import re
-import jinja2
 import datetime
+import filecmp
+import os
+import pprint
+import re
+import subprocess
+import sys
+import uuid
+
+import jinja2
+import msgpack
+
 
 def validTempFileName(filename):
     if filename.startswith('.'):
@@ -88,7 +90,7 @@ class nvimNativeType:
             'Integer': 'int64_t',
             'Boolean': 'bool',
             'Float'  : 'double',
-            'Object' : 'libnvc::object',
+            'Object' : 'object',
         }
 
     # msgpack extension types
@@ -136,13 +138,13 @@ class nvimNativeType:
             return typename
 
         if typename == 'Array':
-            return typeOut('std::vector<libnvc::object>', out)
+            return typeOut('std::vector<object>', out)
 
         if typename == 'String':
             return typeOut('std::string', out)
 
         if typename == 'Dictionary':
-            return typeOut('std::map<std::string, libnvc::object>', out)
+            return typeOut('std::unordered_map<std::string, object>', out)
 
         if typename in cls.SIMPLETYPES:
             return cls.SIMPLETYPES[typename]
