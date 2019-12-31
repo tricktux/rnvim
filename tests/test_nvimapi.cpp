@@ -21,6 +21,7 @@
 #include "easylogging++.h"
 #include "rpc/iodevice.hpp"
 #include "rpc/msgpack.hpp"
+#include "nvimapi.hpp"
 
 #include <chrono>
 #include <gtest/gtest.h>

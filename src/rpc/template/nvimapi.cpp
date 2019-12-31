@@ -19,13 +19,13 @@
 // along with this program.  If not, see <http:www.gnu.org/licenses/>.
 
 #include "easylogging++.h"
-#include "nvimapi.hpp"
 #include "rpc/msgpack.hpp"
+#include "nvimapi.hpp"
 
-#include <memory>
 #include <chrono>
-#include <string_view>
+#include <memory>
 #include <string>
+#include <string_view>
 #include <utility>
 
 template <typename... Params>
