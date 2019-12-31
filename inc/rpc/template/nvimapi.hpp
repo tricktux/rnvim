@@ -22,10 +22,13 @@
 #define NVIMAPI_HPP
 
 #include "rpc/iodevice.hpp"
+#include "msgpack.hpp"
 
 #include <queue>
 #include <string>
 #include <vector>
+#include <utility>
+#include <unordered_map>
 
 namespace nvimrpc {
 
@@ -50,8 +53,6 @@ public:
 			const size_t msgid = dispatch("{{req.name}}"{% for arg in req.args %}, {{arg.name}}{% endfor %});
 		{% if req.return_type != 'void' %}
 					return poll<{{req.return_type}}>(msgid, 100);
-		{% else %}
-					return poll<>(msgid, 100);
 		{% endif %}
 }
 	{% endfor %}

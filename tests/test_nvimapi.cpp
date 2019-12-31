@@ -19,8 +19,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "easylogging++.h"
+#include "rpc/iodevice.hpp"
 #include "rpc/msgpack.hpp"
-#include "nvimapi.hpp"
 
 #include <chrono>
 #include <gtest/gtest.h>

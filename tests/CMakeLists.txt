@@ -33,7 +33,7 @@ add_test(test_iodevice ${EXECUTABLE_OUTPUT_PATH})
 # ------------nvimapi--------------
 add_executable(test_nvimapi ${MPACK_SRCS}
 	"${CMAKE_SOURCE_DIR}/src/rpc/iodevice.cpp"
-	"${CMAKE_SOURCE_DIR}/src/rpc/template/nvimapi.cpp"
+	"${CMAKE_SOURCE_DIR}/src/rpc/msgpack.cpp"
 	"${CMAKE_SOURCE_DIR}/tests/test_nvimapi.cpp"
 	)
 if (REPROC_FOUND)
@@ -44,6 +44,6 @@ endif ()
 if (EASYLOGGING_FOUND)
 	add_dependencies(test_nvimapi easylogging)
 endif ()
-target_include_directories(test_nvimapi PUBLIC ${JINJA2_OUTPUT_DIR})
-add_dependencies(test_nvimapi jinja2_proc)
+# target_include_directories(test_nvimapi PUBLIC ${JINJA2_OUTPUT_DIR})
+# add_dependencies(test_nvimapi jinja2_proc)
 add_test(test_nvimapi ${EXECUTABLE_OUTPUT_PATH})

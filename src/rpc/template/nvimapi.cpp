@@ -19,8 +19,8 @@
 // along with this program.  If not, see <http:www.gnu.org/licenses/>.
 
 #include "easylogging++.h"
-#include "rpc/msgpack.hpp"
 #include "nvimapi.hpp"
+#include "rpc/msgpack.hpp"
 
 #include <memory>
 
@@ -87,7 +87,7 @@ auto nvimrpc::NvimApi::poll(size_t msgid, size_t timeout) {
       return;
     }
 
-    return resp_unpack.get_result<T>();
+    return std::forward<T>(resp_unpack.get_result<T>());
 
   } while (true);
 }
