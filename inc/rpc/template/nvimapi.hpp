@@ -39,7 +39,7 @@ class NvimApi {
 
 	template <typename... Params>
 	size_t dispatch(std::string_view func, Params&& ... params);
-	template<typename T> auto poll(size_t msgid, size_t timeout);
+	template<typename T> T poll(size_t msgid, size_t timeout);
 	size_t get_new_msgid() { return ++msgid; }
 
 public:
