@@ -48,11 +48,11 @@ public:
 	{% for req in nvim_reqs %}
 		{{req.return_type}} {{req.name}}({% for arg in req.args %}{{arg.type}} {{arg.name}}{% if not loop.last %}, {% endif %}{% endfor %}) {
 			{% if req.return_type != 'void' %} {
-				const size_t msgid = dispatch("{{f.name}}", {{ f.parameters|join(", ", attribute='name') }});
-				return poll<{{f.return_type.native_type}}>(msgid, 100);
+				const size_t msgid = dispatch("{{req.name}}", {{ req.parameters|join(", ", attribute='name') }});
+				return poll<{{req.return_type.native_type}}>(msgid, 100);
 			 }
 			{% endif %}
-			const size_t msgid = dispatch("{{f.name}}");
+			const size_t msgid = dispatch("{{req.name}}");
 			return poll<>(msgid, 100);
 		}
 	{% endfor %}

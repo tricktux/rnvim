@@ -26,6 +26,7 @@ set (CMAKE_MODULE_PATH _modules)
 include("${CMAKE_SOURCE_DIR}/cmake/external/easylogging.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/cxxopts.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/reproc++.cmake")
+include("${CMAKE_SOURCE_DIR}/cmake/jinja2.cmake")
 
 # MPack defines
 ADD_DEFINITIONS(-DMPACK_DEBUG)
