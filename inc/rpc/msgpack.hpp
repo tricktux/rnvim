@@ -62,6 +62,10 @@ public:
 };
 
 void mpack_write(mpack_writer_t *);
+
+template <typename T, typename... Params>
+void mpack_write(mpack_writer_t *writer, T value, Params &&... params);
+
 class IMpackReqPack {
 public:
   const static size_t NUM_ELEMENTS = 4;
