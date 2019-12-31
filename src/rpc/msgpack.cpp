@@ -47,7 +47,6 @@ void inline mpack_write(mpack_writer_t *writer, const object &obj) {
   DLOG(ERROR) << "Unrecognized object type!";
 }
 
-// void mpack_write(mpack_writer_t *writer) { mpack_write_nil(writer); }
 void inline mpack_write(mpack_writer_t *writer, std::string_view value) {
   mpack_write_utf8_cstr(writer, value.data());
 }
@@ -84,6 +83,12 @@ void inline mpack_write(mpack_writer_t *writer,
   }
   mpack_finish_array(writer);
 }
+
+void mpack_write(mpack_writer_t* writer, const std::array<int64_t, 2>& val) {
+	mpack_write_i64(writer, val[0]);
+	mpack_write_i64(writer, val[1]);
+}
+
 
 // --------------mpack_read--------------------- //
 template <typename T> T mpack_read(mpack_reader_t *);
@@ -213,6 +218,14 @@ std::unordered_map<std::string, nvimrpc::object> inline mpack_read<
   mpack_done_map(reader);
   return res;
 }
+
+template<>
+std::array<int64_t, 2> mpack_read<std::array<int64_t, 2>>(mpack_reader_t* reader) {
+	const int64_t x = mpack_expect_i64(reader);
+	const int64_t y = mpack_expect_i64(reader);
+	return {x, y};
+}
+
 // --------------mpack_read--------------------- //
 
 } // namespace nvimrpc
