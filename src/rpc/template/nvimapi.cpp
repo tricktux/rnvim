@@ -23,6 +23,10 @@
 #include "rpc/msgpack.hpp"
 
 #include <memory>
+#include <chrono>
+#include <string_view>
+#include <string>
+#include <utility>
 
 template <typename... Params>
 size_t nvimrpc::NvimApi::dispatch(std::string_view func, Params &&... params) {
