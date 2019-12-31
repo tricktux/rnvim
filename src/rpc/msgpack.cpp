@@ -97,9 +97,9 @@ int nvimrpc::MpackResUnPack::get_error() {
   }
 
   if (error.type == mpack_type_str) {
-    char buf[1024];
-    mpack_expect_cstr(&reader, buf, sizeof(buf));
+    char *buf = mpack_expect_utf8_cstr_alloc(&reader, MAX_CSTR_SIZE);
     DLOG(ERROR) << "Response message contains error message: '" << buf << "'";
+    MPACK_FREE(buf);
     return -1;
   }
   if (error.type == mpack_type_int) {
@@ -111,4 +111,92 @@ int nvimrpc::MpackResUnPack::get_error() {
   DLOG(ERROR) << "Response message contains error of unknown type";
   mpack_discard(&reader); // Disregard the error element
   return -1;
+}
+
+template <typename T> auto nvimrpc::MpackResUnPack::get_result() {
+  const mpack_tag_t result = mpack_peek_tag(&reader);
+
+  if constexpr (std::is_void<T>::value) {
+    if (result.type == mpack_type_nil)
+      DLOG(ERROR) << "Expected nil return type but got: '"
+                  << std::to_string(result.type) << "'";
+    return;
+  }
+
+  T rvalue = mpack_read<T>(&reader);
+  mpack_done_array(&reader);
+
+  if (mpack_reader_destroy(&reader) == mpack_ok) {
+    DLOG(ERROR) << "Could not unpack response: '" << T{} << "'";
+  }
+  return std::forward<T>(rvalue);
+}
+
+template <typename T>
+std::vector<T>
+nvimrpc::MpackResUnPack::mpack_read_array(mpack_reader_t *reader) {
+  const size_t size = mpack_expect_array(reader);
+  std::vector<T> res;
+  res.reserve(size);
+
+  for (size_t k = 0; k < size; k++)
+    res.emplace_back(mpack_read<T>(reader));
+
+  mpack_done_array(reader);
+  return res;
+}
+
+nvimrpc::object
+nvimrpc::MpackResUnPack::mpack_read_object(mpack_reader_t *reader) {
+  object res{};
+
+  const mpack_tag_t tag = mpack_peek_tag(reader);
+  switch (tag.type) {
+  case mpack_type_bool:
+    return mpack_read<bool>(reader);
+  case mpack_type_int:
+    return mpack_read<int64_t>(reader);
+  case mpack_type_uint:
+    return (int64_t)(mpack_read<uint64_t>(reader));
+  case mpack_type_double:
+    return mpack_read<double>(reader);
+  case mpack_type_str:
+    return mpack_read<std::string>(reader);
+  case mpack_type_map: {
+    auto res_map = mpack_read<std::unordered_map<std::string, object>>(reader);
+    std::unordered_map<std::string, object_wrapper> res_map_wrapper;
+    for (auto &item : res_map)
+      res_map_wrapper[item.first] = object_wrapper(item.second);
+    return object(res_map_wrapper);
+  }
+  case mpack_type_array: {
+    auto res_vec = mpack_read<std::vector<object>>(reader);
+    std::vector<object_wrapper> res_vec_wrapper;
+    for (auto &item : res_vec)
+      res_vec_wrapper.emplace_back(object_wrapper(item));
+    return object(res_vec_wrapper);
+  }
+  default:
+    DLOG(ERROR) << "Object is not of a recognized type";
+    return res;
+  }
+}
+
+template <>
+std::unordered_map<std::string, nvimrpc::object>
+nvimrpc::MpackResUnPack::mpack_read<
+    std::unordered_map<std::string, nvimrpc::object>>(mpack_reader_t *reader) {
+  const size_t size = mpack_expect_map(reader);
+
+  std::unordered_map<std::string, object> res;
+  res.reserve(size);
+
+  for (size_t i = 0; i < size; ++i) {
+    char *buf = mpack_expect_utf8_cstr_alloc(reader, MAX_CSTR_SIZE);
+    res[{buf}] = mpack_read_object(reader);
+    MPACK_FREE(buf);
+  }
+
+  mpack_done_map(reader);
+  return res;
 }

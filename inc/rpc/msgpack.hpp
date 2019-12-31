@@ -196,7 +196,66 @@ public:
 };
 
 class MpackResUnPack : public IMpackResUnPack {
+  const size_t MAX_CSTR_SIZE = 1048576;
   mpack_reader_t reader;
+
+  template <typename T> T mpack_read(mpack_reader_t *);
+  template <> bool mpack_read<bool>(mpack_reader_t *reader) {
+    return mpack_expect_bool(reader);
+  }
+  template <> int64_t mpack_read<int64_t>(mpack_reader_t *reader) {
+    return mpack_expect_i64(reader);
+  }
+  template <> uint64_t mpack_read<uint64_t>(mpack_reader_t *reader) {
+    return mpack_expect_u64(reader);
+  }
+  template <> double mpack_read<double>(mpack_reader_t *reader) {
+    return mpack_expect_double(reader);
+  }
+  template <> std::string mpack_read<std::string>(mpack_reader_t *reader) {
+    char *buf = mpack_expect_utf8_cstr_alloc(reader, MAX_CSTR_SIZE);
+    std::string res{buf};
+    MPACK_FREE(buf);
+    return res;
+  }
+  template <typename T> std::vector<T> mpack_read_array(mpack_reader_t *reader);
+
+  template <>
+  std::vector<int64_t>
+  mpack_read<std::vector<int64_t>>(mpack_reader_t *reader) {
+    return mpack_read_array<int64_t>(reader);
+  }
+  template <>
+  std::vector<bool> mpack_read<std::vector<bool>>(mpack_reader_t *reader) {
+    return mpack_read_array<bool>(reader);
+  }
+  template <>
+  std::vector<uint64_t>
+  mpack_read<std::vector<uint64_t>>(mpack_reader_t *reader) {
+    return mpack_read_array<uint64_t>(reader);
+  }
+  template <>
+  std::vector<double> mpack_read<std::vector<double>>(mpack_reader_t *reader) {
+    return mpack_read_array<double>(reader);
+  }
+  template <>
+  std::vector<std::string>
+  mpack_read<std::vector<std::string>>(mpack_reader_t *reader) {
+    return mpack_read_array<std::string>(reader);
+  }
+
+  object mpack_read_object(mpack_reader_t *reader);
+
+  template <>
+  std::vector<std::unordered_map<std::string, object>>
+  mpack_read<std::vector<std::unordered_map<std::string, object>>>(
+      mpack_reader_t *reader) {
+    return mpack_read_array<std::unordered_map<std::string, object>>(reader);
+  }
+
+  template <>
+  std::unordered_map<std::string, object>
+  mpack_read<std::unordered_map<std::string, object>>(mpack_reader_t *reader);
 
 public:
   MpackResUnPack() = default;
@@ -206,6 +265,9 @@ public:
   int get_msg_type() override { return mpack_expect_i32(&reader); }
   size_t get_msgid() override { return mpack_expect_u32(&reader); }
   int get_error() override;
+
+  // This function cannot be virtual because it uses templates
+  template <typename T> auto get_result();
 };
 
 } // namespace nvimrpc
