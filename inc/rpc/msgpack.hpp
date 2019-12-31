@@ -188,7 +188,7 @@ public:
     mpack_done_array(&reader);
 
     if (mpack_reader_destroy(&reader) == mpack_ok) {
-      DLOG(ERROR) << "Could not unpack response: '" << T{} << "'";
+      DLOG(ERROR) << "Could not unpack response";
     }
     return std::forward<T>(rvalue);
   }
