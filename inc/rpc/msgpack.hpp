@@ -69,11 +69,10 @@ public:
 };
 
 class IMpackReqPack {
-protected:
-  const size_t NUM_ELEMENTS = 4;
-  const size_t MSG_TYPE = 0;
-
 public:
+	const static size_t NUM_ELEMENTS = 4;
+	const static size_t MSG_TYPE = 0;
+
   IMpackReqPack() = default;
   virtual ~IMpackReqPack() = default;
 
@@ -173,20 +172,19 @@ public:
 };
 
 class IMpackResUnPack {
-protected:
-  const size_t NUM_ELEMENTS = 4;
-  const size_t MSG_TYPE = 1;
-
 public:
-  IMpackResUnPack() = default;
-  virtual ~IMpackResUnPack() = default;
+	const static size_t NUM_ELEMENTS = 4;
+	const static size_t MSG_TYPE = 1;
 
-  virtual int set_data(std::string_view) = 0;
-  virtual int get_msg_type() = 0;
-  virtual size_t get_msgid() = 0;
-  virtual int get_error() = 0;
-  // This function cannot be virtual because it uses templates
-  // auto get_result();
+	IMpackResUnPack() = default;
+	virtual ~IMpackResUnPack() = default;
+
+	virtual int set_data(std::string_view) = 0;
+	virtual int get_msg_type() = 0;
+	virtual size_t get_msgid() = 0;
+	virtual int get_error() = 0;
+	// This function cannot be virtual because it uses templates
+	// auto get_result();
 };
 
 class MpackResUnPack : public IMpackResUnPack {
