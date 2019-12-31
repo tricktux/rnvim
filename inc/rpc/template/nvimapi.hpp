@@ -39,7 +39,9 @@ class NvimApi {
 
 	template <typename... Params>
 	size_t dispatch(std::string_view func, Params&& ... params);
-	template<typename T> std::optional<T> poll(size_t msgid, size_t timeout);
+	template<typename T> T poll(size_t msgid, size_t timeout);
+	template <>
+		void poll<void>(size_t msgid, size_t timeout);
 	size_t get_new_msgid() { return ++msgid; }
 
 public:
@@ -52,9 +54,10 @@ public:
 	{{req.return_type}} {{req.name}}({% for arg in req.args %}{{arg.type}} {{arg.name}}{% if not loop.last %}, {% endif %}{% endfor %}) {
 		{% if req.return_type != 'void' %}
 			const size_t msgid = dispatch("{{req.name}}"{% for arg in req.args %}, {{arg.name}}{% endfor %});
-					return poll<{{req.return_type}}>(msgid, 100).value();
+					return poll<{{req.return_type}}>(msgid, 100);
 		{% else %}
 			dispatch("{{req.name}}"{% for arg in req.args %}, {{arg.name}}{% endfor %});
+			poll<void>(msgid, 100);
 		{% endif %}
 }
 	{% endfor %}
