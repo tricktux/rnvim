@@ -61,6 +61,7 @@ public:
   const object &ref() const { return *(m_ptr.get()); }
 };
 
+void mpack_write(mpack_writer_t *);
 class IMpackReqPack {
 public:
   const static size_t NUM_ELEMENTS = 4;
@@ -153,6 +154,7 @@ public:
   // auto get_result();
 };
 
+template <typename T> T mpack_read(mpack_reader_t *);
 class MpackResUnPack : public IMpackResUnPack {
 
 public:
@@ -168,12 +170,27 @@ public:
   int get_error() override;
 
   // This function cannot be virtual because it uses templates
-  template <typename T> auto get_result();
+  template <typename T> T get_result() {
+    const mpack_tag_t result = mpack_peek_tag(&reader);
+
+    if constexpr (std::is_void<T>::value) {
+      if (result.type != mpack_type_nil)
+        DLOG(ERROR) << "Expected nil return type but got: '"
+                    << std::to_string(result.type) << "'";
+      return;
+    }
+
+    T rvalue = mpack_read<T>(&reader);
+    mpack_done_array(&reader);
+
+    if (mpack_reader_destroy(&reader) == mpack_ok) {
+      DLOG(ERROR) << "Could not unpack response: '" << T{} << "'";
+    }
+    return std::forward<T>(rvalue);
+  }
 };
 
 // --------------mpack_write--------------------- //
-
-void inline mpack_write(mpack_writer_t *) {}
 
 void inline mpack_write(mpack_writer_t *writer, const object &obj) {
   if (std::holds_alternative<bool>(obj))
@@ -234,8 +251,8 @@ void inline mpack_write(mpack_writer_t *writer,
 }
 
 // void mpack_write(mpack_writer_t *writer, const std::array<int64_t, 2> &val) {
-  // mpack_write_i64(writer, val[0]);
-  // mpack_write_i64(writer, val[1]);
+// mpack_write_i64(writer, val[0]);
+// mpack_write_i64(writer, val[1]);
 // }
 
 // --------------mpack_read--------------------- //
@@ -370,9 +387,9 @@ std::unordered_map<std::string, nvimrpc::object> inline mpack_read<
 // template <>
 // std::array<int64_t, 2>
 // mpack_read<std::array<int64_t, 2>>(mpack_reader_t *reader) {
-  // const int64_t x = mpack_expect_i64(reader);
-  // const int64_t y = mpack_expect_i64(reader);
-  // return {x, y};
+// const int64_t x = mpack_expect_i64(reader);
+// const int64_t y = mpack_expect_i64(reader);
+// return {x, y};
 // }
 
 // --------------mpack_read--------------------- //

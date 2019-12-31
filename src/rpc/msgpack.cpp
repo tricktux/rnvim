@@ -91,21 +91,3 @@ int nvimrpc::MpackResUnPack::get_error() {
   return -1;
 }
 
-template <typename T> auto nvimrpc::MpackResUnPack::get_result() {
-  const mpack_tag_t result = mpack_peek_tag(&reader);
-
-  if constexpr (std::is_void<T>::value) {
-    if (result.type != mpack_type_nil)
-      DLOG(ERROR) << "Expected nil return type but got: '"
-                  << std::to_string(result.type) << "'";
-    return;
-  }
-
-  T rvalue = mpack_read<T>(&reader);
-  mpack_done_array(&reader);
-
-  if (mpack_reader_destroy(&reader) == mpack_ok) {
-    DLOG(ERROR) << "Could not unpack response: '" << T{} << "'";
-  }
-  return std::forward<T>(rvalue);
-}
