@@ -90,7 +90,7 @@ class nvimNativeType:
             'Integer': 'int64_t',
             'Boolean': 'bool',
             'Float'  : 'double',
-            'Object' : 'object',
+            'Object' : 'nvimrpc::object',
         }
 
     # msgpack extension types
@@ -138,13 +138,13 @@ class nvimNativeType:
             return typename
 
         if typename == 'Array':
-            return typeOut('std::vector<object>', out)
+            return typeOut('std::vector<nvimrpc::object>', out)
 
         if typename == 'String':
             return typeOut('std::string', out)
 
         if typename == 'Dictionary':
-            return typeOut('std::unordered_map<std::string, object>', out)
+            return typeOut('std::unordered_map<std::string, nvimrpc::object>', out)
 
         if typename in cls.SIMPLETYPES:
             return cls.SIMPLETYPES[typename]
