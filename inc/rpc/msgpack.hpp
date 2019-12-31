@@ -1,4 +1,12 @@
 /// @file msgpack.hpp
+//
+//
+//
+//
+//
+//
+//
+//
 /// @brief Wrapper around MPack
 /// @author Reinaldo Molina
 /// @version  0.0
@@ -24,11 +32,11 @@
 #include "easylogging++.h"
 #include "mpack.h"
 
-#include <utility>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -89,18 +97,18 @@ class MPackReqPack : public IMpackReqPack {
 
   void mpack_write(mpack_writer_t *writer) { mpack_write_nil(writer); }
   void mpack_write(mpack_writer_t *writer, std::string_view value) {
-    mpack_write(writer, value.data());
+    mpack_write_utf8_cstr(writer, value.data());
   }
   void mpack_write(mpack_writer_t *writer, std::string &&value) {
-    mpack_write(writer, value.data());
+    mpack_write_utf8_cstr(writer, value.data());
   }
   void mpack_write(mpack_writer_t *writer,
                    const std::vector<object_wrapper> &object_list) {
-		mpack_start_array(writer, object_list.size());
-		for (const auto &val : object_list) {
-			mpack_write(writer, val);
-		}
-		mpack_finish_array(writer);
+    mpack_start_array(writer, object_list.size());
+    for (const auto &val : object_list) {
+      mpack_write(writer, val);
+    }
+    mpack_finish_array(writer);
   }
   void mpack_write(
       mpack_writer_t *writer,
@@ -174,14 +182,42 @@ public:
     }
     mpack_write_utf8_cstr(&writer, name.data());
   }
-  template <class... Params> void set_args(Params &&... params);
+
+	/** 
+	 * @brief Pass the method parameters
+	 * @param params
+	 */
+  template <class... Params> void set_params(Params &&... params) {
+    mpack_start_array(&writer, sizeof...(Params));
+    mpack_write(&writer, std::forward<Params>(params)...);
+    mpack_finish_array(&writer);
+  }
   /**
    * @brief Finalize the package and return it in binary form
    *
    * @return The data in the string return is packaged and ready to be
    * transmitted.
    */
-  std::string build() override;
+  std::string build() override {
+    mpack_finish_array(&writer);
+    if (mpack_error_t error = mpack_writer_destroy(&writer);
+        error != mpack_ok) {
+      DLOG(ERROR) << "Error flushing and closing the underlying stream";
+      return {};
+    }
+
+    if (data == nullptr) {
+			DLOG(ERROR) << "Error invalid pointer to data";
+			return {};
+    }
+
+		if (size == 0) {
+			DLOG(ERROR) << "Error data size is zero";
+			return {};
+		}
+
+    return {data, size};
+  }
 };
 
 } // namespace nvimrpc

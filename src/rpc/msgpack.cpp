@@ -20,12 +20,3 @@
 
 
 #include "rpc/msgpack.hpp"
-
-#include <utility>
-
-template <class... Params>
-void nvimrpc::MPackReqPack::set_args(Params &&... params) {
-	mpack_start_array(&writer, sizeof...(Params));
-	mpack_write(&writer, std::forward<Params>(params)...);
-	mpack_finish_array(&writer);
-}
