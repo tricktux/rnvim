@@ -233,10 +233,10 @@ void inline mpack_write(mpack_writer_t *writer,
   mpack_finish_array(writer);
 }
 
-void mpack_write(mpack_writer_t *writer, const std::array<int64_t, 2> &val) {
-  mpack_write_i64(writer, val[0]);
-  mpack_write_i64(writer, val[1]);
-}
+// void mpack_write(mpack_writer_t *writer, const std::array<int64_t, 2> &val) {
+  // mpack_write_i64(writer, val[0]);
+  // mpack_write_i64(writer, val[1]);
+// }
 
 // --------------mpack_read--------------------- //
 template <typename T> T mpack_read(mpack_reader_t *);
@@ -367,13 +367,13 @@ std::unordered_map<std::string, nvimrpc::object> inline mpack_read<
   return res;
 }
 
-template <>
-std::array<int64_t, 2>
-mpack_read<std::array<int64_t, 2>>(mpack_reader_t *reader) {
-  const int64_t x = mpack_expect_i64(reader);
-  const int64_t y = mpack_expect_i64(reader);
-  return {x, y};
-}
+// template <>
+// std::array<int64_t, 2>
+// mpack_read<std::array<int64_t, 2>>(mpack_reader_t *reader) {
+  // const int64_t x = mpack_expect_i64(reader);
+  // const int64_t y = mpack_expect_i64(reader);
+  // return {x, y};
+// }
 
 // --------------mpack_read--------------------- //
 
