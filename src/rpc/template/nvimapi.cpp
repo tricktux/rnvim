@@ -27,6 +27,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <optional>
 
 template <typename... Params>
 size_t nvimrpc::NvimApi::dispatch(std::string_view func, Params &&... params) {
@@ -55,3 +56,43 @@ size_t nvimrpc::NvimApi::dispatch(std::string_view func, Params &&... params) {
   return new_msgid;
 }
 
+// TODO probably disregarding MpackResUnPack will cause a crash
+template <typename T>
+std::optional<T> nvimrpc::NvimApi::poll(size_t msgid, size_t timeout) {
+	do {
+		std::string buf{};
+		device.recv(buf, std::chrono::seconds{timeout});
+		if (buf.empty()) {
+			DLOG(ERROR) << "Timed out waiting for '" << msgid << "'";
+			return {};
+		}
+
+		MpackResUnPack resp_unpack;
+		if (int rc = resp_unpack.set_data(buf); rc != 0) {
+			DLOG(WARNING) << "Failed to make sense of data received: '" << buf << "'";
+			continue; // Keep trying?
+		}
+
+		if (int rc = resp_unpack.get_msg_type(); rc != MpackResUnPack::MSG_TYPE) {
+			DLOG(WARNING) << "Packet received is not a RESPONSE: '" << rc << "'";
+			if (rc == 2)               // TODO Address magic number
+				pending_notif.push(buf); // Save notification data
+
+			continue;
+		}
+
+		if (size_t rc = resp_unpack.get_msgid(); rc != msgid) {
+			DLOG(WARNING) << "Received response, but not for my msgid: '" << rc
+				<< "'";
+			continue;
+		}
+
+		if (int rc = resp_unpack.get_error(); rc != 0) {
+			DLOG(ERROR) << "Server returned error: '" << rc << "'";
+			return {};
+		}
+
+		return std::forward<T>(resp_unpack.get_result<T>());
+
+	} while (true);
+}
