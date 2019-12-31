@@ -97,32 +97,6 @@ class MPackReqPack : public IMpackReqPack {
   size_t size;
   mpack_writer_t writer;
 
-  void mpack_write(mpack_writer_t *writer) { mpack_write_nil(writer); }
-  void mpack_write(mpack_writer_t *writer, std::string_view value) {
-    mpack_write_utf8_cstr(writer, value.data());
-  }
-  void mpack_write(mpack_writer_t *writer, std::string &&value) {
-    mpack_write_utf8_cstr(writer, value.data());
-  }
-  void mpack_write(mpack_writer_t *writer,
-                   const std::vector<object_wrapper> &object_list) {
-    mpack_start_array(writer, object_list.size());
-    for (const auto &val : object_list) {
-      mpack_write(writer, val);
-    }
-    mpack_finish_array(writer);
-  }
-  inline void mpack_write(
-      mpack_writer_t *writer,
-      const std::unordered_map<std::string, object_wrapper> &object_map);
-
-  inline void mpack_write(mpack_writer_t *writer, const object &obj);
-
-  template <typename T, typename... Params>
-  void mpack_write(mpack_writer_t *writer, T value, Params &&... params) {
-    mpack_write(writer, value);
-    mpack_write(writer, std::forward<Params>(params)...);
-  }
 
 public:
   MPackReqPack() : data(nullptr), size(0) {
@@ -188,68 +162,11 @@ public:
 };
 
 class MpackResUnPack : public IMpackResUnPack {
-  const size_t MAX_CSTR_SIZE = 1048576;
-  mpack_reader_t reader;
-
-  template <typename T> T mpack_read(mpack_reader_t *);
-  template <> bool mpack_read<bool>(mpack_reader_t *reader) {
-    return mpack_expect_bool(reader);
-  }
-  template <> int64_t mpack_read<int64_t>(mpack_reader_t *reader) {
-    return mpack_expect_i64(reader);
-  }
-  template <> uint64_t mpack_read<uint64_t>(mpack_reader_t *reader) {
-    return mpack_expect_u64(reader);
-  }
-  template <> double mpack_read<double>(mpack_reader_t *reader) {
-    return mpack_expect_double(reader);
-  }
-  template <> std::string mpack_read<std::string>(mpack_reader_t *reader) {
-    char *buf = mpack_expect_utf8_cstr_alloc(reader, MAX_CSTR_SIZE);
-    std::string res{buf};
-    MPACK_FREE(buf);
-    return res;
-  }
-  template <typename T> std::vector<T> mpack_read_array(mpack_reader_t *reader);
-
-  template <>
-  std::vector<int64_t>
-  mpack_read<std::vector<int64_t>>(mpack_reader_t *reader) {
-    return mpack_read_array<int64_t>(reader);
-  }
-  template <>
-  std::vector<bool> mpack_read<std::vector<bool>>(mpack_reader_t *reader) {
-    return mpack_read_array<bool>(reader);
-  }
-  template <>
-  std::vector<uint64_t>
-  mpack_read<std::vector<uint64_t>>(mpack_reader_t *reader) {
-    return mpack_read_array<uint64_t>(reader);
-  }
-  template <>
-  std::vector<double> mpack_read<std::vector<double>>(mpack_reader_t *reader) {
-    return mpack_read_array<double>(reader);
-  }
-  template <>
-  std::vector<std::string>
-  mpack_read<std::vector<std::string>>(mpack_reader_t *reader) {
-    return mpack_read_array<std::string>(reader);
-  }
-
-  inline object mpack_read_object(mpack_reader_t *reader);
-
-  template <>
-  std::vector<std::unordered_map<std::string, object>>
-  mpack_read<std::vector<std::unordered_map<std::string, object>>>(
-      mpack_reader_t *reader) {
-    return mpack_read_array<std::unordered_map<std::string, object>>(reader);
-  }
-
-  template <>
-  inline std::unordered_map<std::string, object>
-  mpack_read<std::unordered_map<std::string, object>>(mpack_reader_t *reader);
 
 public:
+	const static size_t MAX_CSTR_SIZE = 1048576;
+	mpack_reader_t reader;
+
   MpackResUnPack() = default;
   virtual ~MpackResUnPack() = default;
 
