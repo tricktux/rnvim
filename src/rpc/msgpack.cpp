@@ -20,6 +20,17 @@
 
 #include "rpc/msgpack.hpp"
 
+void nvimrpc::MPackReqPack::mpack_write(
+    mpack_writer_t *writer,
+    const std::unordered_map<std::string, object_wrapper> &object_map) {
+  mpack_start_map(writer, object_map.size());
+  for (const auto &val : object_map) {
+    mpack_write(writer, val.first);
+    mpack_write(writer, val.second);
+  }
+  mpack_finish_map(writer);
+}
+
 void nvimrpc::MPackReqPack::mpack_write(mpack_writer_t *writer,
                                         const object &obj) {
   if (std::holds_alternative<bool>(obj))
@@ -117,7 +128,7 @@ template <typename T> auto nvimrpc::MpackResUnPack::get_result() {
   const mpack_tag_t result = mpack_peek_tag(&reader);
 
   if constexpr (std::is_void<T>::value) {
-    if (result.type == mpack_type_nil)
+    if (result.type != mpack_type_nil)
       DLOG(ERROR) << "Expected nil return type but got: '"
                   << std::to_string(result.type) << "'";
     return;

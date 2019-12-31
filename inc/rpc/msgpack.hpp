@@ -113,17 +113,11 @@ class MPackReqPack : public IMpackReqPack {
     }
     mpack_finish_array(writer);
   }
-  void mpack_write(
+  inline void mpack_write(
       mpack_writer_t *writer,
-      const std::unordered_map<std::string, object_wrapper> &object_map) {
-    mpack_start_map(writer, object_map.size());
-    for (const auto &val : object_map) {
-      mpack_write(writer, val.first);
-      mpack_write(writer, val.second);
-    }
-    mpack_finish_map(writer);
-  }
-  void mpack_write(mpack_writer_t *writer, const object &obj);
+      const std::unordered_map<std::string, object_wrapper> &object_map);
+
+  inline void mpack_write(mpack_writer_t *writer, const object &obj);
 
   template <typename T, typename... Params>
   void mpack_write(mpack_writer_t *writer, T value, Params &&... params) {
@@ -244,7 +238,7 @@ class MpackResUnPack : public IMpackResUnPack {
     return mpack_read_array<std::string>(reader);
   }
 
-  object mpack_read_object(mpack_reader_t *reader);
+  inline object mpack_read_object(mpack_reader_t *reader);
 
   template <>
   std::vector<std::unordered_map<std::string, object>>
@@ -254,7 +248,7 @@ class MpackResUnPack : public IMpackResUnPack {
   }
 
   template <>
-  std::unordered_map<std::string, object>
+  inline std::unordered_map<std::string, object>
   mpack_read<std::unordered_map<std::string, object>>(mpack_reader_t *reader);
 
 public:
