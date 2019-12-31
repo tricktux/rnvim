@@ -37,12 +37,26 @@ class NvimApi {
 	template <typename... Params>
 	size_t dispatch(std::string_view func, Params&& ... params);
 	template<typename T> auto poll(size_t msgid, size_t timeout);
+	size_t get_new_msgid() { return ++msgid; }
 
 public:
 	explicit NvimApi(IoDevice &_device) : msgid(0), device(_device) {}
   ~NvimApi() = default;
 
-  size_t get_new_msgid() { return ++msgid; }
+	// Generated apis
+	// clang-format off
+	{% for req in nvim_reqs %}
+		{{req.return_type}} {{req.name}}({% for arg in req.args %}{{arg.type}} {{arg.name}}{% if not loop.last %}, {% endif %}{% endfor %}) {
+			{% if req.return_type != 'void' %} {
+				const size_t msgid = dispatch("{{f.name}}", {{ f.parameters|join(", ", attribute='name') }});
+				return poll<{{f.return_type.native_type}}>(msgid, 100);
+			 }
+			{% endif %}
+			const size_t msgid = dispatch("{{f.name}}");
+			return poll<>(msgid, 100);
+		}
+	{% endfor %}
+	// clang-format on
 };
 
 } // namespace nvimrpc

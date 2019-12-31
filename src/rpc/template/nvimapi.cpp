@@ -20,7 +20,7 @@
 
 #include "easylogging++.h"
 #include "rpc/msgpack.hpp"
-#include "rpc/template/nvimapi.hpp"
+#include "nvimapi.hpp"
 
 #include <memory>
 
