@@ -34,10 +34,11 @@ class nvimrpc::StreamWorker {
 }
 
 class nvimrpc::Api {
-	-msgid
-	-auto wait_for_response(msgid, timeout);
+	-msgid = 0;
+	-auto poll(msgid, timeout);
 	-dispatch(const std::string& func, Args... args)
 	' This function basically calls dispatch and then wait_for_response
+	+int get_new_msgid() { return ++msgid; }
 	+auto generated_functions_from_api()
 	' Todo
 	+virtual auto generated_notifications_handles()
