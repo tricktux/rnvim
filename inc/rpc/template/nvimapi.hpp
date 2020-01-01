@@ -38,7 +38,7 @@ class NvimApi {
 	IoDevice &device;
 
 	template <typename... Params>
-	size_t dispatch(std::string_view func, Params&& ... params);
+	size_t dispatch(std::string func, Params&& ... params);
 	template<typename T> T poll(size_t msgid, size_t timeout);
 	template <>
 		void poll<void>(size_t msgid, size_t timeout);

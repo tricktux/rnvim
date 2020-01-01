@@ -30,7 +30,7 @@
 #include <optional>
 
 template <typename... Params>
-size_t nvimrpc::NvimApi::dispatch(std::string_view func, Params &&... params) {
+size_t nvimrpc::NvimApi::dispatch(std::string func, Params &&... params) {
   if (func.empty()) {
     DLOG(ERROR) << "Empty function name";
     return 0;
