@@ -235,7 +235,7 @@ void inline mpack_write(mpack_writer_t *writer, const object &obj) {
 void inline mpack_write(mpack_writer_t *writer, std::string_view value) {
   mpack_write_utf8_cstr(writer, value.data());
 }
-void inline mpack_write(mpack_writer_t *writer, std::string &&value) {
+void inline mpack_write(mpack_writer_t *writer, const std::string &value) {
   mpack_write_utf8_cstr(writer, value.data());
 }
 inline void
@@ -263,7 +263,7 @@ void inline mpack_write(mpack_writer_t *writer,
 
 template <typename T, typename... Params>
 void inline mpack_write(mpack_writer_t *writer, T&& value, Params &&... params) {
-	mpack_write(writer, value);
+	mpack_write(writer, std::forward<T>(value));
 	mpack_write(writer, std::forward<Params>(params)...);
 }
 
