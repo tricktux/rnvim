@@ -22,7 +22,8 @@
 #define NVIMAPI_HPP
 
 #include "rpc/iodevice.hpp"
-#include "msgpack.hpp"
+#include "rpc/msgpack.hpp"
+#include "easylogging++.h"
 
 #include <queue>
 #include <string>
@@ -38,8 +39,70 @@ class NvimApi {
 	IoDevice &device;
 
 	template <typename... Params>
-	size_t dispatch(std::string_view func, Params&& ... params);
-	template<typename T> std::optional<T> poll(size_t msgid, size_t timeout);
+	size_t dispatch(std::string_view func, Params &&... params) {
+		if (func.empty()) {
+			DLOG(ERROR) << "Empty function name";
+			return 0;
+		}
+
+		size_t new_msgid = get_new_msgid();
+		MPackReqPack req_packer;
+		req_packer.set_msgid(new_msgid);
+		req_packer.set_method(func);
+		req_packer.set_params(std::forward<Params>(params)...);
+		std::string data = req_packer.build();
+
+		if (data.empty()) {
+			DLOG(ERROR) << "Failed to pack request";
+			return 0;
+		}
+
+		if (size_t size = device.send(data); size != data.size()) {
+			DLOG(ERROR) << "Failed to send all data";
+			return 0;
+		}
+
+		return new_msgid;
+	}
+	template <typename T>
+	std::optional<T> poll(size_t msgid, size_t timeout) {
+		do {
+			std::string buf{};
+			device.recv(buf, std::chrono::seconds{timeout});
+			if (buf.empty()) {
+				DLOG(ERROR) << "Timed out waiting for '" << msgid << "'";
+				return {};
+			}
+
+			MpackResUnPack resp_unpack;
+			if (int rc = resp_unpack.set_data(buf); rc != 0) {
+				DLOG(WARNING) << "Failed to make sense of data received: '" << buf << "'";
+				continue; // Keep trying?
+			}
+
+			if (int rc = resp_unpack.get_msg_type(); rc != MpackResUnPack::MSG_TYPE) {
+				DLOG(WARNING) << "Packet received is not a RESPONSE: '" << rc << "'";
+				if (rc == 2)               // TODO Address magic number
+					pending_notif.push(buf); // Save notification data
+
+				continue;
+			}
+
+			if (size_t rc = resp_unpack.get_msgid(); rc != msgid) {
+				DLOG(WARNING) << "Received response, but not for my msgid: '" << rc
+					<< "'";
+				continue;
+			}
+
+			if (int rc = resp_unpack.get_error(); rc != 0) {
+				DLOG(ERROR) << "Server returned error: '" << rc << "'";
+				return {};
+			}
+
+			return std::forward<T>(resp_unpack.get_result<T>());
+
+		} while (true);
+	}
 	size_t get_new_msgid() { return ++msgid; }
 
 public:

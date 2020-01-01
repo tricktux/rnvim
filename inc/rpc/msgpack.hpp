@@ -61,10 +61,10 @@ public:
   const object &ref() const { return *(m_ptr.get()); }
 };
 
-void mpack_write(mpack_writer_t *);
+void inline mpack_write(mpack_writer_t *) {}
 
 template <typename T, typename... Params>
-void mpack_write(mpack_writer_t *writer, T value, Params &&... params);
+void inline mpack_write(mpack_writer_t *writer, T value, Params &&... params);
 
 class IMpackReqPack {
 public:
@@ -227,14 +227,6 @@ inline void
 mpack_write(mpack_writer_t *writer,
             const std::unordered_map<std::string, object_wrapper> &object_map);
 
-inline void mpack_write(mpack_writer_t *writer, const object &obj);
-
-template <typename T, typename... Params>
-void inline mpack_write(mpack_writer_t *writer, T value, Params &&... params) {
-  mpack_write(writer, value);
-  mpack_write(writer, std::forward<Params>(params)...);
-}
-
 void inline mpack_write(
     mpack_writer_t *writer,
     const std::unordered_map<std::string, object_wrapper> &object_map) {
@@ -252,6 +244,12 @@ void inline mpack_write(mpack_writer_t *writer,
     mpack_write(writer, val);
   }
   mpack_finish_array(writer);
+}
+
+template <typename T, typename... Params>
+void inline mpack_write(mpack_writer_t *writer, T value, Params &&... params) {
+	mpack_write(writer, value);
+	mpack_write(writer, std::forward<Params>(params)...);
 }
 
 // void mpack_write(mpack_writer_t *writer, const std::array<int64_t, 2> &val) {
