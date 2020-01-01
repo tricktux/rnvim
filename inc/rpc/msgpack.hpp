@@ -64,7 +64,7 @@ public:
 void inline mpack_write(mpack_writer_t *) {}
 
 template <typename T, typename... Params>
-void inline mpack_write(mpack_writer_t *writer, T value, Params &&... params);
+void inline mpack_write(mpack_writer_t *writer, T&& value, Params &&... params);
 
 class IMpackReqPack {
 public:
@@ -262,7 +262,7 @@ void inline mpack_write(mpack_writer_t *writer,
 }
 
 template <typename T, typename... Params>
-void inline mpack_write(mpack_writer_t *writer, T value, Params &&... params) {
+void inline mpack_write(mpack_writer_t *writer, T&& value, Params &&... params) {
 	mpack_write(writer, value);
 	mpack_write(writer, std::forward<Params>(params)...);
 }
