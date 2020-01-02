@@ -199,22 +199,23 @@ public:
     }
     return std::forward<T>(rvalue);
   }
-	template <> void get_result<void>() {
-		const mpack_tag_t result = mpack_peek_tag(&reader);
-
-		if (result.type != mpack_type_nil)
-			DLOG(ERROR) << "Expected nil return type but got: '"
-									<< std::to_string(result.type) << "'";
-
-		mpack_discard(&reader);
-		mpack_done_array(&reader);
-
-		if (mpack_reader_destroy(&reader) != mpack_ok) {
-			DLOG(ERROR) << "Could not unpack response";
-		}
-		return;
-	}
 };
+
+template <> void MpackResUnPack::get_result<void>() {
+	const mpack_tag_t result = mpack_peek_tag(&reader);
+
+	if (result.type != mpack_type_nil)
+		DLOG(ERROR) << "Expected nil return type but got: '"
+			<< std::to_string(result.type) << "'";
+
+	mpack_discard(&reader);
+	mpack_done_array(&reader);
+
+	if (mpack_reader_destroy(&reader) != mpack_ok) {
+		DLOG(ERROR) << "Could not unpack response";
+	}
+	return;
+}
 
 // --------------mpack_write--------------------- //
 
