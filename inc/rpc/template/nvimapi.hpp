@@ -69,8 +69,7 @@ class NvimApi {
 	T poll(size_t msgid, size_t timeout) {
 		do {
 			std::string buf{};
-			device.recv(buf, std::chrono::seconds{timeout});
-			if (buf.empty()) {
+			if (size_t size = device.recv(buf, timeout); size == 0) {
 				DLOG(ERROR) << "Timed out waiting for '" << msgid << "'";
 				return {};
 			}
@@ -107,8 +106,7 @@ class NvimApi {
 	template <> void poll<void>(size_t msgid, size_t timeout) {
 		do {
 			std::string buf{};
-			device.recv(buf, std::chrono::seconds{timeout});
-			if (buf.empty()) {
+			if (size_t size = device.recv(buf, timeout); size == 0) {
 				DLOG(ERROR) << "Timed out waiting for '" << msgid << "'";
 
 				return;
@@ -153,10 +151,10 @@ public:
 	{{req.return_type}} {{req.name}}({% for arg in req.args %}{{arg.type}} {{arg.name}}{% if not loop.last %}, {% endif %}{% endfor %}) {
 		{% if req.return_type != 'void' %}
 			const size_t msgid = dispatch("{{req.name}}"{% for arg in req.args %}, {{arg.name}}{% endfor %});
-					return poll<{{req.return_type}}>(msgid, 100);
+					return poll<{{req.return_type}}>(msgid, 5);
 		{% else %}
 			dispatch("{{req.name}}"{% for arg in req.args %}, {{arg.name}}{% endfor %});
-			poll<void>(msgid, 100);
+			poll<void>(msgid, 5);
 		{% endif %}
 }
 	{% endfor %}
