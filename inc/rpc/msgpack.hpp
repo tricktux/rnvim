@@ -37,7 +37,7 @@ namespace nvimrpc {
 // be careful of std::vector<object> vs std::vector<object_wrapper>
 // this can easily give bug
 class object_wrapper;
-typedef std::variant<bool, int64_t, double, std::string,
+typedef std::variant<bool, int64_t, double, std::string, std::array<int64_t, 2>,
                      std::vector<object_wrapper>,
                      std::unordered_map<std::string, object_wrapper>>
     object;
@@ -200,22 +200,6 @@ public:
   }
 };
 
-// template <> void MpackResUnPack::get_result<void>() {
-// const mpack_tag_t result = mpack_peek_tag(&reader);
-
-// if (result.type != mpack_type_nil)
-// DLOG(ERROR) << "Expected nil return type but got: '"
-// << std::to_string(result.type) << "'";
-
-// mpack_discard(&reader);
-// mpack_done_array(&reader);
-
-// if (mpack_reader_destroy(&reader) != mpack_ok) {
-// DLOG(ERROR) << "Could not unpack response";
-// }
-// return;
-// }
-
 // --------------mpack_write--------------------- //
 
 void inline mpack_write(mpack_writer_t *writer, const object &obj) {
@@ -227,6 +211,8 @@ void inline mpack_write(mpack_writer_t *writer, const object &obj) {
     return mpack_write(writer, std::get<double>(obj));
   if (std::holds_alternative<std::string>(obj))
     return mpack_write(writer, std::get<std::string>(obj));
+  if (std::holds_alternative<std::array<int64_t, 2>>(obj))
+    return mpack_write(writer, std::get<std::array<int64_t, 2>>(obj));
   if (std::holds_alternative<std::unordered_map<std::string, object_wrapper>>(
           obj)) {
     return mpack_write(
@@ -248,6 +234,17 @@ void inline mpack_write(mpack_writer_t *writer, const std::string &value) {
 // inline void
 // mpack_write(mpack_writer_t *writer,
 // const std::unordered_map<std::string, object_wrapper> &object_map);
+
+void inline mpack_write(
+		mpack_writer_t *writer,
+		const std::unordered_map<std::string, object> &object_map) {
+	mpack_start_map(writer, object_map.size());
+	for (const auto &val : object_map) {
+		mpack_write(writer, val.first);
+		mpack_write(writer, val.second);
+	}
+	mpack_finish_map(writer);
+}
 
 void inline mpack_write(
     mpack_writer_t *writer,
@@ -282,19 +279,19 @@ void inline mpack_write(mpack_writer_t *writer, T &&value,
 
 // --------------mpack_read--------------------- //
 template <typename T> T mpack_read(mpack_reader_t *);
-template <> bool inline mpack_read<bool>(mpack_reader_t *reader) {
+template <> inline bool mpack_read<bool>(mpack_reader_t *reader) {
   return mpack_expect_bool(reader);
 }
-template <> int64_t inline mpack_read<int64_t>(mpack_reader_t *reader) {
+template <> inline int64_t mpack_read<int64_t>(mpack_reader_t *reader) {
   return mpack_expect_i64(reader);
 }
-template <> uint64_t inline mpack_read<uint64_t>(mpack_reader_t *reader) {
+template <> inline uint64_t mpack_read<uint64_t>(mpack_reader_t *reader) {
   return mpack_expect_u64(reader);
 }
-template <> double inline mpack_read<double>(mpack_reader_t *reader) {
+template <> inline double mpack_read<double>(mpack_reader_t *reader) {
   return mpack_expect_double(reader);
 }
-template <> std::string inline mpack_read<std::string>(mpack_reader_t *reader) {
+template <> inline std::string mpack_read<std::string>(mpack_reader_t *reader) {
   char *buf =
       mpack_expect_utf8_cstr_alloc(reader, MpackResUnPack::MAX_CSTR_SIZE);
   std::string res{buf};
@@ -302,38 +299,38 @@ template <> std::string inline mpack_read<std::string>(mpack_reader_t *reader) {
   return res;
 }
 template <typename T>
-std::vector<T> inline mpack_read_array(mpack_reader_t *reader);
+inline std::vector<T> mpack_read_array(mpack_reader_t *reader);
 
 template <>
-std::vector<int64_t> inline mpack_read<std::vector<int64_t>>(
-    mpack_reader_t *reader) {
+inline std::vector<int64_t>
+mpack_read<std::vector<int64_t>>(mpack_reader_t *reader) {
   return mpack_read_array<int64_t>(reader);
 }
 template <>
-std::vector<bool> inline mpack_read<std::vector<bool>>(mpack_reader_t *reader) {
+inline std::vector<bool> mpack_read<std::vector<bool>>(mpack_reader_t *reader) {
   return mpack_read_array<bool>(reader);
 }
 template <>
-std::vector<uint64_t> inline mpack_read<std::vector<uint64_t>>(
-    mpack_reader_t *reader) {
+inline std::vector<uint64_t>
+mpack_read<std::vector<uint64_t>>(mpack_reader_t *reader) {
   return mpack_read_array<uint64_t>(reader);
 }
 template <>
-std::vector<double> inline mpack_read<std::vector<double>>(
-    mpack_reader_t *reader) {
+inline std::vector<double>
+mpack_read<std::vector<double>>(mpack_reader_t *reader) {
   return mpack_read_array<double>(reader);
 }
 template <>
-std::vector<std::string> inline mpack_read<std::vector<std::string>>(
-    mpack_reader_t *reader) {
+inline std::vector<std::string>
+mpack_read<std::vector<std::string>>(mpack_reader_t *reader) {
   return mpack_read_array<std::string>(reader);
 }
 
 inline object mpack_read_object(mpack_reader_t *reader);
 
 template <>
-std::vector<std::unordered_map<std::string, object>> inline mpack_read<
-    std::vector<std::unordered_map<std::string, object>>>(
+inline std::vector<std::unordered_map<std::string, object>>
+mpack_read<std::vector<std::unordered_map<std::string, object>>>(
     mpack_reader_t *reader) {
   return mpack_read_array<std::unordered_map<std::string, object>>(reader);
 }
@@ -347,11 +344,11 @@ mpack_read<std::unordered_map<std::string, object>>(mpack_reader_t *reader) {
   std::unordered_map<std::string, object> res;
   res.reserve(size);
 
-	for (size_t k=0; k < size; k++) {
-		res[mpack_read<std::string>(reader)] = mpack_read_object(reader);
-	}
+  for (size_t k = 0; k < size; k++) {
+    res[mpack_read<std::string>(reader)] = mpack_read_object(reader);
+  }
 
-	mpack_done_map(reader);
+  mpack_done_map(reader);
   return res;
 }
 
@@ -370,7 +367,7 @@ std::vector<T> inline mpack_read_array(mpack_reader_t *reader) {
 }
 
 template <> inline object mpack_read<object>(mpack_reader_t *reader) {
-	return mpack_read_object(reader);
+  return mpack_read_object(reader);
 }
 
 object inline mpack_read_object(mpack_reader_t *reader) {
@@ -392,7 +389,8 @@ object inline mpack_read_object(mpack_reader_t *reader) {
     auto res_map = mpack_read<std::unordered_map<std::string, object>>(reader);
     std::unordered_map<std::string, object_wrapper> res_map_wrapper;
     for (auto &item : res_map)
-      res_map_wrapper[item.first] = object_wrapper(item.second);
+      res_map_wrapper[std::move(item.first)] =
+          object_wrapper(std::move(item.second));
     return object(res_map_wrapper);
   }
   case mpack_type_array: {
