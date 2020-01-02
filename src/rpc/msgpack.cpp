@@ -58,12 +58,6 @@ int nvimrpc::MpackResUnPack::set_data(std::string_view data) {
   }
 
   mpack_reader_init_data(&reader, data.data(), data.size());
-
-  if (mpack_expect_array_max(&reader, NUM_ELEMENTS) != NUM_ELEMENTS) {
-    DLOG(ERROR) << "Expected array response of size 4";
-    return -2;
-  }
-
   return 0;
 }
 
@@ -75,7 +69,7 @@ int nvimrpc::MpackResUnPack::get_error() {
   }
 
   if (error.type == mpack_type_str) {
-    char *buf = mpack_expect_utf8_cstr_alloc(&reader, MAX_CSTR_SIZE);
+    char *buf = mpack_expect_cstr_alloc(&reader, MAX_CSTR_SIZE);
     DLOG(ERROR) << "Response message contains error message: '" << buf << "'";
     MPACK_FREE(buf);
     return -1;

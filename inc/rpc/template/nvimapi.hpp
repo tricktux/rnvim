@@ -86,12 +86,21 @@ class NvimApi {
 				return T(); // Keep trying?
 			}
 
+			if (size_t size = resp_unpack.get_num_elements();
+					size != MpackResUnPack::NUM_ELEMENTS) {
+				DLOG(WARNING) << "Expected 4 elements, got: '" << size << "'";
+				if ((size == 3) && (resp_unpack.get_msg_type() == 2)) {
+					DLOG(WARNING) << "Instead we got a notification";
+					pending_notif.emplace(buf);
+					continue;
+				}
+
+				return T();
+			}
+
 			if (int rc = resp_unpack.get_msg_type(); rc != MpackResUnPack::MSG_TYPE) {
 				DLOG(WARNING) << "Packet received is not a RESPONSE: '" << rc << "'";
-				if (rc == 2)               // TODO Address magic number
-					pending_notif.push(buf); // Save notification data
-
-				continue;
+				return T();
 			}
 
 			if (size_t rc = resp_unpack.get_msgid(); rc != msgid) {
