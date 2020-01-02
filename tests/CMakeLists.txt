@@ -34,7 +34,7 @@ add_test(test_iodevice ${EXECUTABLE_OUTPUT_PATH})
 add_executable(test_nvimapi ${MPACK_SRCS}
 	"${CMAKE_SOURCE_DIR}/src/rpc/iodevice.cpp"
 	"${CMAKE_SOURCE_DIR}/src/rpc/msgpack.cpp"
-	"${CMAKE_SOURCE_DIR}/src/rpc/template/nvimapi.cpp"
+	# "${CMAKE_SOURCE_DIR}/src/rpc/template/nvimapi.cpp"
 	"${CMAKE_SOURCE_DIR}/tests/test_nvimapi.cpp"
 	)
 if (REPROC_FOUND)
