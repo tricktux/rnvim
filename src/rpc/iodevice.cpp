@@ -72,7 +72,7 @@ int nvimrpc::ReprocDevice::spawn(const std::vector<const char *> &argv,
 int nvimrpc::ReprocDevice::kill() {
   if (!process.running()) {
     DLOG(WARNING) << "Child process already dead";
-		return process.exit_status();
+    return process.exit_status();
   }
 
   reproc::stop_actions stop_actions{
@@ -89,7 +89,7 @@ int nvimrpc::ReprocDevice::kill() {
 
   DLOG(INFO) << "Gracefully closed child process whit exit code: "
              << process.exit_status();
-	return process.exit_status();
+  return process.exit_status();
 }
 
 /**
@@ -118,32 +118,30 @@ size_t nvimrpc::ReprocDevice::send(std::string_view data) {
   return data.size();
 }
 
-/**
+/** 
  * @brief Receive data from buffer, wait for @seconds
- * @param buf Pointer to storage for received data
- * @param size Size of storage
- * @return Number of bytes copied to buffer
+ * @param data Data storage
+ * @param timeout Number of seconds to wait for data to arrive
+ * @return Size of rec'd data
  */
-size_t
-nvimrpc::ReprocDevice::recv(std::string &data,
-                            std::optional<std::chrono::seconds> timeout) {
+size_t nvimrpc::ReprocDevice::recv(std::string &data, size_t timeout) {
   if (!process.running()) {
     DLOG(FATAL) << "Child process is not running!";
     throw std::runtime_error("Child process is not running!");
   }
 
-  if (timeout) {
-    std::future_status fs = drain_async.wait_for(timeout.value());
-    if (fs == std::future_status::timeout) {
-      DLOG(INFO) << "Timed out waiting for data";
-      return 0;
-    }
+  size_t t = timeout == 0 ? 60000 : timeout*1000; // Convert to ms
+	std::lock_guard<std::mutex> guard(m);
+  for (size_t k = t; k > 0; k -= 100) {
+    if (!output.empty())
+			break;
+		std::this_thread::sleep_for(std::chrono::milliseconds{100});
   }
-  std::lock_guard<std::mutex> guard(m);
-  if (output.empty()) {
-    DLOG(INFO) << "No output data";
-    return 0;
-  }
+
+	if (output.empty()) {
+		DLOG(INFO) << "Timed out waiting for data";
+		return 0;
+	}
 
   data = output;
   output.clear();

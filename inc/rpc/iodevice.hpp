@@ -43,8 +43,7 @@ public:
   virtual ~IoDevice() = default;
 
   virtual size_t send(std::string_view data) = 0;
-  virtual size_t recv(std::string &data,
-                      std::optional<std::chrono::seconds> timeout) = 0;
+  virtual size_t recv(std::string &data, size_t timeout) = 0;
 };
 
 /** @brief Device that communicates over `stdin/stdout/stderr`
@@ -66,8 +65,7 @@ public:
   int spawn(const std::vector<const char *> &, int);
   int kill();
   size_t send(std::string_view data) override;
-  size_t recv(std::string &data,
-              std::optional<std::chrono::seconds> timeout) override;
+  size_t recv(std::string &data, size_t timeout) override;
 };
 
 } // namespace nvimrpc
