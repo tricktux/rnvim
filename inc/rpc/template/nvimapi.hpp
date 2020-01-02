@@ -80,8 +80,10 @@ class NvimApi {
 
 			MpackResUnPack resp_unpack;
 			if (int rc = resp_unpack.set_data(buf); rc != 0) {
-				DLOG(WARNING) << "Failed to make sense of data received: '" << buf << "'";
-				continue; // Keep trying?
+				DLOG(WARNING) << "During call: '" << msgid << ":" << last_func_call <<
+					"', failed make sense of data received:\n'"
+					<< buf << "'";
+				return T(); // Keep trying?
 			}
 
 			if (int rc = resp_unpack.get_msg_type(); rc != MpackResUnPack::MSG_TYPE) {
@@ -122,10 +124,10 @@ public:
 	{{req.return_type}} {{req.name}}({% for arg in req.args %}{{arg.type}} {{arg.name}}{% if not loop.last %}, {% endif %}{% endfor %}) {
 		{% if req.return_type != 'void' %}
 			const size_t msgid = dispatch("{{req.name}}"{% for arg in req.args %}, {{arg.name}}{% endfor %});
-					return poll<{{req.return_type}}>(msgid, 5);
+					return poll<{{req.return_type}}>(msgid, 15);
 		{% else %}
 		const size_t msgid = dispatch("{{req.name}}"{% for arg in req.args %}, {{arg.name}}{% endfor %});
-			poll<int64_t>(msgid, 5);
+			poll<int64_t>(msgid, 15);
 		{% endif %}
 }
 	{% endfor %}

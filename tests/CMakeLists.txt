@@ -48,3 +48,20 @@ endif ()
 target_include_directories(test_nvimapi PUBLIC ${JINJA2_OUTPUT_DIR})
 add_dependencies(test_nvimapi jinja2_proc)
 add_test(test_nvimapi ${EXECUTABLE_OUTPUT_PATH})
+
+# ------------libnvc--------------
+include("${CMAKE_SOURCE_DIR}/cmake/external/libnvc.cmake")
+add_executable(test_nvc
+	# ${MPACK_SRCS}
+	# "${CMAKE_SOURCE_DIR}/src/rpc/iodevice.cpp"
+	# "${CMAKE_SOURCE_DIR}/src/rpc/msgpack.cpp"
+	# "${CMAKE_SOURCE_DIR}/src/rpc/template/nvimapi.cpp"
+	"${CMAKE_SOURCE_DIR}/tests/test_nvc.cpp"
+	)
+if (NVC_FOUND)
+	add_dependencies(test_nvc nvc)
+	target_include_directories(test_nvc PUBLIC ${NVC_INCLUDE_DIRS})
+	target_link_libraries(test_nvc PRIVATE ${NVC_LIBRARIES})
+endif ()
+add_test(test_nvc ${EXECUTABLE_OUTPUT_PATH})
+

@@ -29,7 +29,7 @@
 
 INITIALIZE_EASYLOGGINGPP
 
-TEST(api, simple) {
+TEST(api, input) {
   int timeout = 10;
   nvimrpc::ReprocDevice device;
   std::vector<const char *> args{{"nvim", "-u", "NONE", "--embed", nullptr}};
@@ -37,8 +37,34 @@ TEST(api, simple) {
 
   nvimrpc::NvimApi api{device};
 	api.nvim_ui_attach(800, 600, {{"rgb", true}});
-  api.nvim_input({"$i123<CR>123<ESC>"});
-  api.nvim_buf_set_name(0, ":D");
-  long lines = api.nvim_buf_line_count(0);
-  ASSERT_EQ(lines, 2);
+	ASSERT_GT(api.nvim_input("$i123<CR>123<ESC>"), 0);
+	device.kill();
+}
+
+TEST(api, buf_set_name) {
+	int timeout = 10;
+	nvimrpc::ReprocDevice device;
+	std::vector<const char *> args{{"nvim", "-u", "NONE", "--embed", nullptr}};
+	ASSERT_EQ(device.spawn(args, timeout), 0);
+
+	nvimrpc::NvimApi api{device};
+	api.nvim_ui_attach(800, 600, {{"rgb", true}});
+	ASSERT_GT(api.nvim_input("$i123<CR>123<ESC>"), 0);
+	api.nvim_buf_set_name(1, ":D");
+	device.kill();
+}
+
+TEST(api, buf_get_name) {
+	int timeout = 10;
+	std::string buf{"yixx"};
+	nvimrpc::ReprocDevice device;
+	std::vector<const char *> args{{"nvim", "-u", "NONE", "--embed", nullptr}};
+	ASSERT_EQ(device.spawn(args, timeout), 0);
+
+	nvimrpc::NvimApi api{device};
+	api.nvim_ui_attach(800, 600, {{"rgb", true}});
+	ASSERT_GT(api.nvim_input("$i123<CR>123<ESC>"), 0);
+	api.nvim_buf_set_name(1, buf);
+	ASSERT_EQ(api.nvim_buf_get_name(1), buf);
+	device.kill();
 }
