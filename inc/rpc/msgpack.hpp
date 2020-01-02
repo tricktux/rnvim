@@ -152,6 +152,7 @@ public:
   virtual ~IMpackResUnPack() = default;
 
   virtual int set_data(std::string_view) = 0;
+  virtual size_t get_num_elements() = 0;
   virtual int get_msg_type() = 0;
   virtual size_t get_msgid() = 0;
   virtual int get_error() = 0;
@@ -177,6 +178,9 @@ public:
   virtual ~MpackResUnPack() = default;
 
   int set_data(std::string_view data) override;
+  size_t get_num_elements() override {
+    return mpack_expect_array_max(&reader, NUM_ELEMENTS);
+  }
   int get_msg_type() override { return mpack_expect_i32(&reader); }
   size_t get_msgid() override { return mpack_expect_u32(&reader); }
   int get_error() override;
@@ -236,14 +240,14 @@ void inline mpack_write(mpack_writer_t *writer, const std::string &value) {
 // const std::unordered_map<std::string, object_wrapper> &object_map);
 
 void inline mpack_write(
-		mpack_writer_t *writer,
-		const std::unordered_map<std::string, object> &object_map) {
-	mpack_start_map(writer, object_map.size());
-	for (const auto &val : object_map) {
-		mpack_write(writer, val.first);
-		mpack_write(writer, val.second);
-	}
-	mpack_finish_map(writer);
+    mpack_writer_t *writer,
+    const std::unordered_map<std::string, object> &object_map) {
+  mpack_start_map(writer, object_map.size());
+  for (const auto &val : object_map) {
+    mpack_write(writer, val.first);
+    mpack_write(writer, val.second);
+  }
+  mpack_finish_map(writer);
 }
 
 void inline mpack_write(
@@ -292,8 +296,7 @@ template <> inline double mpack_read<double>(mpack_reader_t *reader) {
   return mpack_expect_double(reader);
 }
 template <> inline std::string mpack_read<std::string>(mpack_reader_t *reader) {
-  char *buf =
-      mpack_expect_cstr_alloc(reader, MpackResUnPack::MAX_CSTR_SIZE);
+  char *buf = mpack_expect_cstr_alloc(reader, MpackResUnPack::MAX_CSTR_SIZE);
   std::string res{buf};
   MPACK_FREE(buf);
   return res;

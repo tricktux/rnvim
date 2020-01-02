@@ -135,6 +135,7 @@ size_t nvimrpc::ReprocDevice::recv(std::string &data, size_t timeout) {
 		{
 			std::lock_guard<std::mutex> guard(m);
 			if (!output.empty()) {
+				DLOG(INFO) << "Rec'd data: '" << output << "'";
 				data = output;
 				output.clear();
 				return data.size();
