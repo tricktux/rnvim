@@ -35,6 +35,7 @@ namespace nvimrpc {
 
 class NvimApi {
   size_t msgid;
+	std::string last_func_call;
   std::queue<std::string> pending_notif;
 	IoDevice &device;
 
@@ -46,6 +47,7 @@ class NvimApi {
 			return 0;
 		}
 
+		last_func_call = func;
 		size_t new_msgid = get_new_msgid();
 		MPackReqPack req_packer;
 		req_packer.set_msgid(new_msgid);
@@ -71,7 +73,8 @@ class NvimApi {
 		do {
 			std::string buf{};
 			if (size_t size = device.recv(buf, timeout); size == 0) {
-				DLOG(ERROR) << "Timed out waiting for '" << msgid << "'";
+				DLOG(ERROR) << "Timed out waiting for: '"
+					<< msgid << ":" << last_func_call << "'";
 				return T();
 			}
 
