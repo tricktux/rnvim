@@ -64,7 +64,7 @@ public:
 void inline mpack_write(mpack_writer_t *) {}
 
 template <typename T, typename... Params>
-void inline mpack_write(mpack_writer_t *writer, T&& value, Params &&... params);
+void inline mpack_write(mpack_writer_t *writer, T &&value, Params &&... params);
 
 class IMpackReqPack {
 public:
@@ -160,13 +160,13 @@ public:
 
 template <typename T> T mpack_read(mpack_reader_t *);
 class MpackResUnPack : public IMpackResUnPack {
-	void close_mpack() {
-		mpack_done_array(&reader);
+  void close_mpack() {
+    mpack_done_array(&reader);
 
-		if (mpack_reader_destroy(&reader) != mpack_ok) {
-			DLOG(ERROR) << "Could not unpack response";
-		}
-	}
+    if (mpack_reader_destroy(&reader) != mpack_ok) {
+      DLOG(ERROR) << "Could not unpack response";
+    }
+  }
 
 public:
   const static size_t MAX_CSTR_SIZE = 1048576;
@@ -184,38 +184,36 @@ public:
   template <typename T> T get_result() {
     const mpack_tag_t result = mpack_peek_tag(&reader);
 
-    if constexpr (std::is_void<T>::value) {
-      if (result.type != mpack_type_nil)
-        DLOG(ERROR) << "Expected nil return type but got: '"
-                    << std::to_string(result.type) << "'";
-      return;
+    if (result.type == mpack_type_nil) {
+      // DLOG(ERROR) << "Expected nil return type but got: '"
+                  // << std::to_string(result.type) << "'";
+
+			mpack_discard(&reader);
+      close_mpack();
+      return T();
     }
 
     T rvalue = mpack_read<T>(&reader);
-    mpack_done_array(&reader);
-
-    if (mpack_reader_destroy(&reader) != mpack_ok) {
-      DLOG(ERROR) << "Could not unpack response";
-    }
+    close_mpack();
     return std::forward<T>(rvalue);
   }
 };
 
-template <> void MpackResUnPack::get_result<void>() {
-	const mpack_tag_t result = mpack_peek_tag(&reader);
+// template <> void MpackResUnPack::get_result<void>() {
+  // const mpack_tag_t result = mpack_peek_tag(&reader);
 
-	if (result.type != mpack_type_nil)
-		DLOG(ERROR) << "Expected nil return type but got: '"
-			<< std::to_string(result.type) << "'";
+  // if (result.type != mpack_type_nil)
+    // DLOG(ERROR) << "Expected nil return type but got: '"
+                // << std::to_string(result.type) << "'";
 
-	mpack_discard(&reader);
-	mpack_done_array(&reader);
+  // mpack_discard(&reader);
+  // mpack_done_array(&reader);
 
-	if (mpack_reader_destroy(&reader) != mpack_ok) {
-		DLOG(ERROR) << "Could not unpack response";
-	}
-	return;
-}
+  // if (mpack_reader_destroy(&reader) != mpack_ok) {
+    // DLOG(ERROR) << "Could not unpack response";
+  // }
+  // return;
+// }
 
 // --------------mpack_write--------------------- //
 
@@ -270,9 +268,10 @@ void inline mpack_write(mpack_writer_t *writer,
 }
 
 template <typename T, typename... Params>
-void inline mpack_write(mpack_writer_t *writer, T&& value, Params &&... params) {
-	mpack_write(writer, std::forward<T>(value));
-	mpack_write(writer, std::forward<Params>(params)...);
+void inline mpack_write(mpack_writer_t *writer, T &&value,
+                        Params &&... params) {
+  mpack_write(writer, std::forward<T>(value));
+  mpack_write(writer, std::forward<Params>(params)...);
 }
 
 // void mpack_write(mpack_writer_t *writer, const std::array<int64_t, 2> &val) {

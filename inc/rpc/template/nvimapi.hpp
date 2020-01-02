@@ -111,6 +111,9 @@ public:
   ~NvimApi() = default;
 
 	// Generated apis
+	// NOTE: poll function does not compile for poll<void>
+	// Function get results just returns a default value if it detects a nil mpack 
+	// return type
 	// clang-format off
 {% for req in nvim_reqs %}
 	{{req.return_type}} {{req.name}}({% for arg in req.args %}{{arg.type}} {{arg.name}}{% if not loop.last %}, {% endif %}{% endfor %}) {
@@ -118,8 +121,8 @@ public:
 			const size_t msgid = dispatch("{{req.name}}"{% for arg in req.args %}, {{arg.name}}{% endfor %});
 					return poll<{{req.return_type}}>(msgid, 5);
 		{% else %}
-			dispatch("{{req.name}}"{% for arg in req.args %}, {{arg.name}}{% endfor %});
-			poll<void>(msgid, 5);
+		const size_t msgid = dispatch("{{req.name}}"{% for arg in req.args %}, {{arg.name}}{% endfor %});
+			poll<int64_t>(msgid, 5);
 		{% endif %}
 }
 	{% endfor %}
