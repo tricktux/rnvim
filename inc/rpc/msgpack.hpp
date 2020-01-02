@@ -127,7 +127,7 @@ public:
       DLOG(ERROR) << "Empty method name";
       return;
     }
-    mpack_write_utf8_cstr(&writer, name.data());
+    mpack_write_cstr(&writer, name.data());
   }
 
   /**
@@ -226,10 +226,10 @@ void inline mpack_write(mpack_writer_t *writer, const object &obj) {
 }
 
 void inline mpack_write(mpack_writer_t *writer, std::string_view value) {
-  mpack_write_utf8_cstr(writer, value.data());
+  mpack_write_cstr(writer, value.data());
 }
 void inline mpack_write(mpack_writer_t *writer, const std::string &value) {
-  mpack_write_utf8_cstr(writer, value.data());
+  mpack_write_cstr(writer, value.data());
 }
 // inline void
 // mpack_write(mpack_writer_t *writer,
@@ -293,7 +293,7 @@ template <> inline double mpack_read<double>(mpack_reader_t *reader) {
 }
 template <> inline std::string mpack_read<std::string>(mpack_reader_t *reader) {
   char *buf =
-      mpack_expect_utf8_cstr_alloc(reader, MpackResUnPack::MAX_CSTR_SIZE);
+      mpack_expect_cstr_alloc(reader, MpackResUnPack::MAX_CSTR_SIZE);
   std::string res{buf};
   MPACK_FREE(buf);
   return res;
