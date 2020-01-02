@@ -71,7 +71,7 @@ class NvimApi {
 			std::string buf{};
 			if (size_t size = device.recv(buf, timeout); size == 0) {
 				DLOG(ERROR) << "Timed out waiting for '" << msgid << "'";
-				return {};
+				return T();
 			}
 
 			MpackResUnPack resp_unpack;
@@ -96,7 +96,7 @@ class NvimApi {
 
 			if (int rc = resp_unpack.get_error(); rc != 0) {
 				DLOG(ERROR) << "Server returned error: '" << rc << "'";
-				return {};
+				return T();
 			}
 
 			return std::forward<T>(resp_unpack.get_result<T>());

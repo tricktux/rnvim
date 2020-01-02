@@ -55,7 +55,7 @@ INITIALIZE_EASYLOGGINGPP
 TEST(reprocdevice, start_stop) {
 	nvimrpc::ReprocDevice device;
 
-	std::chrono::seconds timeout{10};
+	size_t timeout{10};
 	std::string data;
 	std::vector<const char *> args{ {"cmake", "--help", nullptr} };
 
