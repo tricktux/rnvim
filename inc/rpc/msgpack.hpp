@@ -146,6 +146,7 @@ class IMpackResUnPack {
 public:
   const static size_t NUM_ELEMENTS = 4;
   const static size_t MSG_TYPE = 1;
+  const static size_t VECTOR_MAP_MAX_SIZE = 256;
 
   IMpackResUnPack() = default;
   virtual ~IMpackResUnPack() = default;
@@ -186,9 +187,9 @@ public:
 
     if (result.type == mpack_type_nil) {
       // DLOG(ERROR) << "Expected nil return type but got: '"
-                  // << std::to_string(result.type) << "'";
+      // << std::to_string(result.type) << "'";
 
-			mpack_discard(&reader);
+      mpack_discard(&reader);
       close_mpack();
       return T();
     }
@@ -200,19 +201,19 @@ public:
 };
 
 // template <> void MpackResUnPack::get_result<void>() {
-  // const mpack_tag_t result = mpack_peek_tag(&reader);
+// const mpack_tag_t result = mpack_peek_tag(&reader);
 
-  // if (result.type != mpack_type_nil)
-    // DLOG(ERROR) << "Expected nil return type but got: '"
-                // << std::to_string(result.type) << "'";
+// if (result.type != mpack_type_nil)
+// DLOG(ERROR) << "Expected nil return type but got: '"
+// << std::to_string(result.type) << "'";
 
-  // mpack_discard(&reader);
-  // mpack_done_array(&reader);
+// mpack_discard(&reader);
+// mpack_done_array(&reader);
 
-  // if (mpack_reader_destroy(&reader) != mpack_ok) {
-    // DLOG(ERROR) << "Could not unpack response";
-  // }
-  // return;
+// if (mpack_reader_destroy(&reader) != mpack_ok) {
+// DLOG(ERROR) << "Could not unpack response";
+// }
+// return;
 // }
 
 // --------------mpack_write--------------------- //
@@ -244,9 +245,9 @@ void inline mpack_write(mpack_writer_t *writer, std::string_view value) {
 void inline mpack_write(mpack_writer_t *writer, const std::string &value) {
   mpack_write_utf8_cstr(writer, value.data());
 }
-inline void
-mpack_write(mpack_writer_t *writer,
-            const std::unordered_map<std::string, object_wrapper> &object_map);
+// inline void
+// mpack_write(mpack_writer_t *writer,
+// const std::unordered_map<std::string, object_wrapper> &object_map);
 
 void inline mpack_write(
     mpack_writer_t *writer,
@@ -337,13 +338,27 @@ std::vector<std::unordered_map<std::string, object>> inline mpack_read<
   return mpack_read_array<std::unordered_map<std::string, object>>(reader);
 }
 
+// TODO test with an empty map
 template <>
 inline std::unordered_map<std::string, object>
-mpack_read<std::unordered_map<std::string, object>>(mpack_reader_t *reader);
+mpack_read<std::unordered_map<std::string, object>>(mpack_reader_t *reader) {
+  const size_t size =
+      mpack_expect_map_max(reader, IMpackResUnPack::VECTOR_MAP_MAX_SIZE);
+  std::unordered_map<std::string, object> res;
+  res.reserve(size);
+
+	for (size_t k=0; k < size; k++) {
+		res[mpack_read<std::string>(reader)] = mpack_read_object(reader);
+	}
+
+	mpack_done_map(reader);
+  return res;
+}
 
 template <typename T>
 std::vector<T> inline mpack_read_array(mpack_reader_t *reader) {
-  const size_t size = mpack_expect_array(reader);
+  const size_t size =
+      mpack_expect_array_max(reader, IMpackResUnPack::VECTOR_MAP_MAX_SIZE);
   std::vector<T> res;
   res.reserve(size);
 
@@ -354,7 +369,11 @@ std::vector<T> inline mpack_read_array(mpack_reader_t *reader) {
   return res;
 }
 
-nvimrpc::object inline mpack_read_object(mpack_reader_t *reader) {
+template <> inline object mpack_read<object>(mpack_reader_t *reader) {
+	return mpack_read_object(reader);
+}
+
+object inline mpack_read_object(mpack_reader_t *reader) {
   object res{};
 
   const mpack_tag_t tag = mpack_peek_tag(reader);
@@ -389,25 +408,6 @@ nvimrpc::object inline mpack_read_object(mpack_reader_t *reader) {
   }
 }
 
-template <>
-std::unordered_map<std::string, nvimrpc::object> inline mpack_read<
-    std::unordered_map<std::string, nvimrpc::object>>(mpack_reader_t *reader) {
-  const size_t size = mpack_expect_map(reader);
-
-  std::unordered_map<std::string, object> res;
-  res.reserve(size);
-
-  for (size_t i = 0; i < size; ++i) {
-    char *buf =
-        mpack_expect_utf8_cstr_alloc(reader, MpackResUnPack::MAX_CSTR_SIZE);
-    res[{buf}] = mpack_read_object(reader);
-    MPACK_FREE(buf);
-  }
-
-  mpack_done_map(reader);
-  return res;
-}
-
 // template <>
 // std::array<int64_t, 2>
 // mpack_read<std::array<int64_t, 2>>(mpack_reader_t *reader) {
@@ -415,8 +415,6 @@ std::unordered_map<std::string, nvimrpc::object> inline mpack_read<
 // const int64_t y = mpack_expect_i64(reader);
 // return {x, y};
 // }
-
-// --------------mpack_read--------------------- //
 
 } // namespace nvimrpc
 #endif
