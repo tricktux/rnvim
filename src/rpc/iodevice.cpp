@@ -131,19 +131,18 @@ size_t nvimrpc::ReprocDevice::recv(std::string &data, size_t timeout) {
   }
 
   size_t t = timeout == 0 ? 60000 : timeout*1000; // Convert to ms
-	std::lock_guard<std::mutex> guard(m);
   for (size_t k = t; k > 0; k -= 100) {
-    if (!output.empty())
-			break;
+		{
+			std::lock_guard<std::mutex> guard(m);
+			if (!output.empty()) {
+				data = output;
+				output.clear();
+				return data.size();
+			}
+		}
 		std::this_thread::sleep_for(std::chrono::milliseconds{100});
   }
 
-	if (output.empty()) {
-		DLOG(INFO) << "Timed out waiting for data";
-		return 0;
-	}
-
-  data = output;
-  output.clear();
-  return data.size();
+	DLOG(WARNING) << "Timed out waiting for data";
+	return 0;
 }
