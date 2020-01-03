@@ -20,6 +20,8 @@
 
 #include "rpc/msgpack.hpp"
 
+#include <tuple>
+
 /**
  * @brief Finalize the package and return it in binary form
  *
@@ -46,27 +48,19 @@ std::string nvimrpc::MpackRpcPack::build() {
   return {data, size};
 }
 
-int nvimrpc::MpackRpcUnpack::get_error() {
-  const mpack_tag_t error = mpack_peek_tag(&reader);
-  if (error.type == mpack_type_nil) {
-    mpack_discard(&reader); // Disregard the error element
-    return 0;
-  }
+std::optional<std::tuple<int64_t, std::string>>
+nvimrpc::MpackRpcUnpack::get_error() {
+	mpack_node_t error = mpack_node_array_at(node, RESPONSE_ERROR_IDX);
+	if (mpack_node_is_nil(error))
+		return {};
 
-  if (error.type == mpack_type_str) {
-    char *buf = mpack_expect_cstr_alloc(&reader, MAX_CSTR_SIZE);
-    DLOG(ERROR) << "Response message contains error message: '" << buf << "'";
-    MPACK_FREE(buf);
-    return -1;
-  }
-  if (error.type == mpack_type_int) {
-    int rc = mpack_expect_int(&reader);
-    DLOG(ERROR) << "Response message contains error code: '" << rc << "'";
-    return rc;
-  }
+	if(size_t errnode_size = mpack_node_array_length(error); errnode_size != 2){
+		DLOG(ERROR) << ": RESP error array [type, message] has invalid size: '" << errnode_size << "'";
+		return {};
+	}
+	int64_t          ec = mpack_node_i64(mpack_node_array_at(error, 0));
+	const char *msg_ptr = mpack_node_str(mpack_node_array_at(error, 1));
+	size_t      msg_len = mpack_node_strlen(mpack_node_array_at(error, 1));
 
-  DLOG(ERROR) << "Response message contains error of unknown type";
-  mpack_discard(&reader); // Disregard the error element
-  return -1;
+	return std::make_tuple(ec, std::string{msg_ptr, msg_len});
 }
-

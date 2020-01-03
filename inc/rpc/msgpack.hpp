@@ -144,16 +144,16 @@ public:
 
 class IMpackRpcUnpack {
 public:
-	/// 
-	const static size_t MAX_NUM_ELEMENTS = 10;
-	const static size_t NOTIFICATION_NUM_ELEMENTS = 3;
-	const static size_t NOTIFICATION_MSG_TYPE = 2;
+  ///
+  const static size_t MAX_NUM_ELEMENTS = 10;
+  const static size_t NOTIFICATION_NUM_ELEMENTS = 3;
+  const static size_t NOTIFICATION_MSG_TYPE = 2;
   const static size_t RESPONSE_NUM_ELEMENTS = 4;
   const static size_t RESPONSE_MSG_TYPE = 1;
-	const static size_t RESPONSE_MSG_TYPE_IDX = 0;
-	const static size_t RESPONSE_MSG_ID_IDX = 1;
-	const static size_t RESPONSE_ERROR_IDX = 2;
-	const static size_t RESPONSE_RESULT_IDX = 3;
+  const static size_t RESPONSE_MSG_TYPE_IDX = 0;
+  const static size_t RESPONSE_MSG_ID_IDX = 1;
+  const static size_t RESPONSE_ERROR_IDX = 2;
+  const static size_t RESPONSE_RESULT_IDX = 3;
   const static size_t VECTOR_MAP_MAX_SIZE = 256;
 
   IMpackRpcUnpack() = default;
@@ -162,7 +162,7 @@ public:
   virtual size_t get_num_elements() = 0;
   virtual int get_msg_type() = 0;
   virtual size_t get_msgid() = 0;
-  virtual int get_error() = 0;
+  virtual std::optional<std::tuple<int64_t, std::string>> get_error() = 0;
   // This function cannot be virtual because it uses templates
   // auto get_result();
 };
@@ -170,9 +170,9 @@ public:
 template <typename T> T mpack_read(mpack_reader_t *);
 
 class MpackRpcUnpack : public IMpackRpcUnpack {
-	/// The node is valid until re-call `mpack_tree_try_parse`
-	/// Nodes are immutable
-	mpack_node_t &node;
+  /// The node is valid until re-call `mpack_tree_try_parse`
+  /// Nodes are immutable
+  mpack_node_t &node;
   void close_mpack() {
     mpack_done_array(&reader);
 
@@ -184,15 +184,17 @@ class MpackRpcUnpack : public IMpackRpcUnpack {
 public:
   const static size_t MAX_CSTR_SIZE = 1048576;
 
-	MpackRpcUnpack(mpack_node_t& _node) : node(_node) {}
+  MpackRpcUnpack(mpack_node_t &_node) : node(_node) {}
   virtual ~MpackRpcUnpack() = default;
 
-  size_t get_num_elements() override {
-    return mpack_node_array_length(node);
+  size_t get_num_elements() override { return mpack_node_array_length(node); }
+  int get_msg_type() override {
+    return mpack_node_u32(mpack_node_array_at(node, RESPONSE_MSG_TYPE_IDX));
   }
-  int get_msg_type() override { return mpack_expect_i32(&reader); }
-  size_t get_msgid() override { return mpack_expect_u32(&reader); }
-  int get_error() override;
+  size_t get_msgid() override {
+    return mpack_node_u32(mpack_node_array_at(node, RESPONSE_MSG_ID_IDX));
+  }
+	std::optional<std::tuple<int64_t, std::string>> get_error() override;
 
   // This function cannot be virtual because it uses templates
   template <typename T> T get_result() {
