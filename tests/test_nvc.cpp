@@ -32,7 +32,6 @@ TEST(nvc, readme) {
 	libnvc::api_client client(&reproc_dev);
 	client.nvim_ui_attach(100, 80, {{"rgb", true}});
 	client.nvim_input("$i123<CR>123<ESC>");
-	ASSERT_GT(client.nvim_input("$i123<CR>123<ESC>"), 0);
 	client.nvim_buf_set_name(1, ":D");
 	client.nvim_buf_get_name(1);
 	reproc_dev.kill();
