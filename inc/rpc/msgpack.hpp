@@ -31,6 +31,8 @@
 #include <utility>
 #include <variant>
 #include <vector>
+#include <tuple>
+#include <optional>
 
 namespace nvimrpc {
 
@@ -167,7 +169,7 @@ public:
   // auto get_result();
 };
 
-template <typename T> T mpack_read(mpack_reader_t *);
+template <typename T> T mpack_read(mpack_node_t);
 
 class MpackRpcUnpack : public IMpackRpcUnpack {
   /// The node is valid until re-call `mpack_tree_try_parse`
@@ -187,6 +189,7 @@ public:
     }
     return mpack_node_array_length(node);
   }
+
   int get_msg_type() override {
     if (mpack_node_is_nil(node)) {
       DLOG(ERROR) << "Empty node";
@@ -199,6 +202,7 @@ public:
 
     return mpack_node_u32(mpack_node_array_at(node, RESPONSE_MSG_TYPE_IDX));
   }
+
   size_t get_msgid() override {
     if (mpack_node_is_nil(node)) {
       DLOG(ERROR) << "Empty node";
@@ -211,6 +215,7 @@ public:
 
     return mpack_node_u32(mpack_node_array_at(node, RESPONSE_MSG_ID_IDX));
   }
+
   std::optional<std::tuple<int64_t, std::string>> get_error() override;
 
   // This function cannot be virtual because it uses templates
@@ -314,140 +319,151 @@ void inline mpack_write(mpack_writer_t *writer, T &&value,
 // }
 
 // --------------mpack_read--------------------- //
-template <typename T> T mpack_read(mpack_reader_t *);
-template <> inline bool mpack_read<bool>(mpack_reader_t *reader) {
-  return mpack_expect_bool(reader);
+//
+void inline check_node_type(mpack_node_t node, mpack_type_t expected_type) {
+  mpack_tag_t tag = mpack_node_tag(node);
+  auto type = mpack_tag_type(&tag);
+  if (type != expected_type)
+    DLOG(ERROR) << "Expected type for node does not match its actual type";
 }
-template <> inline int64_t mpack_read<int64_t>(mpack_reader_t *reader) {
-  return mpack_expect_i64(reader);
+// template <typename T> T mpack_read(mpack_node_t);
+template <> inline bool mpack_read<bool>(mpack_node_t node) {
+  check_node_type(node, mpack_type_bool);
+  return mpack_node_bool(node);
 }
-template <> inline uint64_t mpack_read<uint64_t>(mpack_reader_t *reader) {
-  return mpack_expect_u64(reader);
+template <> inline int64_t mpack_read<int64_t>(mpack_node_t node) {
+  check_node_type(node, mpack_type_int);
+  return mpack_node_i64(node);
 }
-template <> inline double mpack_read<double>(mpack_reader_t *reader) {
-  return mpack_expect_double(reader);
+template <> inline uint64_t mpack_read<uint64_t>(mpack_node_t node) {
+  check_node_type(node, mpack_type_uint);
+  return mpack_node_u64(node);
 }
-template <> inline std::string mpack_read<std::string>(mpack_reader_t *reader) {
-  char *buf = mpack_expect_cstr_alloc(reader, MpackRpcUnpack::MAX_CSTR_SIZE);
-  std::string res{buf};
-  MPACK_FREE(buf);
+template <> inline double mpack_read<double>(mpack_node_t node) {
+  check_node_type(node, mpack_type_double);
+  return mpack_node_double(node);
+}
+template <> inline std::string mpack_read<std::string>(mpack_node_t node) {
+  check_node_type(node, mpack_type_str);
+  const char *str = mpack_node_str(node);
+  size_t len = mpack_node_strlen(node);
+  return std::string{str, len};
+}
+
+template <>
+inline std::array<int64_t, 2>
+mpack_read<std::array<int64_t, 2>>(mpack_node_t node) {
+  check_node_type(node, mpack_type_array);
+  if (size_t l = mpack_node_array_length(node); l != 2) {
+    DLOG(ERROR)
+        << ": Try to read std::array<int64_t, 2> while mpack array size is: '"
+        << l << "'";
+  }
+
+  std::array<int64_t, 2> res;
+  res[0] = mpack_read<int64_t>(mpack_node_array_at(node, 0));
+  res[1] = mpack_read<int64_t>(mpack_node_array_at(node, 1));
   return res;
 }
-template <typename T>
-inline std::vector<T> mpack_read_array(mpack_reader_t *reader);
 
-template <>
-inline std::vector<int64_t>
-mpack_read<std::vector<int64_t>>(mpack_reader_t *reader) {
-  return mpack_read_array<int64_t>(reader);
+template <typename T> std::vector<T> mpack_read_array(mpack_node_t node) {
+  check_node_type(node, mpack_type_array);
+
+  std::vector<T> res;
+  size_t length = mpack_node_array_length(node);
+
+  for (size_t index = 0; index < length; ++index) {
+    auto curr_node = mpack_node_array_at(node, index);
+    res.push_back(mpack_read<T>(curr_node));
+  }
+  return res;
 }
-template <>
-inline std::vector<bool> mpack_read<std::vector<bool>>(mpack_reader_t *reader) {
-  return mpack_read_array<bool>(reader);
+
+template <typename K, typename V>
+inline std::unordered_map<K, V> mpack_read_map(mpack_node_t node) {
+  check_node_type(node, mpack_type_map);
+
+  std::unordered_map<K, V> res;
+  const size_t size = mpack_node_map_count(node);
+
+  for (size_t index = 0; index < size; ++index) {
+    auto curr_key = mpack_node_map_key_at(node, index);
+    auto curr_val = mpack_node_map_value_at(node, index);
+    res[mpack_read<K>(curr_key)] = mpack_read<V>(curr_val);
+  }
+  return res;
 }
-template <>
-inline std::vector<uint64_t>
-mpack_read<std::vector<uint64_t>>(mpack_reader_t *reader) {
-  return mpack_read_array<uint64_t>(reader);
-}
-template <>
-inline std::vector<double>
-mpack_read<std::vector<double>>(mpack_reader_t *reader) {
-  return mpack_read_array<double>(reader);
-}
+
 template <>
 inline std::vector<std::string>
-mpack_read<std::vector<std::string>>(mpack_reader_t *reader) {
-  return mpack_read_array<std::string>(reader);
+mpack_read<std::vector<std::string>>(mpack_node_t node) {
+  return mpack_read_array<std::string>(node);
 }
 
-inline object mpack_read_object(mpack_reader_t *reader);
+template <>
+inline std::vector<object>
+mpack_read<std::vector<object>>(mpack_node_t node) {
+  return mpack_read_array<object>(node);
+}
+
+template <>
+inline std::vector<int64_t> mpack_read<std::vector<int64_t>>(mpack_node_t node) {
+  return mpack_read_array<int64_t>(node);
+}
 
 template <>
 inline std::vector<std::unordered_map<std::string, object>>
-mpack_read<std::vector<std::unordered_map<std::string, object>>>(
-    mpack_reader_t *reader) {
-  return mpack_read_array<std::unordered_map<std::string, object>>(reader);
+mpack_read<std::vector<std::unordered_map<std::string, object>>>(mpack_node_t node) {
+  return mpack_read_array<std::unordered_map<std::string, object>>(node);
 }
 
-// TODO test with an empty map
 template <>
 inline std::unordered_map<std::string, object>
-mpack_read<std::unordered_map<std::string, object>>(mpack_reader_t *reader) {
-  const size_t size =
-      mpack_expect_map_max(reader, IMpackRpcUnpack::VECTOR_MAP_MAX_SIZE);
-  std::unordered_map<std::string, object> res;
-  res.reserve(size);
+mpack_read<std::unordered_map<std::string, object>>(mpack_node_t node) {
+  return mpack_read_map<std::string, object>(node);
+}
 
-  for (size_t k = 0; k < size; k++) {
-    res[mpack_read<std::string>(reader)] = mpack_read_object(reader);
+template <> inline object mpack_read<object>(mpack_node_t node) {
+  object obj{};
+  auto tag = mpack_node_tag(node);
+  switch (auto type = mpack_tag_type(&tag)) {
+  case mpack_type_bool: {
+    return mpack_read<bool>(node);
   }
-
-  mpack_done_map(reader);
-  return res;
-}
-
-template <typename T>
-std::vector<T> inline mpack_read_array(mpack_reader_t *reader) {
-  const size_t size =
-      mpack_expect_array_max(reader, IMpackRpcUnpack::VECTOR_MAP_MAX_SIZE);
-  std::vector<T> res;
-  res.reserve(size);
-
-  for (size_t k = 0; k < size; k++)
-    res.emplace_back(mpack_read<T>(reader));
-
-  mpack_done_array(reader);
-  return res;
-}
-
-template <> inline object mpack_read<object>(mpack_reader_t *reader) {
-  return mpack_read_object(reader);
-}
-
-object inline mpack_read_object(mpack_reader_t *reader) {
-  object res{};
-
-  const mpack_tag_t tag = mpack_peek_tag(reader);
-  switch (tag.type) {
-  case mpack_type_bool:
-    return mpack_read<bool>(reader);
-  case mpack_type_int:
-    return mpack_read<int64_t>(reader);
-  case mpack_type_uint:
-    return (int64_t)(mpack_read<uint64_t>(reader));
-  case mpack_type_double:
-    return mpack_read<double>(reader);
-  case mpack_type_str:
-    return mpack_read<std::string>(reader);
+  case mpack_type_int: {
+    return mpack_read<int64_t>(node);
+  }
+  case mpack_type_uint: {
+    return (int64_t)(mpack_read<uint64_t>(node));
+  }
+  case mpack_type_double: {
+    return mpack_read<double>(node);
+  }
+  case mpack_type_str: {
+    return mpack_read<std::string>(node);
+  }
   case mpack_type_map: {
-    auto res_map = mpack_read<std::unordered_map<std::string, object>>(reader);
+    auto res_map = mpack_read<std::unordered_map<std::string, object>>(node);
     std::unordered_map<std::string, object_wrapper> res_map_wrapper;
-    for (auto &item : res_map)
-      res_map_wrapper[std::move(item.first)] =
-          object_wrapper(std::move(item.second));
+    for (auto &item : res_map) {
+      res_map_wrapper[item.first] = object_wrapper(item.second);
+    }
     return object(res_map_wrapper);
   }
   case mpack_type_array: {
-    auto res_vec = mpack_read<std::vector<object>>(reader);
+    auto res_vec = mpack_read<std::vector<object>>(node);
     std::vector<object_wrapper> res_vec_wrapper;
-    for (auto &item : res_vec)
+    for (auto &item : res_vec) {
       res_vec_wrapper.emplace_back(object_wrapper(item));
+    }
     return object(res_vec_wrapper);
   }
-  default:
-    DLOG(ERROR) << "Object is not of a recognized type";
-    return res;
+  default: {
+		 DLOG(ERROR) << "Unsupport type: '" << mpack_type_to_string(type) << "'";
+		 return {};
+  }
   }
 }
-
-// template <>
-// std::array<int64_t, 2>
-// mpack_read<std::array<int64_t, 2>>(mpack_reader_t *reader) {
-// const int64_t x = mpack_expect_i64(reader);
-// const int64_t y = mpack_expect_i64(reader);
-// return {x, y};
-// }
 
 } // namespace nvimrpc
 #endif
