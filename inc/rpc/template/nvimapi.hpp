@@ -73,7 +73,7 @@ class NvimApi {
     do {
       std::optional<mpack_node_t> rc = decoder.poll();
       if (!rc) {
-        // DLOG(ERROR) << "No io response";
+				DLOG_EVERY_N(100, INFO) << "Not sufficient data in buffer";
 				std::this_thread::sleep_for(std::chrono::microseconds{50});
         continue;
       }
