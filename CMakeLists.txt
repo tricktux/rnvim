@@ -123,7 +123,7 @@ endif ()
 
 
 # add_subdirectory("lib")
-# add_subdirectory("src")
+add_subdirectory("src")
 # TODO Fix cmake for doxygen
 # add_subdirectory("docs")
 
