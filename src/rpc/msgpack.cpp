@@ -50,17 +50,29 @@ std::string nvimrpc::MpackRpcPack::build() {
 
 std::optional<std::tuple<int64_t, std::string>>
 nvimrpc::MpackRpcUnpack::get_error() {
-	mpack_node_t error = mpack_node_array_at(node, RESPONSE_ERROR_IDX);
-	if (mpack_node_is_nil(error))
-		return {};
+  if (mpack_node_is_nil(node)) {
+    DLOG(ERROR) << "Empty node";
+    return {};
+  }
+  if (mpack_node_array_length(node) <= RESPONSE_ERROR_IDX) {
+    DLOG(ERROR) << "Array in node is smaller than expected";
+    return {};
+  }
 
-	if(size_t errnode_size = mpack_node_array_length(error); errnode_size != 2){
-		DLOG(ERROR) << ": RESP error array [type, message] has invalid size: '" << errnode_size << "'";
-		return {};
-	}
-	int64_t          ec = mpack_node_i64(mpack_node_array_at(error, 0));
-	const char *msg_ptr = mpack_node_str(mpack_node_array_at(error, 1));
-	size_t      msg_len = mpack_node_strlen(mpack_node_array_at(error, 1));
+  mpack_node_t error = mpack_node_array_at(node, RESPONSE_ERROR_IDX);
+  if (mpack_node_is_nil(error)) {
+    DLOG(ERROR) << "Empty error node found";
+    return {};
+  }
 
-	return std::make_tuple(ec, std::string{msg_ptr, msg_len});
+  if (size_t errnode_size = mpack_node_array_length(error); errnode_size != 2) {
+    DLOG(ERROR) << ": RESP error array [type, message] has invalid size: '"
+                << errnode_size << "'";
+    return {};
+  }
+  int64_t ec = mpack_node_i64(mpack_node_array_at(error, 0));
+  const char *msg_ptr = mpack_node_str(mpack_node_array_at(error, 1));
+  size_t msg_len = mpack_node_strlen(mpack_node_array_at(error, 1));
+
+  return std::make_tuple(ec, std::string{msg_ptr, msg_len});
 }

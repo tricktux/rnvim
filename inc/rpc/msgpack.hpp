@@ -173,13 +173,6 @@ class MpackRpcUnpack : public IMpackRpcUnpack {
   /// The node is valid until re-call `mpack_tree_try_parse`
   /// Nodes are immutable
   mpack_node_t &node;
-  void close_mpack() {
-    mpack_done_array(&reader);
-
-    if (mpack_reader_destroy(&reader) != mpack_ok) {
-      DLOG(ERROR) << "Could not unpack response";
-    }
-  }
 
 public:
   const static size_t MAX_CSTR_SIZE = 1048576;
@@ -187,31 +180,59 @@ public:
   MpackRpcUnpack(mpack_node_t &_node) : node(_node) {}
   virtual ~MpackRpcUnpack() = default;
 
-  size_t get_num_elements() override { return mpack_node_array_length(node); }
+  size_t get_num_elements() override {
+    if (mpack_node_is_nil(node)) {
+      DLOG(ERROR) << "Empty node";
+      return 0;
+    }
+    return mpack_node_array_length(node);
+  }
   int get_msg_type() override {
+    if (mpack_node_is_nil(node)) {
+      DLOG(ERROR) << "Empty node";
+      return -1;
+    }
+    if (mpack_node_array_length(node) <= RESPONSE_MSG_TYPE_IDX) {
+      DLOG(ERROR) << "Array in node is smaller than expected";
+      return -2;
+    }
+
     return mpack_node_u32(mpack_node_array_at(node, RESPONSE_MSG_TYPE_IDX));
   }
   size_t get_msgid() override {
+    if (mpack_node_is_nil(node)) {
+      DLOG(ERROR) << "Empty node";
+      return 0;
+    }
+    if (mpack_node_array_length(node) <= RESPONSE_MSG_ID_IDX) {
+      DLOG(ERROR) << "Array in node is smaller than expected";
+      return 0;
+    }
+
     return mpack_node_u32(mpack_node_array_at(node, RESPONSE_MSG_ID_IDX));
   }
-	std::optional<std::tuple<int64_t, std::string>> get_error() override;
+  std::optional<std::tuple<int64_t, std::string>> get_error() override;
 
   // This function cannot be virtual because it uses templates
   template <typename T> T get_result() {
-    const mpack_tag_t result = mpack_peek_tag(&reader);
-
-    if (result.type == mpack_type_nil) {
-      // DLOG(ERROR) << "Expected nil return type but got: '"
-      // << std::to_string(result.type) << "'";
-
-      mpack_discard(&reader);
-      close_mpack();
+    if (mpack_node_is_nil(node)) {
+      DLOG(ERROR) << "Empty node";
       return T();
     }
 
-    T rvalue = mpack_read<T>(&reader);
-    close_mpack();
-    return std::forward<T>(rvalue);
+    if (mpack_node_array_length(node) <= RESPONSE_RESULT_IDX) {
+      DLOG(ERROR) << "Array in node is smaller than expected";
+      return T();
+    }
+
+    mpack_node_t result = mpack_node_array_at(node, RESPONSE_RESULT_IDX);
+    if (mpack_node_is_nil(result)) {
+      if (!std::is_void<T>::value)
+        DLOG(ERROR) << "Got a nil result, but was expecting an actual value";
+      return T();
+    }
+
+    return std::forward<T>(mpack_read<T>(result));
   }
 };
 
