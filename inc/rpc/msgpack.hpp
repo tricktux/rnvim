@@ -239,7 +239,7 @@ public:
     mpack_node_t result = mpack_node_array_at(node, RESPONSE_RESULT_IDX);
     if (mpack_node_is_nil(result)) {
       if (!std::is_void<T>::value)
-        DLOG(ERROR) << "Got a nil result, but was expecting an actual value";
+        DLOG(WARNING) << "Got a nil result, but was expecting an actual value";
       return T();
     }
 
