@@ -324,7 +324,9 @@ void inline check_node_type(mpack_node_t node, mpack_type_t expected_type) {
   mpack_tag_t tag = mpack_node_tag(node);
   auto type = mpack_tag_type(&tag);
   if (type != expected_type)
-    DLOG(ERROR) << "Expected type for node does not match its actual type";
+    DLOG(ERROR) << "Expected: '" << mpack_type_to_string(expected_type)
+                << " node',  instead got: '" << mpack_type_to_string(type)
+                << "'";
 }
 // template <typename T> T mpack_read(mpack_node_t);
 template <> inline bool mpack_read<bool>(mpack_node_t node) {
@@ -401,19 +403,20 @@ mpack_read<std::vector<std::string>>(mpack_node_t node) {
 }
 
 template <>
-inline std::vector<object>
-mpack_read<std::vector<object>>(mpack_node_t node) {
+inline std::vector<object> mpack_read<std::vector<object>>(mpack_node_t node) {
   return mpack_read_array<object>(node);
 }
 
 template <>
-inline std::vector<int64_t> mpack_read<std::vector<int64_t>>(mpack_node_t node) {
+inline std::vector<int64_t>
+mpack_read<std::vector<int64_t>>(mpack_node_t node) {
   return mpack_read_array<int64_t>(node);
 }
 
 template <>
 inline std::vector<std::unordered_map<std::string, object>>
-mpack_read<std::vector<std::unordered_map<std::string, object>>>(mpack_node_t node) {
+mpack_read<std::vector<std::unordered_map<std::string, object>>>(
+    mpack_node_t node) {
   return mpack_read_array<std::unordered_map<std::string, object>>(node);
 }
 
@@ -459,8 +462,8 @@ template <> inline object mpack_read<object>(mpack_node_t node) {
     return object(res_vec_wrapper);
   }
   default: {
-		 DLOG(ERROR) << "Unsupport type: '" << mpack_type_to_string(type) << "'";
-		 return {};
+    DLOG(ERROR) << "Unsupport type: '" << mpack_type_to_string(type) << "'";
+    return {};
   }
   }
 }

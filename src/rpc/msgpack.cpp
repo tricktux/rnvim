@@ -51,7 +51,7 @@ std::string nvimrpc::MpackRpcPack::build() {
 std::optional<std::tuple<int64_t, std::string>>
 nvimrpc::MpackRpcUnpack::get_error() {
   if (mpack_node_is_nil(node)) {
-    DLOG(ERROR) << "Empty node";
+    DLOG(ERROR) << "Empty main node";
     return {};
   }
   if (mpack_node_array_length(node) <= RESPONSE_ERROR_IDX) {
@@ -60,10 +60,8 @@ nvimrpc::MpackRpcUnpack::get_error() {
   }
 
   mpack_node_t error = mpack_node_array_at(node, RESPONSE_ERROR_IDX);
-  if (mpack_node_is_nil(error)) {
-    DLOG(ERROR) << "Empty error node found";
+  if (mpack_node_is_nil(error)) // No error to report
     return {};
-  }
 
   if (size_t errnode_size = mpack_node_array_length(error); errnode_size != 2) {
     DLOG(ERROR) << ": RESP error array [type, message] has invalid size: '"
