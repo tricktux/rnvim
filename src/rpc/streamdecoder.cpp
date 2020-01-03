@@ -20,10 +20,10 @@
 
 #include "rpc/streamdecoder.hpp"
 
-/** 
+/**
  * @brief Parse data from the `stdout` into an `mpack_node_t`
- * This function uses `mpack_tree_try_parse` which in turn calls `read_iodev`, 
- * which in turn calls `iodevice->recv`, which then asynchronously retrieves 
+ * This function uses `mpack_tree_try_parse` which in turn calls `read_iodev`,
+ * which in turn calls `iodevice->recv`, which then asynchronously retrieves
  * data in `output` string.
  * `mpack_tree_root` converts the `mpack_tree_t` into a `mpack_node_t`
  * See @ref ReprocDevice::recv
@@ -37,15 +37,13 @@ std::optional<mpack_node_t> nvimrpc::StreamDecoder::poll() {
   // no message valid, two possible reasons:
   //   1. error occurred
   //   2. no sufficent data received
-	mpack_error_t ec = mpack_tree_error(&tree);
-	if (ec == mpack_ok) {
-		// DLOG(WARNING) << "Did not received expected count of data";
-		return {};
-	}
+  mpack_error_t ec = mpack_tree_error(&tree);
+  if (ec == mpack_ok)
+    return {};
 
-	std::string err{"Error: "};
-	err.append(mpack_error_to_string(ec));
-	throw std::runtime_error(err.c_str());
-	DLOG(ERROR) << err;
-	return {};
+  std::string err{"Error: "};
+  err.append(mpack_error_to_string(ec));
+  throw std::runtime_error(err.c_str());
+  DLOG(ERROR) << err;
+  return {};
 }
