@@ -26,7 +26,7 @@
  * @return The data in the string return is packaged and ready to be
  * transmitted.
  */
-std::string nvimrpc::MPackReqPack::build() {
+std::string nvimrpc::MpackRpcPack::build() {
   mpack_finish_array(&writer);
   if (mpack_error_t error = mpack_writer_destroy(&writer); error != mpack_ok) {
     DLOG(ERROR) << "Error flushing and closing the underlying stream";
@@ -51,7 +51,7 @@ std::string nvimrpc::MPackReqPack::build() {
  * @param data Data to unpack as a response message
  * @return 0 in case of success, less than zero if error
  */
-int nvimrpc::MpackResUnPack::set_data(std::string_view data) {
+int nvimrpc::MpackRpcUnpack::set_data(std::string_view data) {
   if (data.empty()) {
     DLOG(ERROR) << "Empty data provided";
     return -1;
@@ -61,7 +61,7 @@ int nvimrpc::MpackResUnPack::set_data(std::string_view data) {
   return 0;
 }
 
-int nvimrpc::MpackResUnPack::get_error() {
+int nvimrpc::MpackRpcUnpack::get_error() {
   const mpack_tag_t error = mpack_peek_tag(&reader);
   if (error.type == mpack_type_nil) {
     mpack_discard(&reader); // Disregard the error element

@@ -49,7 +49,7 @@ class NvimApi {
 
 		last_func_call = func;
 		size_t new_msgid = get_new_msgid();
-		MPackReqPack req_packer;
+		MpackRpcPack req_packer;
 		req_packer.set_msgid(new_msgid);
 		req_packer.set_method(func);
 		req_packer.set_params(std::forward<Params>(params)...);
@@ -78,7 +78,7 @@ class NvimApi {
 				return T();
 			}
 
-			MpackResUnPack resp_unpack;
+			MpackRpcUnpack resp_unpack;
 			if (int rc = resp_unpack.set_data(buf); rc != 0) {
 				DLOG(WARNING) << "During call: '" << msgid << ":" << last_func_call <<
 					"', failed make sense of data received:\n'"
@@ -87,7 +87,7 @@ class NvimApi {
 			}
 
 			if (size_t size = resp_unpack.get_num_elements();
-					size != MpackResUnPack::NUM_ELEMENTS) {
+					size != MpackRpcUnpack::NUM_ELEMENTS) {
 				DLOG(WARNING) << "Expected 4 elements while waiting for response from: '"
 					<< msgid << ":" << last_func_call
 					<< "', instead got size: '" << size << "'";
@@ -100,7 +100,7 @@ class NvimApi {
 				return T();
 			}
 
-			if (int rc = resp_unpack.get_msg_type(); rc != MpackResUnPack::MSG_TYPE) {
+			if (int rc = resp_unpack.get_msg_type(); rc != MpackRpcUnpack::MSG_TYPE) {
 				DLOG(WARNING) << "Packet received is not a RESPONSE: '" << rc << "'";
 				return T();
 			}
@@ -157,13 +157,13 @@ public:
 			// return;
 		// }
 
-		// MpackResUnPack resp_unpack;
+		// MpackRpcUnpack resp_unpack;
 		// if (int rc = resp_unpack.set_data(buf); rc != 0) {
 			// DLOG(WARNING) << "Failed to make sense of data received: '" << buf << "'";
 			// continue; // Keep trying?
 		// }
 
-		// if (int rc = resp_unpack.get_msg_type(); rc != MpackResUnPack::MSG_TYPE) {
+		// if (int rc = resp_unpack.get_msg_type(); rc != MpackRpcUnpack::MSG_TYPE) {
 			// DLOG(WARNING) << "Packet received is not a RESPONSE: '" << rc << "'";
 			// if (rc == 2)               // TODO Address magic number
 				// pending_notif.push(buf); // Save notification data

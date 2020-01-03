@@ -66,13 +66,13 @@ void inline mpack_write(mpack_writer_t *) {}
 template <typename T, typename... Params>
 void inline mpack_write(mpack_writer_t *writer, T &&value, Params &&... params);
 
-class IMpackReqPack {
+class IMpackRpcPack {
 public:
   const static size_t NUM_ELEMENTS = 4;
   const static size_t MSG_TYPE = 0;
 
-  IMpackReqPack() = default;
-  virtual ~IMpackReqPack() = default;
+  IMpackRpcPack() = default;
+  virtual ~IMpackRpcPack() = default;
 
   virtual void set_msgid(size_t) = 0;
   virtual void set_method(std::string_view) = 0;
@@ -90,20 +90,20 @@ public:
  *	4. `build`
  *
  * */
-class MPackReqPack : public IMpackReqPack {
+class MpackRpcPack : public IMpackRpcPack {
   char *data;
   size_t size;
   mpack_writer_t writer;
 
 public:
-  MPackReqPack() : data(nullptr), size(0) {
+  MpackRpcPack() : data(nullptr), size(0) {
     mpack_writer_init_growable(&writer, &data, &size);
     // The request message is a four elements array
     mpack_start_array(&writer, NUM_ELEMENTS);
     // The message type, must be the integer zero (0) for "Request" messages.
     mpack_write_i32(&writer, MSG_TYPE);
   }
-  virtual ~MPackReqPack() {
+  virtual ~MpackRpcPack() {
     if (data != nullptr) {
       MPACK_FREE(data);
       data = nullptr;
@@ -142,15 +142,15 @@ public:
   std::string build() override;
 };
 
-class IMpackResUnPack {
+class IMpackRpcUnpack {
 public:
 	const static size_t MAX_NUM_ELEMENTS = 10;
   const static size_t NUM_ELEMENTS = 4;
   const static size_t MSG_TYPE = 1;
   const static size_t VECTOR_MAP_MAX_SIZE = 256;
 
-  IMpackResUnPack() = default;
-  virtual ~IMpackResUnPack() = default;
+  IMpackRpcUnpack() = default;
+  virtual ~IMpackRpcUnpack() = default;
 
   virtual int set_data(std::string_view) = 0;
   virtual size_t get_num_elements() = 0;
@@ -162,7 +162,7 @@ public:
 };
 
 template <typename T> T mpack_read(mpack_reader_t *);
-class MpackResUnPack : public IMpackResUnPack {
+class MpackRpcUnpack : public IMpackRpcUnpack {
   void close_mpack() {
     mpack_done_array(&reader);
 
@@ -175,8 +175,8 @@ public:
   const static size_t MAX_CSTR_SIZE = 1048576;
   mpack_reader_t reader;
 
-  MpackResUnPack() = default;
-  virtual ~MpackResUnPack() = default;
+  MpackRpcUnpack() = default;
+  virtual ~MpackRpcUnpack() = default;
 
   int set_data(std::string_view data) override;
   size_t get_num_elements() override {
@@ -297,7 +297,7 @@ template <> inline double mpack_read<double>(mpack_reader_t *reader) {
   return mpack_expect_double(reader);
 }
 template <> inline std::string mpack_read<std::string>(mpack_reader_t *reader) {
-  char *buf = mpack_expect_cstr_alloc(reader, MpackResUnPack::MAX_CSTR_SIZE);
+  char *buf = mpack_expect_cstr_alloc(reader, MpackRpcUnpack::MAX_CSTR_SIZE);
   std::string res{buf};
   MPACK_FREE(buf);
   return res;
@@ -344,7 +344,7 @@ template <>
 inline std::unordered_map<std::string, object>
 mpack_read<std::unordered_map<std::string, object>>(mpack_reader_t *reader) {
   const size_t size =
-      mpack_expect_map_max(reader, IMpackResUnPack::VECTOR_MAP_MAX_SIZE);
+      mpack_expect_map_max(reader, IMpackRpcUnpack::VECTOR_MAP_MAX_SIZE);
   std::unordered_map<std::string, object> res;
   res.reserve(size);
 
@@ -359,7 +359,7 @@ mpack_read<std::unordered_map<std::string, object>>(mpack_reader_t *reader) {
 template <typename T>
 std::vector<T> inline mpack_read_array(mpack_reader_t *reader) {
   const size_t size =
-      mpack_expect_array_max(reader, IMpackResUnPack::VECTOR_MAP_MAX_SIZE);
+      mpack_expect_array_max(reader, IMpackRpcUnpack::VECTOR_MAP_MAX_SIZE);
   std::vector<T> res;
   res.reserve(size);
 
