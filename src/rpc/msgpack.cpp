@@ -30,8 +30,10 @@
  */
 std::string nvimrpc::MpackRpcPack::build() {
   mpack_finish_array(&writer);
+	DLOG(INFO) << ">>>Closing Response Array of size 4";
   if (mpack_error_t error = mpack_writer_destroy(&writer); error != mpack_ok) {
     DLOG(ERROR) << "Error flushing and closing the underlying stream";
+		DLOG(ERROR) << "Error: '" << mpack_error_to_string( error) << "'";
     return {};
   }
 
@@ -45,6 +47,7 @@ std::string nvimrpc::MpackRpcPack::build() {
     return {};
   }
 
+	DLOG(INFO) << "Raw data: '"<< data << "'";
   return {data, size};
 }
 
