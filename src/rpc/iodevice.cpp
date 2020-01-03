@@ -118,8 +118,8 @@ size_t nvimrpc::ReprocDevice::send(std::string_view data) {
   return data.size();
 }
 
-/** 
- * @brief Receive data from buffer, wait for @seconds
+/**
+ * @brief Receive data from buffer, wait for @p @timeout for data to arrive
  * @param data Data storage
  * @param timeout Number of seconds to wait for data to arrive
  * @return Size of rec'd data
@@ -130,20 +130,52 @@ size_t nvimrpc::ReprocDevice::recv(std::string &data, size_t timeout) {
     throw std::runtime_error("Child process is not running!");
   }
 
-  size_t t = timeout == 0 ? 60000 : timeout*1000; // Convert to ms
+  size_t t = timeout == 0 ? 60000 : timeout * 1000; // Convert to ms
   for (size_t k = t; k > 0; k -= 100) {
-		{
-			std::lock_guard<std::mutex> guard(m);
-			if (!output.empty()) {
-				DLOG(INFO) << "Rec'd data: '" << output << "'";
-				data = output;
-				output.clear();
-				return data.size();
-			}
-		}
-		std::this_thread::sleep_for(std::chrono::milliseconds{100});
+    {
+      std::lock_guard<std::mutex> guard(m);
+      if (!output.empty()) {
+        DLOG(INFO) << "Rec'd data: '" << output << "'";
+        data = output;
+        output.clear();
+        return data.size();
+      }
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds{100});
   }
 
-	DLOG(WARNING) << "Timed out waiting for data";
-	return 0;
+  DLOG(WARNING) << "Timed out waiting for data";
+  return 0;
+}
+
+/**
+ * @brief Receive data from buffer, wait for @p @timeout for data to arrive
+ * @param data Data storage
+ * @param timeout Number of seconds to wait for data to arrive
+ * @return Size of rec'd data
+ */
+size_t nvimrpc::ReprocDevice::recv(char *buf, size_t size) {
+  if (!process.running()) {
+    DLOG(FATAL) << "Child process is not running!";
+    throw std::runtime_error("Child process is not running!");
+  }
+
+  if (buf == nullptr) {
+    DLOG(WARNING) << "Invalid buf pointer";
+    return 0;
+  }
+
+  if (size == 0) {
+    DLOG(WARNING) << "Size zero provided";
+    return 0;
+  }
+
+  std::lock_guard<std::mutex> guard(m);
+  if (output.empty())
+		return 0;
+
+	size_t read_size = std::min<size_t>(size, output.size());
+	std::memcpy(buf, output.data(), read_size);
+	output.erase(output.begin(), output.begin() + read_size);
+	return read_size;
 }

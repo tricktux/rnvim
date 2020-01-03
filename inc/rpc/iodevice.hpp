@@ -44,6 +44,7 @@ public:
 
   virtual size_t send(std::string_view data) = 0;
   virtual size_t recv(std::string &data, size_t timeout) = 0;
+	virtual size_t recv(char *, size_t) = 0;
 };
 
 /** @brief Device that communicates over `stdin/stdout/stderr`
@@ -66,6 +67,7 @@ public:
   int kill();
   size_t send(std::string_view data) override;
   size_t recv(std::string &data, size_t timeout) override;
+	size_t recv(char *, size_t) override;
 };
 
 } // namespace nvimrpc
