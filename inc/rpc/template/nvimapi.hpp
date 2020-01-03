@@ -73,7 +73,7 @@ class NvimApi {
     do {
       std::optional<mpack_node_t> rc = decoder.poll();
       if (!rc) {
-        DLOG(ERROR) << "No io response";
+        // DLOG(ERROR) << "No io response";
 				std::this_thread::sleep_for(std::chrono::microseconds{50});
         continue;
       }

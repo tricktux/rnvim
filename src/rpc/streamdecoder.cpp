@@ -39,7 +39,7 @@ std::optional<mpack_node_t> nvimrpc::StreamDecoder::poll() {
   //   2. no sufficent data received
 	mpack_error_t ec = mpack_tree_error(&tree);
 	if (ec == mpack_ok) {
-		DLOG(WARNING) << "Did not received expected count of data";
+		// DLOG(WARNING) << "Did not received expected count of data";
 		return {};
 	}
 
