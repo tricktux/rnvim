@@ -46,21 +46,6 @@ std::string nvimrpc::MpackRpcPack::build() {
   return {data, size};
 }
 
-/**
- * @brief Initializes the stream reader with @p data
- * @param data Data to unpack as a response message
- * @return 0 in case of success, less than zero if error
- */
-int nvimrpc::MpackRpcUnpack::set_data(std::string_view data) {
-  if (data.empty()) {
-    DLOG(ERROR) << "Empty data provided";
-    return -1;
-  }
-
-  mpack_reader_init_data(&reader, data.data(), data.size());
-  return 0;
-}
-
 int nvimrpc::MpackRpcUnpack::get_error() {
   const mpack_tag_t error = mpack_peek_tag(&reader);
   if (error.type == mpack_type_nil) {
