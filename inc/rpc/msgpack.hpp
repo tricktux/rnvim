@@ -162,6 +162,7 @@ public:
 };
 
 template <typename T> T mpack_read(mpack_reader_t *);
+
 class MpackRpcUnpack : public IMpackRpcUnpack {
   void close_mpack() {
     mpack_done_array(&reader);

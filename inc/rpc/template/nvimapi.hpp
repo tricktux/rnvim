@@ -21,7 +21,7 @@
 #ifndef NVIMAPI_HPP
 #define NVIMAPI_HPP
 
-#include "rpc/iodevice.hpp"
+#include "rpc/streamdecoder.hpp"
 #include "rpc/msgpack.hpp"
 #include "easylogging++.h"
 
@@ -38,6 +38,7 @@ class NvimApi {
 	std::string last_func_call;
   std::queue<std::string> pending_notif;
 	IoDevice &device;
+	StreamDecoder decoder;
 
 	size_t get_new_msgid() { return ++msgid; }
 	template <typename... Params>
@@ -123,7 +124,8 @@ class NvimApi {
 	// template <> void poll<void>(size_t msgid, size_t timeout);
 
 public:
-	explicit NvimApi(IoDevice &_device) : msgid(0), device(_device) {}
+	explicit NvimApi(IoDevice &_device) : msgid(0), device(_device), 
+		decoder(_device) {}
   ~NvimApi() = default;
 
 	// Generated apis
