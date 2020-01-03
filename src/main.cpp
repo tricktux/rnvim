@@ -18,7 +18,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http:www.gnu.org/licenses/>.
 
-#include "application.hpp"
+// #include "application.hpp"
 // #include "libnvc.hpp"
 #include <cinttypes>
 #include <iostream>
@@ -26,6 +26,9 @@
 #include <string>
 
 #include "easylogging++.h"
+#include "rpc/iodevice.hpp"
+#include "rpc/msgpack.hpp"
+#include "nvimapi.hpp"
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -40,4 +43,14 @@ int main(int argc, char **argv) {
 	// client.nvim_input("$i123<CR>123<ESC>");
 	// client.nvim_buf_set_name(1, "1234");
 	// while (1) {}
+	int timeout = 10;
+	nvimrpc::ReprocDevice device;
+	std::vector<const char *> args{{"nvim", "-u", "NONE", "--embed", nullptr}};
+	device.spawn(args, timeout);
+
+	nvimrpc::NvimApi api{device};
+	api.nvim_ui_attach(800, 600, {{"rgb", true}});
+	api.nvim_input("$i123<CR>123<ESC>");
+	api.nvim_buf_set_name(1, ":D");
+	device.kill();
 }
