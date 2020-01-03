@@ -1161,7 +1161,7 @@ size_t mpack_strlen(const char* s);
 
 
 /* Debug logging */
-#if 0
+#if 1
     #include <stdio.h>
     #define mpack_log(...) (MPACK_EXPAND(printf(__VA_ARGS__), fflush(stdout)))
 #else
