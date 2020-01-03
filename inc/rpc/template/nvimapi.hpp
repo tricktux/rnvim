@@ -88,7 +88,9 @@ class NvimApi {
 
 			if (size_t size = resp_unpack.get_num_elements();
 					size != MpackResUnPack::NUM_ELEMENTS) {
-				DLOG(WARNING) << "Expected 4 elements, got: '" << size << "'";
+				DLOG(WARNING) << "Expected 4 elements while waiting for response from: '"
+					<< msgid << ":" << last_func_call
+					<< "', instead got size: '" << size << "'";
 				if ((size == 3) && (resp_unpack.get_msg_type() == 2)) {
 					DLOG(WARNING) << "Instead we got a notification";
 					pending_notif.emplace(buf);

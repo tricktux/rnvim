@@ -66,10 +66,18 @@ TEST(api, buf_get_name) {
                      {{"rgb", true},
                       {"override", true},
                       {"ext_cmdline", true},
-											{"ext_multigrid", true},
+                      {"ext_multigrid", true},
                       {"ext_hlstate", true}});
   ASSERT_GT(api.nvim_input("$i123<CR>123<ESC>"), 0);
   api.nvim_buf_set_name(1, buf);
   ASSERT_EQ(api.nvim_buf_get_name(1), buf);
   device.kill();
+}
+
+int main(int argc, char *argv[]) {
+	testing::InitGoogleTest(&argc, argv);
+	START_EASYLOGGINGPP(argc, argv);
+  el::Loggers::reconfigureAllLoggers(el::ConfigurationType::Format,
+                                     "%datetime %level %func: %msg");
+  return RUN_ALL_TESTS();
 }

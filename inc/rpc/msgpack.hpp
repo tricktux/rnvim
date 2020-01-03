@@ -144,6 +144,7 @@ public:
 
 class IMpackResUnPack {
 public:
+	const static size_t MAX_NUM_ELEMENTS = 10;
   const static size_t NUM_ELEMENTS = 4;
   const static size_t MSG_TYPE = 1;
   const static size_t VECTOR_MAP_MAX_SIZE = 256;
@@ -179,7 +180,7 @@ public:
 
   int set_data(std::string_view data) override;
   size_t get_num_elements() override {
-    return mpack_expect_array_max(&reader, NUM_ELEMENTS);
+    return mpack_expect_array_max(&reader, MAX_NUM_ELEMENTS);
   }
   int get_msg_type() override { return mpack_expect_i32(&reader); }
   size_t get_msgid() override { return mpack_expect_u32(&reader); }
