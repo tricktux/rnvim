@@ -36,6 +36,7 @@ class nvimrpc::StreamWorker {
 class nvimrpc::Api {
 	-msgid = 0;
 	-std::queue pending_notif;
+	-IoDevice &dev;
 	-auto poll(msgid, timeout);
 	-dispatch(const std::string& func, Args... args)
 	' This function basically calls dispatch and then wait_for_response
