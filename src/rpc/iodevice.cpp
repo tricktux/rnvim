@@ -170,12 +170,16 @@ size_t nvimrpc::ReprocDevice::recv(char *buf, size_t size) {
     return 0;
   }
 
-  std::lock_guard<std::mutex> guard(m);
-  if (output.empty())
-		return 0;
+	size_t read_size;
+	{
+		std::lock_guard<std::mutex> guard(m);
+		if (output.empty())
+			return 0;
 
-	size_t read_size = std::min<size_t>(size, output.size());
-	std::memcpy(buf, output.data(), read_size);
-	output.erase(output.begin(), output.begin() + read_size);
+		read_size = std::min<size_t>(size, output.size());
+		std::memcpy(buf, output.data(), read_size);
+		output.erase(output.begin(), output.begin() + read_size);
+	}
+	DLOG(INFO) << "Rec'd: some data of size: '" << read_size << "'";
 	return read_size;
 }
