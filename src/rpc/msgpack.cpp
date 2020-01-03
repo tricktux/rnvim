@@ -74,3 +74,21 @@ nvimrpc::MpackRpcUnpack::get_error() {
 
   return std::make_tuple(ec, std::string{msg_ptr, msg_len});
 }
+
+void nvimrpc::MpackRpcUnpack::log_server_pack_node(mpack_node_t node) {
+	std::string log_str;
+	auto callback = [](void *context, const char *data, size_t data_len) {
+		auto pstring = (std::string *)(context);
+		pstring->insert(pstring->end(), data, data + data_len);
+	};
+	mpack_node_print_to_callback(node, callback, &log_str);
+
+	while (true) {
+		auto index = log_str.find("\n", 0);
+		if (index == std::string::npos) {
+			break;
+		}
+		log_str.replace(index, 1, "\\n");
+	}
+	DLOG(INFO) << log_str;
+}

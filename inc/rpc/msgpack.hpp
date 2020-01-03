@@ -176,10 +176,14 @@ class MpackRpcUnpack : public IMpackRpcUnpack {
   /// Nodes are immutable
   mpack_node_t &node;
 
+  void log_server_pack_node(mpack_node_t node);
+
 public:
   const static size_t MAX_CSTR_SIZE = 1048576;
 
-  MpackRpcUnpack(mpack_node_t &_node) : node(_node) {}
+  MpackRpcUnpack(mpack_node_t &_node) : node(_node) {
+    log_server_pack_node(node);
+  }
   virtual ~MpackRpcUnpack() = default;
 
   size_t get_num_elements() override {
