@@ -30,7 +30,6 @@
  */
 std::string nvimrpc::MpackRpcPack::build() {
   mpack_finish_array(&writer);
-	DLOG(INFO) << ">>>Closing Response Array of size 4";
   if (mpack_error_t error = mpack_writer_destroy(&writer); error != mpack_ok) {
     DLOG(ERROR) << "Error flushing and closing the underlying stream";
 		DLOG(ERROR) << "Error: '" << mpack_error_to_string( error) << "'";
@@ -47,7 +46,15 @@ std::string nvimrpc::MpackRpcPack::build() {
     return {};
   }
 
-	DLOG(INFO) << "Raw data: '"<< data << "'";
+	{ // Log written data
+		mpack_tree_t tree;
+		mpack_tree_init_data(&tree, data, size);
+		mpack_tree_parse(&tree);
+
+		mpack_node_t root = mpack_tree_root(&tree);
+		log_server_pack_node(root);
+		mpack_tree_destroy(&tree);
+	}
   return {data, size};
 }
 
@@ -78,7 +85,7 @@ nvimrpc::MpackRpcUnpack::get_error() {
   return std::make_tuple(ec, std::string{msg_ptr, msg_len});
 }
 
-void nvimrpc::MpackRpcUnpack::log_server_pack_node(mpack_node_t node) {
+void nvimrpc::log_server_pack_node(mpack_node_t node) {
 	std::string log_str;
 	auto callback = [](void *context, const char *data, size_t data_len) {
 		auto pstring = (std::string *)(context);

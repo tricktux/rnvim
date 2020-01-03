@@ -36,6 +36,8 @@
 
 namespace nvimrpc {
 
+void log_server_pack_node(mpack_node_t node);
+
 // be careful of std::vector<object> vs std::vector<object_wrapper>
 // this can easily give bug
 class object_wrapper;
@@ -101,10 +103,8 @@ public:
   MpackRpcPack() : data(nullptr), size(0) {
     mpack_writer_init_growable(&writer, &data, &size);
     // The request message is a four elements array
-    DLOG(INFO) << ">>>Starting Response Array of size 4";
     mpack_start_array(&writer, NUM_ELEMENTS);
     // The message type, must be the integer zero (0) for "Request" messages.
-    DLOG(INFO) << "Writing MSG_TYPE = 0";
     mpack_write_i32(&writer, MSG_TYPE);
   }
   virtual ~MpackRpcPack() {
@@ -121,7 +121,6 @@ public:
    * @param msgid A 32-bit unsigned integer number.
    */
   void set_msgid(size_t msgid) override {
-    DLOG(INFO) << "Writing msgid: '" << msgid << "'";
     mpack_write_i32(&writer, msgid);
   }
 
@@ -134,7 +133,6 @@ public:
       DLOG(ERROR) << "Empty method name";
       return;
     }
-    DLOG(INFO) << "Writing method: '" << name << "'";
     mpack_write_cstr(&writer, name.data());
   }
 
@@ -143,12 +141,8 @@ public:
    * @param params
    */
   template <class... Params> void set_params(Params &&... params) {
-    DLOG(INFO) << ">>>Starting Array of size: '" << sizeof...(Params)
-               << "' for params";
     mpack_start_array(&writer, sizeof...(Params));
     mpack_write(&writer, std::forward<Params>(params)...);
-		DLOG(INFO) << "<<<Closing Array of size: '" << sizeof...(Params)
-			<< "' for params";
     mpack_finish_array(&writer);
   }
   std::string build() override;
@@ -185,8 +179,6 @@ class MpackRpcUnpack : public IMpackRpcUnpack {
   /// The node is valid until re-call `mpack_tree_try_parse`
   /// Nodes are immutable
   mpack_node_t &node;
-
-  void log_server_pack_node(mpack_node_t node);
 
 public:
   const static size_t MAX_CSTR_SIZE = 1048576;
