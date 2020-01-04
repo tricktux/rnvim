@@ -1,4 +1,5 @@
 
+set(JINJA2_FOUND TRUE)
 set(JINJA2_INPUT_DIR  "${CMAKE_SOURCE_DIR}/inc/rpc/template")
 set(JINJA2_OUTPUT_DIR "${PROJECT_BINARY_DIR}/generated")
 

@@ -15,7 +15,9 @@ file(GLOB MPACK_SRCS
 # Includes
 include_directories(${CMAKE_SOURCE_DIR}/inc)
 include_directories("${CMAKE_SOURCE_DIR}/third-party/mpack")
-include_directories(${JINJA2_OUTPUT_DIR})
+if (JINJA2_FOUND)
+	include_directories(${JINJA2_OUTPUT_DIR})
+endif ()
 
 if (EASYLOGGING_FOUND)
 	include_directories(${EASYLOGGING_INCLUDE_DIRS})
@@ -51,7 +53,9 @@ endif ()
 if (REPROC_FOUND)
 	add_dependencies(${PROJECT_NAME} reproc)
 endif ()
-add_dependencies(${PROJECT_NAME} jinja2_proc)
+if (JINJA2_FOUND)
+	add_dependencies(${PROJECT_NAME} jinja2_proc)
+endif ()
 
 # Sanitizers
 if (SANITIZERS_FOUND)
