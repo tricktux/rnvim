@@ -28,11 +28,11 @@
 #include <vector>
 
 INITIALIZE_EASYLOGGINGPP
+int timeout = 10;
+std::vector<const char *> args{{"nvim", "--embed", nullptr}};
 
 TEST(api, input) {
-  int timeout = 10;
   nvimrpc::ReprocDevice device;
-  std::vector<const char *> args{{"nvim", "-u", "NONE", "--embed", nullptr}};
   ASSERT_EQ(device.spawn(args, timeout), 0);
 
   nvimrpc::NvimApi api{device};
@@ -42,9 +42,7 @@ TEST(api, input) {
 }
 
 TEST(api, buf_set_name) {
-  int timeout = 10;
   nvimrpc::ReprocDevice device;
-  std::vector<const char *> args{{"nvim", "-u", "NONE", "--embed", nullptr}};
   ASSERT_EQ(device.spawn(args, timeout), 0);
 
   nvimrpc::NvimApi api{device};
@@ -55,10 +53,8 @@ TEST(api, buf_set_name) {
 }
 
 TEST(api, buf_get_name) {
-  int timeout = 10;
   std::string buf{"yixx"};
   nvimrpc::ReprocDevice device;
-  std::vector<const char *> args{{"nvim", "-u", "NONE", "--embed", nullptr}};
   ASSERT_EQ(device.spawn(args, timeout), 0);
 
   nvimrpc::NvimApi api{device};
