@@ -120,9 +120,7 @@ public:
    * "Request" will have the same msgid.
    * @param msgid A 32-bit unsigned integer number.
    */
-  void set_msgid(size_t msgid) override {
-    mpack_write_i32(&writer, msgid);
-  }
+  void set_msgid(size_t msgid) override { mpack_write_i32(&writer, msgid); }
 
   /**
    * @brief Set the method name
