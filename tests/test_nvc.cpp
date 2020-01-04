@@ -33,6 +33,7 @@ TEST(nvc, readme) {
 	client.nvim_ui_attach(100, 80, {{"rgb", true}});
 	client.nvim_input("$i123<CR>123<ESC>");
 	client.nvim_buf_set_name(1, ":D");
-	client.nvim_buf_get_name(1);
+	buf = client.nvim_buf_get_name(1);
+	std::cout << "buf = " << buf << std::endl;
 	reproc_dev.kill();
 }
