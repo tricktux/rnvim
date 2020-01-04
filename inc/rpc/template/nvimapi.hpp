@@ -87,8 +87,28 @@ class NvimApi {
 				if ((size == MpackRpcUnpack::NOTIFICATION_NUM_ELEMENTS) &&
 						(resp_unpack.get_msg_type() ==
 						 MpackRpcUnpack::NOTIFICATION_MSG_TYPE)) {
-          DLOG(WARNING) << "Instead we got a notification";
+
+					auto redraw_node = mpack_node_array_at(rc.value(), 1);
+					auto redraw_node_name = mpack_read<std::string>(redraw_node);
+          DLOG(WARNING) << "Instead we got a notification: '"
+						<< redraw_node_name << "'";
           pending_notif.push(rc.value());
+
+					auto event_group_node = mpack_node_array_at(rc.value(), 2);
+					size_t event_group_length = mpack_node_array_length(event_group_node);
+
+					for(size_t group_index = 0; group_index < event_group_length; ++group_index){
+						auto event_array = mpack_node_array_at(event_group_node, group_index);
+						// size_t event_array_length = mpack_node_array_length(event_array);
+
+						auto name_node = mpack_node_array_at(event_array, 0);
+						auto event_name = mpack_read<std::string>(name_node);
+
+						DLOG(INFO) << "event_name: '" << event_name << "'";
+						// for(size_t event_index = 1; event_index < event_array_length; ++event_index){
+							// inn_dispatch_notif(event_name.c_str(), mpack_node_array_at(event_array, event_index), this);
+						// }
+					}
           continue;
         }
 
