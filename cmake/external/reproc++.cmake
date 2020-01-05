@@ -1,5 +1,14 @@
 include(ExternalProject)
 
+# find_package(reprocxx)
+if (reprocxx_FOUND)
+	# The above is the only variable set by the package
+	set(reprocxx_LIBRARIES /lib/reprocxx.so /lib/reproc.so)
+	set(reprocxx_LIBRARY_DIRS /lib)
+	set(reprocxx_INCLUDE_DIRS /usr/include)
+	return ()
+endif()
+
 # build directory
 set(reproc_PREFIX ${CMAKE_BINARY_DIR}/external/reproc-prefix)
 # install directory
@@ -14,8 +23,8 @@ ExternalProject_Add(
 		reproc
 		PREFIX ${reproc_PREFIX}
 		GIT_REPOSITORY https://github.com/DaanDeMeyer/reproc
-		# GIT_TAG				 v9.0.0
-		GIT_TAG				 18bb97d74db747afbe27f14b122189cbecb39b8d
+		GIT_TAG				 v10.0.0
+		# GIT_TAG				 18bb97d74db747afbe27f14b122189cbecb39b8d
 		# GIT_SHALLOW		 TRUE
 		GIT_PROGRESS	 TRUE
 		CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
@@ -32,8 +41,8 @@ ExternalProject_Add(
 		LOG_INSTALL TRUE
 	)
 
-set(REPROC_FOUND TRUE)
-set(REPROC_INCLUDE_DIRS ${reproc_INSTALL}/include)
-set(REPROC_LIBRARIES ${reproc_LIBS})
-set(REPROC_LIBRARY_DIRS ${reproc_INSTALL}/lib)
-set(REPROC_EXTERNAL TRUE)
+set(reprocxx_FOUND TRUE)
+set(reprocxx_INCLUDE_DIRS ${reproc_INSTALL}/include)
+set(reprocxx_LIBRARIES ${reproc_LIBS})
+set(reprocxx_LIBRARY_DIRS ${reproc_INSTALL}/lib)
+set(reprocxx_EXTERNAL TRUE)

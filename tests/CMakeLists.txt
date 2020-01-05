@@ -20,10 +20,12 @@ add_executable(test_iodevice ${MPACK_SRCS}
 		"${CMAKE_SOURCE_DIR}/src/rpc/iodevice.cpp"
 		"${CMAKE_SOURCE_DIR}/tests/test_iodevice.cpp"
 	)
-if (REPROC_FOUND)
-	add_dependencies(test_iodevice reproc)
-	target_include_directories(test_iodevice PUBLIC SYSTEM ${REPROC_INCLUDE_DIRS})
-	target_link_libraries(test_iodevice PRIVATE ${REPROC_LIBRARIES})
+if (reprocxx_FOUND)
+	if (reprocxx_EXTERNAL)
+		add_dependencies(test_iodevice reproc)
+	endif()
+	target_include_directories(test_iodevice PUBLIC SYSTEM ${reprocxx_INCLUDE_DIRS})
+	target_link_libraries(test_iodevice PRIVATE ${reprocxx_LIBRARIES})
 endif ()
 if (EASYLOGGING_FOUND)
 	add_dependencies(test_iodevice easylogging)
@@ -38,10 +40,12 @@ add_executable(test_nvimapi ${MPACK_SRCS}
 	# "${CMAKE_SOURCE_DIR}/src/rpc/template/nvimapi.cpp"
 	"${CMAKE_SOURCE_DIR}/tests/test_nvimapi.cpp"
 	)
-if (REPROC_FOUND)
-	add_dependencies(test_nvimapi reproc)
-	target_include_directories(test_nvimapi PUBLIC SYSTEM ${REPROC_INCLUDE_DIRS})
-	target_link_libraries(test_nvimapi PRIVATE ${REPROC_LIBRARIES})
+if (reprocxx_FOUND)
+	if (reprocxx_EXTERNAL)
+		add_dependencies(test_iodevice reproc)
+	endif()
+	target_include_directories(test_iodevice PUBLIC SYSTEM ${reprocxx_INCLUDE_DIRS})
+	target_link_libraries(test_iodevice PRIVATE ${reprocxx_LIBRARIES})
 endif ()
 if (EASYLOGGING_FOUND)
 	add_dependencies(test_nvimapi easylogging)
