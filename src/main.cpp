@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
 	// while (1) {}
 	int timeout = 10;
 	nvimrpc::ReprocDevice device;
-	std::vector<const char *> args{{"nvim", "--embed", nullptr}};
+	std::vector<const char *> args{{"nvim", "-u", "NORC", "--embed", nullptr}};
 	device.spawn(args, timeout);
 
 	nvimrpc::NvimApi api{device};
