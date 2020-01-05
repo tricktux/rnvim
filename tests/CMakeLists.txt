@@ -46,9 +46,25 @@ endif ()
 if (EASYLOGGING_FOUND)
 	add_dependencies(test_nvimapi easylogging)
 endif ()
-target_include_directories(test_nvimapi PUBLIC ${JINJA2_OUTPUT_DIR})
-add_dependencies(test_nvimapi jinja2_proc)
+if (JINJA2_FOUND)
+	target_include_directories(test_nvimapi PUBLIC ${JINJA2_OUTPUT_DIR})
+	add_dependencies(test_nvimapi jinja2_proc)
+endif ()
 add_test(test_nvimapi ${EXECUTABLE_OUTPUT_PATH})
+
+# ------------mpack--------------
+add_executable(test_mpack ${MPACK_SRCS}
+	"${CMAKE_SOURCE_DIR}/src/rpc/msgpack.cpp"
+	"${CMAKE_SOURCE_DIR}/tests/test_mpack.cpp"
+	)
+if (EASYLOGGING_FOUND)
+	add_dependencies(test_mpack easylogging)
+endif ()
+if (JINJA2_FOUND)
+	target_include_directories(test_mpack PUBLIC ${JINJA2_OUTPUT_DIR})
+	add_dependencies(test_mpack jinja2_proc)
+endif ()
+add_test(test_mpack ${EXECUTABLE_OUTPUT_PATH})
 
 # ------------libnvc--------------
 if (ENABLE_LIBNVC_TESTS)
