@@ -43,7 +43,7 @@ std::optional<mpack_node_t> nvimrpc::StreamDecoder::poll() {
 
   std::string err{"Error: "};
   err.append(mpack_error_to_string(ec));
+	DLOG(FATAL) << err;
   throw std::runtime_error(err.c_str());
-  DLOG(ERROR) << err;
   return {};
 }

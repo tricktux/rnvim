@@ -111,7 +111,7 @@ size_t nvimrpc::ReprocDevice::send(std::string_view data) {
 
   if (auto ec = process.write(reinterpret_cast<const uint8_t *>(data.data()),
                               data.size())) {
-    DLOG(ERROR) << "Failed to send: '" << data << "'. Error message: '"
+    DLOG(FATAL) << "Failed to send: '" << data << "'. Error message: '"
                 << ec.message() << "'";
     throw std::runtime_error(ec.message());
   }
