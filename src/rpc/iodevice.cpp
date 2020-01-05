@@ -50,7 +50,7 @@ int nvimrpc::ReprocDevice::spawn(const std::vector<const char *> &argv,
   };
 
   reproc::options options;
-  options.stop_actions = stop_actions;
+  options.stop = stop_actions;
 
   if (auto ec = process.start(argv.data(), options)) {
     DLOG(ERROR) << "Error occurred trying to spawn: '" << argv.data()
@@ -61,7 +61,8 @@ int nvimrpc::ReprocDevice::spawn(const std::vector<const char *> &argv,
   }
 
   drain_async = std::async(std::launch::async, [this]() {
-    reproc::sink::thread_safe::string sink(output, output, m);
+			// reproc::sink::thread_safe::string sink{}
+    reproc::sink::thread_safe::string sink{output, output, m};
     return process.drain(sink);
   });
 
