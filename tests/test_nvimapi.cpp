@@ -26,6 +26,9 @@
 #include <chrono>
 #include <gtest/gtest.h>
 #include <vector>
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 INITIALIZE_EASYLOGGINGPP
 int timeout = 10;
@@ -68,9 +71,22 @@ TEST(api, buf_get_name) {
 }
 
 int main(int argc, char *argv[]) {
-  testing::InitGoogleTest(&argc, argv);
-  START_EASYLOGGINGPP(argc, argv);
-  el::Loggers::reconfigureAllLoggers(el::ConfigurationType::Format,
-                                     "%datetime %level %func: %msg");
+	fs::path elconf{fs::current_path()};
+	if (elconf.empty()) {
+		std::cout << "Failed to get fs::current_path" << std::endl;
+		exit(8);
+	}
+
+	elconf.append("easylogingpp.conf");
+	if (!fs::is_regular_file(elconf)) {
+		std::cout << "Easylogging configuration does not exist" << std::endl;
+		exit(9);
+	}
+	std::cout << elconf << std::endl;
+	testing::InitGoogleTest(&argc, argv);
+	el::Configurations conf(elconf.c_str());
+	// Actually reconfigure all loggers instead
+	el::Loggers::reconfigureAllLoggers(conf);
+	// Now all the loggers will use configuration from file
   return RUN_ALL_TESTS();
 }
