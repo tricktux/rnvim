@@ -182,7 +182,7 @@ public:
   const static size_t MAX_CSTR_SIZE = 1048576;
 
   MpackRpcUnpack(mpack_node_t &_node) : node(_node) {
-    log_server_pack_node(node);
+    // log_server_pack_node(node);
   }
   virtual ~MpackRpcUnpack() = default;
 
