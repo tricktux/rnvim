@@ -13,9 +13,6 @@ add_definitions(-DELPP_STL_LOGGING)
 add_definitions(-DELPP_LOG_STD_ARRAY)
 add_definitions(-DELPP_LOG_UNORDERED_MAP)
 add_definitions(-DELPP_LOG_UNORDERED_SET)
-add_definitions(-DELPP_FEATURE_CRASH_LOG)
-add_definitions(-DELPP_HANDLE_SIGABRT)
-add_definitions(-DELPP_EXPERIMENTAL_ASYNC)
 
 ExternalProject_Add(
 	easylogging
