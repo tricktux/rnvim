@@ -70,10 +70,12 @@ class NvimApi {
   }
 
   template <typename T> T poll(size_t msgid) {
+		DLOG(INFO) << "Waiting from response to request: '"
+			<< last_func_call << "'";
     do {
       std::optional<mpack_node_t> rc = decoder.poll();
       if (!rc) {
-				DLOG_EVERY_N(100000, INFO) << "Not sufficient data in buffer";
+				// DLOG_EVERY_N(100000, INFO) << "Not sufficient data in buffer";
 				// std::this_thread::sleep_for(std::chrono::microseconds{50});
         continue;
       }
