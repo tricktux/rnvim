@@ -38,31 +38,31 @@ namespace nvimrpc {
 
 void log_server_pack_node(mpack_node_t node);
 
-// be careful of std::vector<object> vs std::vector<object_wrapper>
+// be careful of std::vector<Object> vs std::vector<ObjectWrapper>
 // this can easily give bug
-class object_wrapper;
-typedef std::variant<bool, int64_t, double, std::string, std::array<int64_t, 2>,
-                     std::vector<object_wrapper>,
-                     std::unordered_map<std::string, object_wrapper>>
-    object;
+class ObjectWrapper;
+using Object = std::variant<bool, int64_t, double, std::string, 
+										 std::array<int64_t, 2>,
+                     std::vector<ObjectWrapper>,
+                     std::unordered_map<std::string, ObjectWrapper>>;
 
-class object_wrapper {
+class ObjectWrapper {
   // Use shared_ptr not unique_ptr
-  // The sematics of object_wrapper is a wrapper of an existing object
-  std::shared_ptr<object> m_ptr;
+  // The sematics of ObjectWrapper is a wrapper of an existing Object
+  std::shared_ptr<Object> m_ptr;
 
-  // Don't define operator object ()
-  // Since which returns a copy of the included object
+  // Don't define operator Object ()
+  // Since which returns a copy of the included Object
 
 public:
-  object_wrapper() = default;
+  ObjectWrapper() = default;
 
-  template <typename T> object_wrapper(T t) {
-    m_ptr = std::make_shared<object>(t);
+  template <typename T> ObjectWrapper(T t) {
+    m_ptr = std::make_shared<Object>(t);
   }
 
-  object &ref() { return *(m_ptr.get()); }
-  const object &ref() const { return *(m_ptr.get()); }
+  Object &ref() { return *(m_ptr.get()); }
+  const Object &ref() const { return *(m_ptr.get()); }
 };
 
 void inline mpack_write(mpack_writer_t *) {}
@@ -247,7 +247,7 @@ public:
 
 // --------------mpack_write--------------------- //
 
-void inline mpack_write(mpack_writer_t *writer, const object &obj) {
+void inline mpack_write(mpack_writer_t *writer, const Object &obj) {
   if (std::holds_alternative<bool>(obj))
     return mpack_write(writer, std::get<bool>(obj));
   if (std::holds_alternative<int64_t>(obj))
@@ -258,16 +258,16 @@ void inline mpack_write(mpack_writer_t *writer, const object &obj) {
     return mpack_write(writer, std::get<std::string>(obj));
   if (std::holds_alternative<std::array<int64_t, 2>>(obj))
     return mpack_write(writer, std::get<std::array<int64_t, 2>>(obj));
-  if (std::holds_alternative<std::unordered_map<std::string, object_wrapper>>(
+  if (std::holds_alternative<std::unordered_map<std::string, ObjectWrapper>>(
           obj)) {
     return mpack_write(
-        writer, std::get<std::unordered_map<std::string, object_wrapper>>(obj));
+        writer, std::get<std::unordered_map<std::string, ObjectWrapper>>(obj));
   }
-  if (std::holds_alternative<std::vector<object_wrapper>>(obj)) {
-    return mpack_write(writer, std::get<std::vector<object_wrapper>>(obj));
+  if (std::holds_alternative<std::vector<ObjectWrapper>>(obj)) {
+    return mpack_write(writer, std::get<std::vector<ObjectWrapper>>(obj));
   }
 
-  DLOG(ERROR) << "Unrecognized object type!";
+  DLOG(ERROR) << "Unrecognized Object type!";
 }
 
 void inline mpack_write(mpack_writer_t *writer, std::string_view value) {
@@ -278,11 +278,11 @@ void inline mpack_write(mpack_writer_t *writer, const std::string &value) {
 }
 // inline void
 // mpack_write(mpack_writer_t *writer,
-// const std::unordered_map<std::string, object_wrapper> &object_map);
+// const std::unordered_map<std::string, ObjectWrapper> &object_map);
 
 void inline mpack_write(
     mpack_writer_t *writer,
-    const std::unordered_map<std::string, object> &object_map) {
+    const std::unordered_map<std::string, Object> &object_map) {
   mpack_start_map(writer, object_map.size());
   for (const auto &val : object_map) {
     mpack_write(writer, val.first);
@@ -293,7 +293,7 @@ void inline mpack_write(
 
 void inline mpack_write(
     mpack_writer_t *writer,
-    const std::unordered_map<std::string, object_wrapper> &object_map) {
+    const std::unordered_map<std::string, ObjectWrapper> &object_map) {
   mpack_start_map(writer, object_map.size());
   for (const auto &val : object_map) {
     mpack_write(writer, val.first);
@@ -302,7 +302,7 @@ void inline mpack_write(
   mpack_finish_map(writer);
 }
 void inline mpack_write(mpack_writer_t *writer,
-                        const std::vector<object_wrapper> &object_list) {
+                        const std::vector<ObjectWrapper> &object_list) {
   mpack_start_array(writer, object_list.size());
   for (const auto &val : object_list) {
     mpack_write(writer, val);
@@ -407,8 +407,8 @@ mpack_read<std::vector<std::string>>(mpack_node_t node) {
 }
 
 template <>
-inline std::vector<object> mpack_read<std::vector<object>>(mpack_node_t node) {
-  return mpack_read_array<object>(node);
+inline std::vector<Object> mpack_read<std::vector<Object>>(mpack_node_t node) {
+  return mpack_read_array<Object>(node);
 }
 
 template <>
@@ -418,20 +418,20 @@ mpack_read<std::vector<int64_t>>(mpack_node_t node) {
 }
 
 template <>
-inline std::vector<std::unordered_map<std::string, object>>
-mpack_read<std::vector<std::unordered_map<std::string, object>>>(
+inline std::vector<std::unordered_map<std::string, Object>>
+mpack_read<std::vector<std::unordered_map<std::string, Object>>>(
     mpack_node_t node) {
-  return mpack_read_array<std::unordered_map<std::string, object>>(node);
+  return mpack_read_array<std::unordered_map<std::string, Object>>(node);
 }
 
 template <>
-inline std::unordered_map<std::string, object>
-mpack_read<std::unordered_map<std::string, object>>(mpack_node_t node) {
-  return mpack_read_map<std::string, object>(node);
+inline std::unordered_map<std::string, Object>
+mpack_read<std::unordered_map<std::string, Object>>(mpack_node_t node) {
+  return mpack_read_map<std::string, Object>(node);
 }
 
-template <> inline object mpack_read<object>(mpack_node_t node) {
-  object obj{};
+template <> inline Object mpack_read<Object>(mpack_node_t node) {
+  Object obj{};
   auto tag = mpack_node_tag(node);
   switch (auto type = mpack_tag_type(&tag)) {
   case mpack_type_bool: {
@@ -450,20 +450,20 @@ template <> inline object mpack_read<object>(mpack_node_t node) {
     return mpack_read<std::string>(node);
   }
   case mpack_type_map: {
-    auto res_map = mpack_read<std::unordered_map<std::string, object>>(node);
-    std::unordered_map<std::string, object_wrapper> res_map_wrapper;
+    auto res_map = mpack_read<std::unordered_map<std::string, Object>>(node);
+    std::unordered_map<std::string, ObjectWrapper> res_map_wrapper;
     for (auto &item : res_map) {
-      res_map_wrapper[item.first] = object_wrapper(item.second);
+      res_map_wrapper[item.first] = ObjectWrapper(item.second);
     }
-    return object(res_map_wrapper);
+    return Object(res_map_wrapper);
   }
   case mpack_type_array: {
-    auto res_vec = mpack_read<std::vector<object>>(node);
-    std::vector<object_wrapper> res_vec_wrapper;
+    auto res_vec = mpack_read<std::vector<Object>>(node);
+    std::vector<ObjectWrapper> res_vec_wrapper;
     for (auto &item : res_vec) {
-      res_vec_wrapper.emplace_back(object_wrapper(item));
+      res_vec_wrapper.emplace_back(ObjectWrapper(item));
     }
-    return object(res_vec_wrapper);
+    return Object(res_vec_wrapper);
   }
   default: {
     DLOG(ERROR) << "Unsupport type: '" << mpack_type_to_string(type) << "'";

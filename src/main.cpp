@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
 	nvimrpc::NvimApi api{device};
 	api.nvim_ui_attach(80, 60, {{"rgb", true}});
 	// api.nvim_input("$i123<CR>123<ESC>");
-	nvimrpc::object obj = api.nvim_buf_get_var(0, "current_syntax");
-	nvimrpc::object_wrapper wrap{obj};
+	nvimrpc::Object obj = api.nvim_buf_get_var(0, "current_syntax");
+	nvimrpc::ObjectWrapper wrap{obj};
 	device.kill();
 }
