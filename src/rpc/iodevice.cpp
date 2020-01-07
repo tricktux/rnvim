@@ -62,8 +62,8 @@ int nvimrpc::ReprocDevice::spawn(const std::vector<const char *> &argv,
 
   drain_async = std::async(std::launch::async, [this]() {
 			// reproc::sink::thread_safe::string sink{}
-    reproc::sink::thread_safe::string sink{output, output, m};
-    return process.drain(sink);
+    reproc::sink::thread_safe::string sink{output, m};
+    return reproc::drain(process, sink, sink);
   });
 
   return 0;
