@@ -1,11 +1,8 @@
 include(ExternalProject)
 
-# find_package(reprocxx)
+find_package(reprocxx)
 if (reprocxx_FOUND)
-	# The above is the only variable set by the package
-	set(reprocxx_LIBRARIES /lib/reprocxx.so /lib/reproc.so)
-	set(reprocxx_LIBRARY_DIRS /lib)
-	set(reprocxx_INCLUDE_DIRS /usr/include)
+	set(reprocxx_LIBRARIES reprocxx)
 	return ()
 endif()
 
@@ -23,16 +20,16 @@ ExternalProject_Add(
 		reproc
 		PREFIX ${reproc_PREFIX}
 		GIT_REPOSITORY https://github.com/DaanDeMeyer/reproc
-		GIT_TAG				 v10.0.0
+		GIT_TAG				 v10.0.3
 		# GIT_TAG				 18bb97d74db747afbe27f14b122189cbecb39b8d
-		# GIT_SHALLOW		 TRUE
+		GIT_SHALLOW		 TRUE
 		GIT_PROGRESS	 TRUE
 		CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 							-DCMAKE_INSTALL_PREFIX=${reproc_INSTALL}
-							-DREPROC++=ON
 							-DREPROC_TEST=OFF
 							-DREPROC_EXAMPLES=OFF
-							# -DREPROCXX=ON
+							-DREPROCXX=ON
+							# -DREPROC++=ON
 
 		BUILD_BYPRODUCTS ${reproc_LIBS}
 		UPDATE_COMMAND ""
