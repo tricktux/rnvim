@@ -83,10 +83,12 @@ int main(int argc, char *argv[]) {
 		exit(9);
 	}
 	std::cout << elconf << std::endl;
+	START_EASYLOGGINGPP(argc, argv);
 	testing::InitGoogleTest(&argc, argv);
 	el::Configurations conf(elconf.c_str());
 	// Actually reconfigure all loggers instead
 	el::Loggers::reconfigureAllLoggers(conf);
 	// Now all the loggers will use configuration from file
+	DLOG(INFO) << ">>>>Start of Log<<<<";
   return RUN_ALL_TESTS();
 }
