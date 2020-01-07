@@ -29,14 +29,16 @@
 
 INITIALIZE_EASYLOGGINGPP
 int timeout = 10;
-std::vector<const char *> args{{"nvim", "--embed", nullptr}};
+int size_x = 100;
+int size_y = 100;
+std::vector<const char *> args{{"nvim", "-u", "NORC", "--embed", nullptr}};
 
 TEST(api, input) {
   nvimrpc::ReprocDevice device;
   ASSERT_EQ(device.spawn(args, timeout), 0);
 
   nvimrpc::NvimApi api{device};
-  api.nvim_ui_attach(800, 600, {{"rgb", true}});
+  api.nvim_ui_attach(size_x, size_y, {{"rgb", true}});
   ASSERT_GT(api.nvim_input("$i123<CR>123<ESC>"), 0);
   device.kill();
 }
@@ -46,7 +48,7 @@ TEST(api, buf_set_name) {
   ASSERT_EQ(device.spawn(args, timeout), 0);
 
   nvimrpc::NvimApi api{device};
-  api.nvim_ui_attach(800, 600, {{"rgb", true}});
+  api.nvim_ui_attach(size_x, size_y, {{"rgb", true}});
   api.nvim_input("$i123<CR>123<ESC>");
   api.nvim_buf_set_name(1, ":D");
   device.kill();
@@ -58,12 +60,7 @@ TEST(api, buf_get_name) {
   ASSERT_EQ(device.spawn(args, timeout), 0);
 
   nvimrpc::NvimApi api{device};
-  api.nvim_ui_attach(800, 600,
-                     {{"rgb", true},
-                      {"override", true},
-                      {"ext_cmdline", true},
-                      {"ext_multigrid", true},
-                      {"ext_hlstate", true}});
+  api.nvim_ui_attach(size_x, size_y, {{"rgb", true}});
   api.nvim_input("$i123<CR>123<ESC>");
   api.nvim_buf_set_name(1, buf);
   api.nvim_buf_get_name(1);
@@ -71,8 +68,8 @@ TEST(api, buf_get_name) {
 }
 
 int main(int argc, char *argv[]) {
-	testing::InitGoogleTest(&argc, argv);
-	START_EASYLOGGINGPP(argc, argv);
+  testing::InitGoogleTest(&argc, argv);
+  START_EASYLOGGINGPP(argc, argv);
   el::Loggers::reconfigureAllLoggers(el::ConfigurationType::Format,
                                      "%datetime %level %func: %msg");
   return RUN_ALL_TESTS();
