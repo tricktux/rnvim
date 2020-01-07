@@ -63,6 +63,10 @@ public:
   ReprocDevice() { output.reserve(1048576); }
   virtual ~ReprocDevice() {}
 
+	std::error_code drain() {
+		reproc::sink::thread_safe::string sink{output, m};
+		return reproc::drain(this->process, sink, sink);
+	}
   int spawn(const std::vector<const char *> &, int);
   int kill();
   size_t send(std::string_view data) override;

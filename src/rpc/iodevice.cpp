@@ -60,11 +60,7 @@ int nvimrpc::ReprocDevice::spawn(const std::vector<const char *> &argv,
     throw std::runtime_error(ec.message());
   }
 
-  drain_async = std::async(std::launch::async, [this]() {
-			// reproc::sink::thread_safe::string sink{}
-    reproc::sink::thread_safe::string sink{output, m};
-    return reproc::drain(process, sink, sink);
-  });
+	drain_async = std::async(std::launch::async, &ReprocDevice::drain, this);
 
   return 0;
 }
@@ -77,7 +73,7 @@ int nvimrpc::ReprocDevice::kill() {
       {reproc::stop::kill, std::chrono::seconds{1}},
   };
 
-	auto [exit_status, ec] = process.stop(stop_actions);
+  auto [exit_status, ec] = process.stop(stop_actions);
   if (ec) {
     DLOG(ERROR) << "Error: '" << ec.message()
                 << "' occurred while killing child process";
@@ -152,16 +148,19 @@ size_t nvimrpc::ReprocDevice::recv(char *buf, size_t size) {
     return 0;
   }
 
-	size_t read_size;
-	{
-		std::lock_guard<std::mutex> guard(m);
-		if (output.empty())
-			return 0;
+  size_t read_size;
+  {
+    std::lock_guard<std::mutex> guard(m);
+    if (output.empty())
+      return 0;
 
-		read_size = std::min<size_t>(size, output.size());
-		std::memcpy(buf, output.data(), read_size);
-		output.erase(output.begin(), output.begin() + read_size);
-	}
-	DLOG(INFO) << "Rec'd: some data of size: '" << read_size << "'";
-	return read_size;
+    read_size = std::min<size_t>(size, output.size());
+    std::memcpy(buf, output.data(), read_size);
+    output.erase(output.begin(), output.begin() + read_size);
+    if (!output.empty())
+      DLOG(WARNING) << "There is still data in output, of size: '"
+                    << output.size() << "'. Data:\n" << output;
+  }
+  DLOG(INFO) << "Rec'd: some data of size: '" << read_size << "'";
+  return read_size;
 }
