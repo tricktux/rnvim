@@ -34,10 +34,10 @@ namespace nvimrpc {
  * [here](https://github.com/ludocode/mpack/blob/develop/docs/node.mdhttps://github.com/ludocode/mpack/blob/develop/docs/node.md)
  * */
 class StreamDecoder {
-	const int MAX_NODES = 4096;
-	const int MAX_SIZE = MAX_NODES*1024;
-	// const size_t MAX_NODES = SIZE_MAX;
-  // const size_t MAX_SIZE = SIZE_MAX;
+	// const size_t MAX_NODES = 4096;
+	// const size_t MAX_SIZE = MAX_NODES*1024;
+	const size_t MAX_NODES = SIZE_MAX;
+	const size_t MAX_SIZE = SIZE_MAX;
   mpack_tree_t tree; /// Gets parsed into a node
 
   /**
