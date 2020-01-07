@@ -30,12 +30,12 @@ include("${CMAKE_SOURCE_DIR}/cmake/external/reproc++.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/jinja2.cmake")
 
 # MPack defines
-ADD_DEFINITIONS(-DMPACK_DEBUG)
-ADD_DEFINITIONS(-DMPACK_STDIO)
-ADD_DEFINITIONS(-DMPACK_STRINGS)
-ADD_DEFINITIONS(-DMPACK_EXTENSIONS)
-ADD_DEFINITIONS(-DMPACK_READ_TRACKING)
-ADD_DEFINITIONS(-DMPACK_WRITE_TRACKING)
+add_definitions(-DMPACK_DEBUG)
+add_definitions(-DMPACK_STDIO)
+add_definitions(-DMPACK_STRINGS)
+add_definitions(-DMPACK_EXTENSIONS)
+add_definitions(-DMPACK_READ_TRACKING)
+add_definitions(-DMPACK_WRITE_TRACKING)
 
 # Set a default build type if none was specified
 set(CMAKE_BUILD_TYPE "Debug" CACHE
