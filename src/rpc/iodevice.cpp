@@ -71,26 +71,22 @@ int nvimrpc::ReprocDevice::spawn(const std::vector<const char *> &argv,
 
 /** @brief Terminates the child process */
 int nvimrpc::ReprocDevice::kill() {
-  if (!process.running()) {
-    DLOG(WARNING) << "Child process already dead";
-    return process.exit_status();
-  }
-
   reproc::stop_actions stop_actions{
       {reproc::stop::wait, std::chrono::seconds{1}},
       {reproc::stop::terminate, std::chrono::seconds{1}},
       {reproc::stop::kill, std::chrono::seconds{1}},
   };
 
-  if (auto ec = process.stop(stop_actions)) {
+	auto [exit_status, ec] = process.stop(stop_actions);
+  if (ec) {
     DLOG(ERROR) << "Error: '" << ec.message()
                 << "' occurred while killing child process";
     return ec.value();
   }
 
   DLOG(INFO) << "Gracefully closed child process whit exit code: "
-             << process.exit_status();
-  return process.exit_status();
+             << exit_status;
+  return exit_status;
 }
 
 /**
@@ -100,11 +96,6 @@ int nvimrpc::ReprocDevice::kill() {
  * @return Number of bytes sent
  */
 size_t nvimrpc::ReprocDevice::send(std::string_view data) {
-  if (!process.running()) {
-    DLOG(FATAL) << "Child process is not running!";
-    throw std::runtime_error("Child process is not running!");
-  }
-
   if (data.empty()) {
     DLOG(WARNING) << "Empty send data provided";
     return 0;
@@ -126,11 +117,6 @@ size_t nvimrpc::ReprocDevice::send(std::string_view data) {
  * @return Size of rec'd data
  */
 size_t nvimrpc::ReprocDevice::recv(std::string &data, size_t timeout) {
-  if (!process.running()) {
-    DLOG(FATAL) << "Child process is not running!";
-    throw std::runtime_error("Child process is not running!");
-  }
-
   size_t t = timeout == 0 ? 60000 : timeout * 1000; // Convert to ms
   for (size_t k = t; k > 0; k -= 100) {
     {
@@ -156,11 +142,6 @@ size_t nvimrpc::ReprocDevice::recv(std::string &data, size_t timeout) {
  * @return Size of rec'd data
  */
 size_t nvimrpc::ReprocDevice::recv(char *buf, size_t size) {
-  if (!process.running()) {
-    DLOG(FATAL) << "Child process is not running!";
-    throw std::runtime_error("Child process is not running!");
-  }
-
   if (buf == nullptr) {
     DLOG(WARNING) << "Invalid buf pointer";
     return 0;
