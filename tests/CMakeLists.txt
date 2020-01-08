@@ -30,7 +30,10 @@ endif ()
 if (EASYLOGGING_FOUND)
 	add_dependencies(test_iodevice easylogging)
 endif ()
-add_test(test_iodevice ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+add_test(NAME test_iodevice
+					COMMAND test_iodevice
+					WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+				)
 
 # ------------nvimapi--------------
 add_executable(test_nvimapi ${MPACK_SRCS}
@@ -54,7 +57,10 @@ if (JINJA2_FOUND)
 	target_include_directories(test_nvimapi PUBLIC ${JINJA2_OUTPUT_DIR})
 	add_dependencies(test_nvimapi jinja2_proc)
 endif ()
-add_test(test_nvimapi ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+add_test(NAME test_nvimapi
+					COMMAND test_nvimapi
+					WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+				)
 
 # ------------mpack--------------
 add_executable(test_mpack ${MPACK_SRCS}
@@ -68,7 +74,10 @@ if (JINJA2_FOUND)
 	target_include_directories(test_mpack PUBLIC ${JINJA2_OUTPUT_DIR})
 	add_dependencies(test_mpack jinja2_proc)
 endif ()
-add_test(test_mpack ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+add_test(NAME test_mpack
+					COMMAND test_mpack
+					WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+				)
 
 # ------------libnvc--------------
 if (ENABLE_LIBNVC_TESTS)
@@ -85,6 +94,9 @@ if (ENABLE_LIBNVC_TESTS)
 		target_include_directories(test_nvc PUBLIC ${NVC_INCLUDE_DIRS})
 		target_link_libraries(test_nvc PRIVATE ${NVC_LIBRARIES})
 	endif ()
-	add_test(test_nvc ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+	add_test(NAME test_nvc
+						COMMAND test_nvc
+						WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+					)
 endif ()
 
