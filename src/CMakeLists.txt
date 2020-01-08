@@ -1,62 +1,56 @@
-# See this: https://stackoverflow.com/questions/13703647/how-to-properly-add-include-directories-with-cmake#13703725
-# TODO Fix sources list
-# TODO remove dependency on jinja2_proc
-file(GLOB SOURCES
-		"${CMAKE_SOURCE_DIR}/src/main.cpp"
-		"${CMAKE_SOURCE_DIR}/src/rpc/iodevice.cpp"
-		"${CMAKE_SOURCE_DIR}/src/rpc/msgpack.cpp"
-		"${CMAKE_SOURCE_DIR}/src/rpc/streamdecoder.cpp"
-		# "${CMAKE_SOURCE_DIR}/src/process_handler.cpp"
-		# "${CMAKE_SOURCE_DIR}/src/cli_args.cpp"
+
+set_source_files_properties(${JINJA2_SRC}
+		PROPERTIES GENERATED 1
 	)
-
-file(GLOB MPACK_SRCS
-		"${CMAKE_SOURCE_DIR}/third-party/mpack/mpack.c"
-	)
-
-# Includes
-include_directories(${CMAKE_SOURCE_DIR}/inc)
-include_directories("${CMAKE_SOURCE_DIR}/third-party/mpack")
-if (JINJA2_FOUND)
-	include_directories(${JINJA2_OUTPUT_DIR})
-endif ()
-
-if (EASYLOGGING_FOUND)
-	include_directories(${EASYLOGGING_INCLUDE_DIRS})
-endif ()
-if (NVC_FOUND)
-	include_directories(${NVC_INCLUDE_DIRS})
-endif ()
-if (CXXOPTS_FOUND)
-	include_directories(${CXXOPTS_INCLUDE_DIRS})
-endif ()
-if (reprocxx_FOUND)
-	include_directories(SYSTEM ${reprocxx_INCLUDE_DIRS})
-endif ()
-if (GSL_FOUND)
-	include_directories(SYSTEM ${GSL_INCLUDE_DIRS})
-endif ()
 
 # Executables
-add_executable(${PROJECT_NAME} ${SOURCES} ${MPACK_SRCS})
-# Dependencies
-if (GSL_FOUND)
-	add_dependencies(${PROJECT_NAME} gsl)
+add_executable(${PROJECT_NAME} "")
+
+target_sources(${PROJECT_NAME}
+		PRIVATE
+			main.cpp
+			rpc/iodevice.cpp
+			rpc/msgpack.cpp
+			rpc/streamdecoder.cpp
+			${CMAKE_SOURCE_DIR}/inc/rpc/iodevice.hpp
+			${CMAKE_SOURCE_DIR}/inc/rpc/msgpack.hpp
+			${CMAKE_SOURCE_DIR}/inc/rpc/streamdecoder.hpp
+			${JINJA2_SRC}
+	)
+target_include_mpack(${PROJECT_NAME})
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/inc)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/third-party/mpack)
+target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(${PROJECT_NAME} fmt::fmt)
+
+if (JINJA2_FOUND)
+	add_dependencies(${PROJECT_NAME} jinja2_proc)
+	target_include_directories(${PROJECT_NAME} PRIVATE ${JINJA2_OUTPUT_DIR})
 endif ()
 if (EASYLOGGING_FOUND)
 	add_dependencies(${PROJECT_NAME} easylogging)
+	target_include_directories(${PROJECT_NAME} PRIVATE ${EASYLOGGING_INCLUDE_DIRS})
+	target_link_libraries(${PROJECT_NAME} ${EASYLOGGING_LIBRARIES})
 endif ()
 if (NVC_FOUND)
 	add_dependencies(${PROJECT_NAME} nvc)
+	target_include_directories(${PROJECT_NAME} PRIVATE ${NVC_INCLUDE_DIRS})
+	target_link_libraries(${PROJECT_NAME} ${NVC_LIBRARIES})
 endif ()
 if (CXXOPTS_FOUND)
 	add_dependencies(${PROJECT_NAME} cxxopts)
+	target_include_directories(${PROJECT_NAME} PRIVATE ${CXXOPTS_INCLUDE_DIRS})
 endif ()
-if (reprocxx_EXTERNAL)
-	add_dependencies(${PROJECT_NAME} reproc)
+if (reprocxx_FOUND)
+	if (reprocxx_EXTERNAL)
+		add_dependencies(${PROJECT_NAME} reproc)
+	endif ()
+	target_include_directories(${PROJECT_NAME} PRIVATE SYSTEM ${reprocxx_INCLUDE_DIRS})
+	target_link_libraries(${PROJECT_NAME} ${reprocxx_LIBRARIES})
 endif ()
-if (JINJA2_FOUND)
-	add_dependencies(${PROJECT_NAME} jinja2_proc)
+if (GSL_FOUND)
+	add_dependencies(${PROJECT_NAME} gsl)
+	target_include_directories(${PROJECT_NAME} PRIVATE SYSTEM ${GSL_INCLUDE_DIRS})
 endif ()
 
 # Sanitizers
@@ -64,14 +58,3 @@ if (SANITIZERS_FOUND)
 	add_sanitizers(${PROJECT_NAME})
 endif ()
 
-if (EASYLOGGING_FOUND)
-	target_link_libraries(${PROJECT_NAME} ${EASYLOGGING_LIBRARIES})
-endif ()
-if (NVC_FOUND)
-	target_link_libraries(${PROJECT_NAME} ${NVC_LIBRARIES})
-endif ()
-if (reprocxx_FOUND)
-	target_link_libraries(${PROJECT_NAME} ${reprocxx_LIBRARIES})
-endif ()
-target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(${PROJECT_NAME} fmt::fmt)

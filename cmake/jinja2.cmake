@@ -1,7 +1,7 @@
 
 set(JINJA2_FOUND TRUE)
 set(JINJA2_INPUT_DIR  "${CMAKE_SOURCE_DIR}/inc/rpc/template")
-set(JINJA2_OUTPUT_DIR "${PROJECT_BINARY_DIR}/generated")
+set(JINJA2_OUTPUT_DIR "${CMAKE_BINARY_DIR}/generated")
 
 file(GLOB JINJA2_ALL_TEMPLATE_SRC
 		"${JINJA2_INPUT_DIR}/nvimapi.hpp"
@@ -23,5 +23,11 @@ add_custom_command(OUTPUT ${JINJA2_SRC}
 	DEPENDS ${JINJA2_ALL_TEMPLATE_SRC}
 	WORKING_DIRECTORY ${JINJA2_SCRIPT_DIR}
 )
+
+# Everywhere you want to include ${JINJA2_SRC}
+# You must copy and paste this line :(.... ask CMake
+set_source_files_properties(${JINJA2_SRC}
+		PROPERTIES GENERATED 1
+	)
 
 add_custom_target(jinja2_proc DEPENDS ${JINJA2_SRC})

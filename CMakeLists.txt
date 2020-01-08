@@ -6,8 +6,8 @@
 # Created:        Tue Mar 05 2019 06:13
 # Last Modified:  Tue Mar 05 2019 06:13
 
-# 3.11 - FetchContent
-cmake_minimum_required(VERSION 3.11)
+# 3.13 - updated target_sources policy
+cmake_minimum_required(VERSION 3.13)
 
 # Set ProjectName
 project(rnvim)
@@ -28,14 +28,7 @@ include("${CMAKE_SOURCE_DIR}/cmake/external/easylogging.cmake")
 # include("${CMAKE_SOURCE_DIR}/cmake/external/cxxopts.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/reproc++.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/jinja2.cmake")
-
-# MPack defines
-add_definitions(-DMPACK_DEBUG)
-add_definitions(-DMPACK_STDIO)
-add_definitions(-DMPACK_STRINGS)
-add_definitions(-DMPACK_EXTENSIONS)
-add_definitions(-DMPACK_READ_TRACKING)
-add_definitions(-DMPACK_WRITE_TRACKING)
+include("${CMAKE_SOURCE_DIR}/third-party/mpack/mpack.cmake")
 
 # Set a default build type if none was specified
 set(CMAKE_BUILD_TYPE "Debug" CACHE
