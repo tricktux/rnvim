@@ -34,7 +34,8 @@ INITIALIZE_EASYLOGGINGPP
 int timeout = 10;
 int size_x = 100;
 int size_y = 100;
-std::vector<const char *> args{{"nvim", "-u", "NORC", "--embed", nullptr}};
+// std::vector<const char *> args{{"nvim", "-u", "NORC", "--embed", nullptr}};
+std::vector<const char *> args{{"nvim", "--embed", nullptr}};
 
 TEST(api, input) {
   nvimrpc::ReprocDevice device;

@@ -20,38 +20,53 @@
 
 // #include "application.hpp"
 // #include "libnvc.hpp"
-#include <cinttypes>
-#include <iostream>
-#include <stdexcept>
-#include <string>
-
 #include "easylogging++.h"
 #include "rpc/iodevice.hpp"
 #include "rpc/msgpack.hpp"
 #include "nvimapi.hpp"
 
+#include <iostream>
+#include <stdexcept>
+#include <string>
+#include <filesystem>
+
 INITIALIZE_EASYLOGGINGPP
+
+namespace fs = std::filesystem;
+
+void setup_logs() {
+  fs::path elconf{fs::current_path()};
+  if (elconf.empty()) {
+    std::cout << "Failed to get fs::current_path" << std::endl;
+    exit(8);
+  }
+
+  elconf.append("easylogingpp.conf");
+  if (!fs::is_regular_file(elconf)) {
+    std::cout << "Easylogging configuration does not exist" << std::endl;
+    exit(9);
+  }
+  std::cout << elconf << std::endl;
+  el::Configurations conf(elconf.c_str());
+  // Actually reconfigure all loggers instead
+  el::Loggers::reconfigureAllLoggers(conf);
+  DLOG(INFO) << ">>>>Start of Main Log<<<<";
+}
 
 int main(int argc, char **argv) {
   START_EASYLOGGINGPP(argc, argv);
 
-	// libnvc::reproc_device reproc_dev;
-	// reproc_dev.spawn();
+	setup_logs();
 
-	// libnvc::api_client client(&reproc_dev);
-	// client.nvim_ui_attach(100, 80, {{"rgb", true}, {"ext_linegrid", true}});
-	// client.nvim_input("$i123<CR>123<ESC>");
-	// client.nvim_buf_set_name(1, "1234");
-	// while (1) {}
-	int timeout = 10;
-	nvimrpc::ReprocDevice device;
-	std::vector<const char *> args{{"nvim", "-u", "NORC", "--embed", nullptr}};
-	device.spawn(args, timeout);
+  int timeout = 10;
+  std::string buf{"yixx"};
+  nvimrpc::ReprocDevice device;
+  std::vector<const char *> args{{"nvim", "-u", "NORC", "--embed", nullptr}};
+  device.spawn(args, timeout);
 
-	nvimrpc::NvimApi api{device};
-	api.nvim_ui_attach(80, 60, {{"rgb", true}});
-	// api.nvim_input("$i123<CR>123<ESC>");
-	nvimrpc::Object obj = api.nvim_buf_get_var(0, "current_syntax");
-	nvimrpc::ObjectWrapper wrap{obj};
-	device.kill();
+  nvimrpc::NvimApi api{device};
+  api.nvim_ui_attach(3000, 2000, {{"rgb", true}});
+  api.nvim_buf_set_name(1, buf);
+  buf = api.nvim_buf_get_name(1);
+  device.kill();
 }
