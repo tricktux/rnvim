@@ -60,7 +60,7 @@ int nvimrpc::ReprocDevice::spawn(const std::vector<const char *> &argv,
     throw std::runtime_error(ec.message());
   }
 
-	drain_async = std::async(std::launch::async, &ReprocDevice::drain, this);
+  drain_async = std::async(std::launch::async, &ReprocDevice::drain, this);
 
   return 0;
 }
@@ -148,7 +148,7 @@ size_t nvimrpc::ReprocDevice::recv(char *buf, size_t size) {
     return 0;
   }
 
-  size_t read_size;
+  size_t read_size, unread_size;
   {
     std::lock_guard<std::mutex> guard(m);
     if (output.empty())
@@ -157,10 +157,10 @@ size_t nvimrpc::ReprocDevice::recv(char *buf, size_t size) {
     read_size = std::min<size_t>(size, output.size());
     std::memcpy(buf, output.data(), read_size);
     output.erase(output.begin(), output.begin() + read_size);
-    // if (!output.empty())
-      // DLOG(WARNING) << "There is still data in output, of size: '"
-                    // << output.size() << "'. Data:\n" << output;
-  }
-  DLOG(INFO) << "Rec'd: some data of size: '" << read_size << "'";
+		unread_size = output.size();
+	}
+
+	DLOG(INFO) << "Read: '" << read_size
+						 << "'. Unread: '" << unread_size << "'";
   return read_size;
 }
