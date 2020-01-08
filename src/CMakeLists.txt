@@ -1,4 +1,6 @@
-# All the source files for the bot.
+# See this: https://stackoverflow.com/questions/13703647/how-to-properly-add-include-directories-with-cmake#13703725
+# TODO Fix sources list
+# TODO remove dependency on jinja2_proc
 file(GLOB SOURCES
 		"${CMAKE_SOURCE_DIR}/src/main.cpp"
 		"${CMAKE_SOURCE_DIR}/src/rpc/iodevice.cpp"
