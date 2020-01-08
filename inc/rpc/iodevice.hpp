@@ -60,7 +60,7 @@ private:
   std::future<std::error_code> drain_async;
 
 public:
-  ReprocDevice() { output.reserve(1048576); }
+  ReprocDevice() { output.reserve(33554432); }
   virtual ~ReprocDevice() {}
 
 	std::error_code drain() {
