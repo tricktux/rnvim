@@ -55,6 +55,17 @@ option(ENABLE_TESTS "Build tests" ON)
 option(ENABLE_LIBNVC_TESTS "Build tests" OFF)
 option(ENABLE_CLANG_TIDY "Use clang-tidy" OFF)
 
+if (ENABLE_CLANG_TIDY)
+	find_program (CLANG_TIDY_EXE NAMES "clang-tidy")
+	if(CLANG_TIDY_EXE)
+		set(CMAKE_CXX_CLANG_TIDY
+			"${CLANG_TIDY_EXE};-format-style=file;-checks=*" CACHE STRING "" FORCE)
+	else()
+		message(FATAL_ERROR "clang-tidy NOT found!")
+		set(CMAKE_CXX_CLANG_TIDY "" CACHE STRING "" FORCE) # clear it
+	endif()
+endif()
+
 # Build with c++17 support
 include(CheckCXXCompilerFlag)
 set (_cpp_version "17")
