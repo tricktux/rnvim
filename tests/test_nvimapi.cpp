@@ -67,7 +67,8 @@ TEST(api, buf_get_name) {
   api.nvim_ui_attach(size_x, size_y, {{"rgb", true}});
   api.nvim_input("$i123<CR>123<ESC>");
   api.nvim_buf_set_name(1, buf);
-  api.nvim_buf_get_name(1);
+  std::string name = api.nvim_buf_get_name(1);
+	ASSERT_EQ(buf, name);
   device.kill();
 }
 
@@ -83,7 +84,6 @@ int main(int argc, char *argv[]) {
 		std::cout << "Easylogging configuration does not exist" << std::endl;
 		exit(9);
 	}
-	std::cout << elconf << std::endl;
 	START_EASYLOGGINGPP(argc, argv);
 	testing::InitGoogleTest(&argc, argv);
 	el::Configurations conf(elconf.c_str());
@@ -91,5 +91,6 @@ int main(int argc, char *argv[]) {
 	el::Loggers::reconfigureAllLoggers(conf);
 	// Now all the loggers will use configuration from file
 	DLOG(INFO) << ">>>>Start of Log<<<<";
+	DLOG(INFO) << "Easylogging config file: '" << elconf << "'";
   return RUN_ALL_TESTS();
 }
