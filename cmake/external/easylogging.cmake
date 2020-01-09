@@ -9,11 +9,6 @@ set(easylogging_LIBS
 		${easylogging_INSTALL}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}easyloggingpp${CMAKE_STATIC_LIBRARY_SUFFIX}
 	)
 
-add_definitions(-DELPP_STL_LOGGING)
-add_definitions(-DELPP_LOG_STD_ARRAY)
-add_definitions(-DELPP_LOG_UNORDERED_MAP)
-add_definitions(-DELPP_LOG_UNORDERED_SET)
-
 ExternalProject_Add(
 	easylogging
 	PREFIX ${easylogging_PREFIX}
@@ -37,3 +32,14 @@ set(EASYLOGGING_LIBRARIES ${easylogging_LIBS})
 set(EASYLOGGING_LIBRARY_DIRS ${easylogging_INSTALL}/lib)
 set(EASYLOGGING_EXTERNAL TRUE)
 # TODO if (WIN32) copy dynamic lib to RUNTIME_OUTPUT_DIR?
+
+function(target_add_easylogging_definitions target)
+	target_compile_definitions(${target}
+		PRIVATE
+			ELPP_STL_LOGGING
+			ELPP_LOG_STD_ARRAY
+			ELPP_LOG_UNORDERED_MAP
+			ELPP_LOG_UNORDERED_SET
+		)
+endfunction()
+
