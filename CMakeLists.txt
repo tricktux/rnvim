@@ -18,7 +18,7 @@ set (_modules
 		"${CMAKE_SOURCE_DIR}/cmake/sanitizers"
 	)
 
-set (CMAKE_MODULE_PATH _modules)
+set (CMAKE_MODULE_PATH ${_modules})
 
 # include("${CMAKE_SOURCE_DIR}/cmake/external/gsl.cmake")
 # include("${CMAKE_SOURCE_DIR}/cmake/external/fmt.cmake")
@@ -29,6 +29,7 @@ include("${CMAKE_SOURCE_DIR}/cmake/external/easylogging.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/reproc++.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/jinja2.cmake")
 include("${CMAKE_SOURCE_DIR}/third-party/mpack/mpack.cmake")
+include("${CMAKE_SOURCE_DIR}/cmake/coverage.cmake")
 
 # Set a default build type if none was specified
 set(CMAKE_BUILD_TYPE "Debug" CACHE
@@ -36,6 +37,7 @@ set(CMAKE_BUILD_TYPE "Debug" CACHE
 # Set the possible values of build type for cmake-gui
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
 	"Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+message(STATUS "BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
 
 SET(CMAKE_COLOR_MAKEFILE ON)
 

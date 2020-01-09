@@ -6,6 +6,13 @@ set_source_files_properties(${JINJA2_SRC}
 # Executables
 add_executable(${PROJECT_NAME} "")
 
+# Add code coverage
+# As an executable target, the reports will exclude the non-covered.cpp file,
+# and any files in a test/ folder.
+target_code_coverage(${PROJECT_NAME}
+	EXCLUDE ${CMAKE_SOURCE_DIR}/third-party/mpack/*
+	)
+
 target_sources(${PROJECT_NAME}
 		PRIVATE
 			main.cpp
@@ -19,7 +26,8 @@ target_sources(${PROJECT_NAME}
 	)
 target_include_mpack(${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/inc)
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/third-party/mpack)
+target_include_directories(${PROJECT_NAME}
+	PRIVATE ${CMAKE_SOURCE_DIR}/third-party/mpack)
 target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(${PROJECT_NAME} fmt::fmt)
 
