@@ -26,21 +26,27 @@ class nvimrpc::StreamDecoder {
 }
 
 class nvimrpc::StreamWorker {
+	-std::mutex qm;
+	-std::condition_variable cv;
+	-std::queue<mpack_node_t> nodes;
+	-std::vector<uint8_t> raw_data;
 	-std::thread t;
-	-StreamDecoder stream;
-	-std::queue<mpack_node_t> root_q;
+	-IoDevice &dev; ' Used to read data
+	-std::optional<mpack_node_t> try_parse(raw_data);
 
-	+std::optional<std::queue<mpack_node_t>> get_messages();
+	+void wait_for_data() ' simulates `reproc::drain`
 }
 
 class nvimrpc::Api {
 	-msgid = 0;
 	-std::queue pending_notif;
-	-IoDevice &dev;
+	-IoDevice &dev; ' Used to send data in dispatch function
+	-StreamWorker &worker;
+	' Uses worker to wait for a mpack_node_t
 	-auto poll(msgid, timeout);
 	-dispatch(const std::string& func, Args... args)
-	' This function basically calls dispatch and then wait_for_response
 	+int get_new_msgid() { return ++msgid; }
+	' This function basically calls dispatch and then poll
 	+auto generated_functions_from_api()
 	' Todo
 	+virtual auto generated_notifications_handles()
