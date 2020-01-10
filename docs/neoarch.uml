@@ -41,7 +41,7 @@ class nvimrpc::Api {
 	-msgid = 0;
 	-std::queue pending_notif;
 	-IoDevice &dev; ' Used to send data in dispatch function
-	-StreamWorker &worker;
+	-StreamWorker worker;
 	' Uses worker to wait for a mpack_node_t
 	-auto poll(msgid, timeout);
 	-dispatch(const std::string& func, Args... args)

@@ -29,15 +29,64 @@
 
 namespace nvimrpc {
 
+template <typename T> class IStreamWorker {
+protected:
+  std::mutex qm;
+  std::condition_variable cv;
+  std::queue<T> nodes;
+  std::vector<uint8_t> raw_data;
+  std::thread t;
+  IoDevice &dev; // Used to read data
+
+	virtual std::optional<T> try_parse(const std::vector<uint8_t> &raw_data) = 0;
+	virtual void wait_for_data() = 0; // simulates `reproc::drain`
+	void push(const T &data) {
+		std::unique_lock<std::mutex> lk(qm);
+		nodes.push(data);
+		cv.notify_one();
+	}
+	IStreamWorker(IoDevice &_dev)
+		: t(&IStreamWorker::wait_for_data, this), dev(_dev) {}
+	virtual ~IStreamWorker() = default;
+public:
+	// std::queue<T> poll() {
+	std::optional<std::queue<T>> poll() {
+		std::queue<T> buffer;
+		std::unique_lock<std::mutex> lk(qm);
+		if (!cv.wait(lk, [this] { return !nodes.empty(); }))
+			return {};
+		std::swap(nodes, buffer);
+		return buffer;
+	}
+};
+
+class StreamWorker : public IStreamWorker<mpack_node_t> {
+	const size_t MAX_NODES = SIZE_MAX;
+	const size_t MAX_SIZE = SIZE_MAX;
+
+  std::optional<mpack_node_t>
+  try_parse(const std::vector<uint8_t> &raw_data) override {
+    if (raw_data.empty())
+      return {};
+    return {};
+  }
+	void wait_for_data() override {}
+
+public:
+  // TODO start t thread
+  StreamWorker(IoDevice &_dev) : IStreamWorker<mpack_node_t>(_dev) {}
+  virtual ~StreamWorker() = default;
+};
+
 /** @brief Wrap around `MPack` Node and Stream capabilites
  * See
  * [here](https://github.com/ludocode/mpack/blob/develop/docs/node.mdhttps://github.com/ludocode/mpack/blob/develop/docs/node.md)
  * */
 class StreamDecoder {
-	// const size_t MAX_NODES = 4096;
-	// const size_t MAX_SIZE = MAX_NODES*1024;
-	const size_t MAX_NODES = SIZE_MAX;
-	const size_t MAX_SIZE = SIZE_MAX;
+  // const size_t MAX_NODES = 4096;
+  // const size_t MAX_SIZE = MAX_NODES*1024;
+  const size_t MAX_NODES = SIZE_MAX;
+  const size_t MAX_SIZE = SIZE_MAX;
   mpack_tree_t tree; /// Gets parsed into a node
 
   /**
