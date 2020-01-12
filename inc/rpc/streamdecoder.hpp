@@ -37,7 +37,7 @@ protected:
   std::thread t;
   IoDevice &dev; // Used to read data
 
-	const size_t ARRAY_SIZE = 409600;
+	const static size_t ARRAY_SIZE = 409600;
 
   virtual void wait_for_data() = 0; // simulates `reproc::drain`
   void push(const std::array<uint8_t, ARRAY_SIZE> &_data) {
