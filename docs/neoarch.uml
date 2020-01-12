@@ -3,15 +3,15 @@
 
 set namespaceSeparator ::
 
-interface nvimrpc::IoDevice {
+interface nvim::IoDevice {
 	+virtual int start(args);
 	+virtual int stop(args);
 	+virtual size_t write(string_view)
-	+virtual size_t read(string, timeout)
+	+virtual size_t read(ptrdata, size)
 }
 
-class nvimrpc::ReprocDevice {
-	' -reproc::process process;
+class nvim::ReprocDevice {
+	-reproc::process process;
 	' -std::mutex m;
 	' -std::string output;
 	' -std::future<std::error_code> drain_async;
@@ -20,30 +20,30 @@ class nvimrpc::ReprocDevice {
 	' +int kill()
 }
 
-' class nvimrpc::StreamDecoder {
+' class nvim::StreamDecoder {
 	' -mpack_tree_t tree;
 	' -static size_t read_iodev(mpack_tree_t *ptree, char *buf, size_t count)
 
 	' +std::optional<mpack_node_t> poll()
 ' }
 
-interface nvimrpc::StreamWorker {
+interface nvim::IStreamWorker {
 	-std::mutex qm;
 	-std::condition_variable cv;
 	' -std::queue<mpack_node_t> nodes;
 	-std::vector<uint8_t> raw_data;
 	-std::thread t;
 	-IoDevice &dev; ' Used to read data
-	' -std::optional<mpack_node_t> try_parse(raw_data);
-
 	-void wait_for_data() ' simulates `reproc::drain`
+	-void push(data);
+
 	+std::optional<std::vector<uint8_t>> poll();
 }
 
-class nvimrpc::Api {
+class nvim::Api {
 	-msgid = 0;
 	-IoDevice &dev; ' Used to send data in dispatch function
-	-StreamWorker worker;
+	-IStreamWorker worker;
 	' Uses worker to wait for a mpack_node_t
 	-auto poll(msgid, timeout);
 	-dispatch(const std::string& func, Args... args)
@@ -54,32 +54,44 @@ class nvimrpc::Api {
 	+virtual auto generated_notifications_handles()
 }
 
-class nvimrpc::IMpackNotifUnPack {
-	' -mpack_reader_t reader;
-	' -T mpack_write();
-
+interface msgpack::INotifUnpack {
 	' TODO in this function check the msg type to ensure its a notification type
 	+int set_data(string);
 	+int get_method_name();
 	+T get_params();
-	' On destruction call
-	'mpack_reader_destroy, see its help
 }
 
-class nvimrpc::IMpackResUnPack {
-	-mpack_reader_t reader;
-	-T mpack_write();
+class msgpack::NotifUnpack {
+	-mpack_node_t nodes;
+}
+
+msgpack::INotifUnpack <|-- msgpack::NotifUnpack 
+
+interface msgpack::IResUnpack {
+	-T mpack_read();
 
 	' TODO in this function check the msg type to ensure its a response type
 	+int set_data(string);
 	+int get_msgid();
 	+int get_error();
 	+T get_result();
+}
+class msgpack::ResUnpack {
+	-mpack_node_t nodes;
+	' -T mpack_write();
+
+	' TODO in this function check the msg type to ensure its a response type
+	' +int set_data(string);
+	' +int get_msgid();
+	' +int get_error();
+	' +T get_result();
 	' On destruction call
 	'mpack_reader_destroy, see its help
 }
 
-class nvimrpc::IMpackReqPack {
+msgpack::IResUnpack <|-- msgpack::ResUnpack
+
+interface msgpack::IReqPack {
 	-char *data;
 	-size_t data_size;
 
@@ -90,46 +102,40 @@ class nvimrpc::IMpackReqPack {
 }
 
 ' TODO Call MPACK_FREE(data) on destructor
-class nvimrpc::MpackReqPack {
-	-char *data;
-	-size_t data_size;
+class msgpack::ReqPack {
+	' -char *data;
+	' -size_t data_size;
 	-mpack_writer_t writer;
 	-void mpack_write();
 
-	+virtual void set_msgid(int);
-	+virtual void set_funcname(string);
-	+virtual void set_args(Args... args);
-	+virtual string build();
+	' +virtual void set_msgid(int);
+	' +virtual void set_funcname(string);
+	' +virtual void set_args(Args... args);
+	' +virtual string build();
 }
 
-' Example controller
-' class nvimrpc::Client {
-	' -nvimrpc::IoDevice &device;
-	' -StreamWorker stream;
+msgpack::IReqPack <|-- msgpack::ReqPack
+
+' enum nvimrpc::MessageType: <int64_t> {
+	' REQUEST = 0,
+	' RESPONSE = 1,
+	' NOTIFICATION = 2
 ' }
 
-enum nvimrpc::MessageType: <int64_t> {
-	REQUEST = 0,
-	RESPONSE = 1,
-	NOTIFICATION = 2
-}
-
-class nvimrpc::Types {
-	using object = std::variant<
-		bool,
-		int64_t,
-		double,
-		std::string,
-		std::vector<libnvc::object_wrapper>,
-		std::unordered_map<std::string, libnvc::object_wrapper>
-		>;
-}
-' class MpackWriter {
+' class nvimrpc::Types {
+	' using object = std::variant<
+		' bool,
+		' int64_t,
+		' double,
+		' std::string,
+		' std::vector<libnvc::object_wrapper>,
+		' std::unordered_map<std::string, libnvc::object_wrapper>
+		' >;
 ' }
 
-nvimrpc::Api *-- nvimrpc::StreamWorker
-nvimrpc::Api *-left- nvimrpc::IoDevice
-nvimrpc::IoDevice <|-- nvimrpc::ReprocDevice
-nvimrpc::StreamWorker *-- nvimrpc::IoDevice
+nvim::Api *-- nvim::IStreamWorker
+nvim::Api *-left- nvim::IoDevice
+nvim::IoDevice <|-- nvim::ReprocDevice
+nvim::IStreamWorker *-- nvim::IoDevice
 
 @enduml
