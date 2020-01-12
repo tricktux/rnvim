@@ -4,42 +4,44 @@
 set namespaceSeparator ::
 
 interface nvimrpc::IoDevice {
-	+virtual size_t send(string_view)
-	+virtual size_t recv(string, timeout)
+	+virtual int start(args);
+	+virtual int stop(args);
+	+virtual size_t write(string_view)
+	+virtual size_t read(string, timeout)
 }
 
 class nvimrpc::ReprocDevice {
-	-reproc::process process;
-	-std::mutex m;
-	-std::string output;
-	-std::future<std::error_code> drain_async;
+	' -reproc::process process;
+	' -std::mutex m;
+	' -std::string output;
+	' -std::future<std::error_code> drain_async;
 
-	+int spawn(char **argv)
-	+int kill()
+	' +int spawn(char **argv)
+	' +int kill()
 }
 
-class nvimrpc::StreamDecoder {
-	-mpack_tree_t tree;
-	-static size_t read_iodev(mpack_tree_t *ptree, char *buf, size_t count)
+' class nvimrpc::StreamDecoder {
+	' -mpack_tree_t tree;
+	' -static size_t read_iodev(mpack_tree_t *ptree, char *buf, size_t count)
 
-	+std::optional<mpack_node_t> poll()
-}
+	' +std::optional<mpack_node_t> poll()
+' }
 
-class nvimrpc::StreamWorker {
+interface nvimrpc::StreamWorker {
 	-std::mutex qm;
 	-std::condition_variable cv;
-	-std::queue<mpack_node_t> nodes;
+	' -std::queue<mpack_node_t> nodes;
 	-std::vector<uint8_t> raw_data;
 	-std::thread t;
 	-IoDevice &dev; ' Used to read data
-	-std::optional<mpack_node_t> try_parse(raw_data);
+	' -std::optional<mpack_node_t> try_parse(raw_data);
 
-	+void wait_for_data() ' simulates `reproc::drain`
+	-void wait_for_data() ' simulates `reproc::drain`
+	+std::optional<std::vector<uint8_t>> poll();
 }
 
 class nvimrpc::Api {
 	-msgid = 0;
-	-std::queue pending_notif;
 	-IoDevice &dev; ' Used to send data in dispatch function
 	-StreamWorker worker;
 	' Uses worker to wait for a mpack_node_t
@@ -70,10 +72,9 @@ class nvimrpc::IMpackResUnPack {
 
 	' TODO in this function check the msg type to ensure its a response type
 	+int set_data(string);
-	+int get_msg_type();
 	+int get_msgid();
 	+int get_error();
-	+auto get_result();
+	+T get_result();
 	' On destruction call
 	'mpack_reader_destroy, see its help
 }
@@ -85,7 +86,7 @@ class nvimrpc::IMpackReqPack {
 	+virtual void set_msgid(int);
 	+virtual void set_funcname(string);
 	+virtual void set_args(Args... args);
-	+virtual string build();
+	+virtual string pack();
 }
 
 ' TODO Call MPACK_FREE(data) on destructor
@@ -102,10 +103,10 @@ class nvimrpc::MpackReqPack {
 }
 
 ' Example controller
-class nvimrpc::Client {
-	-nvimrpc::IoDevice &device;
-	-StreamWorker stream;
-}
+' class nvimrpc::Client {
+	' -nvimrpc::IoDevice &device;
+	' -StreamWorker stream;
+' }
 
 enum nvimrpc::MessageType: <int64_t> {
 	REQUEST = 0,
@@ -123,12 +124,12 @@ class nvimrpc::Types {
 		std::unordered_map<std::string, libnvc::object_wrapper>
 		>;
 }
-class MpackWriter {
-}
+' class MpackWriter {
+' }
 
-nvimrpc::Client *-- nvimrpc::StreamDecoder
-nvimrpc::Client *-left- nvimrpc::IoDevice
+nvimrpc::Api *-- nvimrpc::StreamWorker
+nvimrpc::Api *-left- nvimrpc::IoDevice
 nvimrpc::IoDevice <|-- nvimrpc::ReprocDevice
-nvimrpc::StreamDecoder -- nvimrpc::IoDevice : uses >
+nvimrpc::StreamWorker *-- nvimrpc::IoDevice
 
 @enduml
