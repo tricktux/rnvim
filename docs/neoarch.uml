@@ -3,14 +3,14 @@
 
 set namespaceSeparator ::
 
-interface nvim::IoDevice {
+interface nvimrpc::IoDevice {
 	+virtual int start(args);
 	+virtual int stop(args);
 	+virtual size_t write(string_view)
 	+virtual size_t read(ptrdata, size)
 }
 
-class nvim::ReprocDevice {
+class nvimrpc::ReprocDevice {
 	-reproc::process process;
 	' -std::mutex m;
 	' -std::string output;
@@ -20,14 +20,14 @@ class nvim::ReprocDevice {
 	' +int kill()
 }
 
-' class nvim::StreamDecoder {
+' class nvimrpc::StreamDecoder {
 	' -mpack_tree_t tree;
 	' -static size_t read_iodev(mpack_tree_t *ptree, char *buf, size_t count)
 
 	' +std::optional<mpack_node_t> poll()
 ' }
 
-interface nvim::IStreamWorker {
+interface nvimrpc::IIoAsyncReader {
 	-std::mutex qm;
 	-std::condition_variable cv;
 	' -std::queue<mpack_node_t> nodes;
@@ -40,7 +40,22 @@ interface nvim::IStreamWorker {
 	+std::optional<std::vector<uint8_t>> poll();
 }
 
-class nvim::Api {
+class nvimrpc::ReprocAsyncReader {
+	-std::mutex qm;
+	-std::condition_variable cv;
+	' -std::queue<mpack_node_t> nodes;
+	-std::vector<uint8_t> raw_data;
+	-std::thread t;
+	-IoDevice &dev; ' Used to read data
+	-void wait_for_data() ' simulates `reproc::drain`
+	-void push(data);
+
+	+std::optional<std::vector<uint8_t>> poll();
+}
+
+nvimrpc::IIoAsyncReader <|-- nvimrpc::ReprocAsyncReader
+
+class nvimrpc::Api {
 	-msgid = 0;
 	-IoDevice &dev; ' Used to send data in dispatch function
 	-IStreamWorker worker;
@@ -133,9 +148,9 @@ msgpack::IReqPack <|-- msgpack::ReqPack
 		' >;
 ' }
 
-nvim::Api *-- nvim::IStreamWorker
-nvim::Api *-left- nvim::IoDevice
-nvim::IoDevice <|-- nvim::ReprocDevice
-nvim::IStreamWorker *-- nvim::IoDevice
+nvimrpc::Api *-- nvimrpc::IStreamWorker
+nvimrpc::Api *-left- nvimrpc::IoDevice
+nvimrpc::IoDevice <|-- nvimrpc::ReprocDevice
+nvimrpc::IStreamWorker *-- nvimrpc::IoDevice
 
 @enduml

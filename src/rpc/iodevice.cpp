@@ -31,7 +31,7 @@
  * Note: Will wait an extra 2 seconds in order to send the terminate and kill
  * @return 0 in case of success, less than that otherwise
  */
-int nvimrpc::ReprocDevice::spawn(const std::vector<const char *> &argv,
+int nvimrpc::ReprocDevice::start(const std::vector<const char *> &argv,
                                  int timeout) {
   if (timeout <= 0) {
     DLOG(WARNING) << "Invalid timeout sent, using 4 seconds";
@@ -53,7 +53,7 @@ int nvimrpc::ReprocDevice::spawn(const std::vector<const char *> &argv,
   options.stop = stop_actions;
 
   if (auto ec = process.start(argv.data(), options)) {
-    DLOG(ERROR) << "Error occurred trying to spawn: '" << argv.data()
+    DLOG(ERROR) << "Error occurred trying to start: '" << argv.data()
                 << "'. Error message: '" << ec.message() << "'";
     if (ec == std::errc::no_such_file_or_directory)
       throw std::runtime_error("Executable not found, make sure it's in PATH");
@@ -66,7 +66,7 @@ int nvimrpc::ReprocDevice::spawn(const std::vector<const char *> &argv,
 }
 
 /** @brief Terminates the child process */
-int nvimrpc::ReprocDevice::kill() {
+int nvimrpc::ReprocDevice::stop() {
   reproc::stop_actions stop_actions{
       {reproc::stop::wait, std::chrono::seconds{1}},
       {reproc::stop::terminate, std::chrono::seconds{1}},
@@ -91,7 +91,7 @@ int nvimrpc::ReprocDevice::kill() {
  * @param size Number of bytes
  * @return Number of bytes sent
  */
-size_t nvimrpc::ReprocDevice::send(std::string_view data) {
+size_t nvimrpc::ReprocDevice::write(std::string_view data) {
   if (data.empty()) {
     DLOG(WARNING) << "Empty send data provided";
     return 0;
@@ -112,7 +112,7 @@ size_t nvimrpc::ReprocDevice::send(std::string_view data) {
  * @param timeout Number of seconds to wait for data to arrive
  * @return Size of rec'd data
  */
-size_t nvimrpc::ReprocDevice::recv(std::string &data, size_t timeout) {
+size_t nvimrpc::ReprocDevice::read(std::string &data, size_t timeout) {
   size_t t = timeout == 0 ? 60000 : timeout * 1000; // Convert to ms
   for (size_t k = t; k > 0; k -= 100) {
     {
@@ -137,7 +137,7 @@ size_t nvimrpc::ReprocDevice::recv(std::string &data, size_t timeout) {
  * @param timeout Number of seconds to wait for data to arrive
  * @return Size of rec'd data
  */
-size_t nvimrpc::ReprocDevice::recv(char *buf, size_t size) {
+size_t nvimrpc::ReprocDevice::read(char *buf, size_t size) {
   if (buf == nullptr) {
     DLOG(WARNING) << "Invalid buf pointer";
     return 0;
