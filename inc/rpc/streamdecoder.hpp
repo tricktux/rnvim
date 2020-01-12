@@ -37,8 +37,10 @@ protected:
   std::thread t;
   IoDevice &dev; // Used to read data
 
+	const size_t ARRAY_SIZE = 409600;
+
   virtual void wait_for_data() = 0; // simulates `reproc::drain`
-  void push(const std::array<uint8_t, 4096> &_data) {
+  void push(const std::array<uint8_t, ARRAY_SIZE> &_data) {
     if (_data.empty())
       return;
     std::unique_lock<std::mutex> lk(qm);
@@ -64,7 +66,7 @@ class StreamWorker : public IStreamWorker {
   const size_t MAX_NODES = SIZE_MAX;
   const size_t MAX_SIZE = SIZE_MAX;
 
-  void wait_for_data() override {}
+  void wait_for_data() override;
 
 public:
   // TODO start t thread

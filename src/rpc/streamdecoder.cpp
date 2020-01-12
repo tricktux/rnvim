@@ -43,7 +43,28 @@ std::optional<mpack_node_t> nvimrpc::StreamDecoder::poll() {
 
   std::string err{"Error: "};
   err.append(mpack_error_to_string(ec));
-	DLOG(FATAL) << err;
+  DLOG(FATAL) << err;
   throw std::runtime_error(err.c_str());
   return {};
+}
+
+void nvimrpc::StreamWorker::wait_for_data() {
+  std::array<uint8_t, ARRAY_SIZE> buffer;
+  std::error_code ec;
+
+  while (true) {
+    reproc::stream stream{};
+    size_t bytes_read = 0;
+    std::tie(stream, bytes_read, ec) = dev.recv(buffer.data(), buffer.size());
+    if (ec) {
+      break;
+    }
+
+    // auto &sink = stream == stream::out ? out : err;
+
+    // // `sink` returns false to tell us to stop reading.
+    // if (!sink(stream, buffer.data(), bytes_read)) {
+    // break;
+    // }
+  }
 }
