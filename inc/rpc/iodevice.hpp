@@ -75,7 +75,7 @@ protected:
   std::thread t;
   nvimrpc::IoDevice &dev; // Used to read data
 
-  const static size_t ARRAY_SIZE = 409600 ;
+  const static size_t ARRAY_SIZE = 409600;
 
   virtual void wait_for_data() = 0; /// Waits for IoDevice::read to return data
   void push(const std::array<uint8_t, ARRAY_SIZE> &_data) {
@@ -86,17 +86,34 @@ protected:
     cv.notify_one();
   }
   IIoAsyncReader(nvimrpc::IoDevice &_dev)
-      : t(&IIoAsyncReader::wait_for_data, this), dev(_dev) {}
+      : t(&IIoAsyncReader::wait_for_data, this), dev(_dev) {
+				data.reserve(ARRAY_SIZE*10);
+			}
   virtual ~IIoAsyncReader() = default;
 
 public:
-  // std::queue<T> poll() {
-  std::optional<std::vector<uint8_t>> poll() {
+	/** 
+	 * @brief Poll reader for data
+	 * @param timeout Wait only for @p timeout seconds
+	 * @return data if there is any, empty if timed out
+	 */
+  std::optional<std::vector<uint8_t>> poll(size_t timeout) {
     std::vector<uint8_t> buffer;
     std::unique_lock<std::mutex> lk(qm);
-    cv.wait(lk, [this] { return !data.empty(); });
+    if (!cv.wait_for(lk, std::chrono::seconds{timeout},
+                     [this] { return !data.empty(); }))
+      return {};
     std::swap(data, buffer);
     return buffer;
   }
 };
+
+class ReprocAsyncReader : public IIoAsyncReader {
+  void wait_for_data() override {}
+
+public:
+  ReprocAsyncReader(nvimrpc::IoDevice &dev) : IIoAsyncReader(dev) {}
+  ~ReprocAsyncReader() override {}
+};
+
 #endif

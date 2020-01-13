@@ -52,7 +52,6 @@ protected:
   virtual ~IStreamWorker() = default;
 
 public:
-  // std::queue<T> poll() {
   std::optional<std::vector<uint8_t>> poll() {
     std::vector<uint8_t> buffer;
     std::unique_lock<std::mutex> lk(qm);
