@@ -60,8 +60,6 @@ int nvimrpc::ReprocDevice::start(const std::vector<const char *> &argv,
     throw std::runtime_error(ec.message());
   }
 
-  drain_async = std::async(std::launch::async, &ReprocDevice::drain, this);
-
   return 0;
 }
 
@@ -112,32 +110,7 @@ size_t nvimrpc::ReprocDevice::write(std::string_view data) {
  * @param timeout Number of seconds to wait for data to arrive
  * @return Size of rec'd data
  */
-size_t nvimrpc::ReprocDevice::read(std::string &data, size_t timeout) {
-  size_t t = timeout == 0 ? 60000 : timeout * 1000; // Convert to ms
-  for (size_t k = t; k > 0; k -= 100) {
-    {
-      std::lock_guard<std::mutex> guard(m);
-      if (!output.empty()) {
-        DLOG(INFO) << "Rec'd data: '" << output << "'";
-        data = output;
-        output.clear();
-        return data.size();
-      }
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds{100});
-  }
-
-  DLOG(WARNING) << "Timed out waiting for data";
-  return 0;
-}
-
-/**
- * @brief Receive data from buffer, wait for @p @timeout for data to arrive
- * @param data Data storage
- * @param timeout Number of seconds to wait for data to arrive
- * @return Size of rec'd data
- */
-size_t nvimrpc::ReprocDevice::read(char *buf, size_t size) {
+size_t nvimrpc::ReprocDevice::read(uint8_t *buf, size_t size) {
   if (buf == nullptr) {
     DLOG(WARNING) << "Invalid buf pointer";
     return 0;
@@ -148,19 +121,14 @@ size_t nvimrpc::ReprocDevice::read(char *buf, size_t size) {
     return 0;
   }
 
-  size_t read_size, unread_size;
-  {
-    std::lock_guard<std::mutex> guard(m);
-    if (output.empty())
-      return 0;
-
-    read_size = std::min<size_t>(size, output.size());
-    std::memcpy(buf, output.data(), read_size);
-    output.erase(output.begin(), output.begin() + read_size);
-		unread_size = output.size();
+	// std::tuple<reproc::stream, sizet, std::error_code>
+	auto [rstream, bytes_read, ec] = process.read(buf, size);
+	if (ec) {
+		DLOG(FATAL) << "Error reading from process: '" << ec.message() << "'";
 	}
 
-	DLOG(INFO) << "Read: '" << read_size
-						 << "'. Unread: '" << unread_size << "'";
-  return read_size;
+	if (rstream == reproc::stream::err) {
+		DLOG(WARNING) << "Bytes read come from stderr";
+	}
+  return bytes_read;
 }

@@ -45,8 +45,7 @@ public:
 	virtual int start(const std::vector<const char *> &, int) = 0;
 	virtual int stop() = 0;
 	virtual size_t write(std::string_view data) = 0;
-  virtual size_t read(std::string &data, size_t timeout) = 0;
-	virtual size_t read(char *, size_t) = 0;
+	virtual size_t read(uint8_t *, size_t) = 0;
 };
 
 /** @brief Device that communicates over `stdin/stdout/stderr`
@@ -55,25 +54,15 @@ public:
 class ReprocDevice : public IoDevice {
 private:
   reproc::process process;
-  std::mutex m;       /// `Mutex` used by the drain sink to protect output
-  std::string output; /// Storage for child process `stdout` and `stderr`
-                      /// Future to read async from `stdout` and `stderr` into
-                      /// output using the `read` function
-  std::future<std::error_code> drain_async;
 
 public:
-  ReprocDevice() { output.reserve(33554432); }
-  virtual ~ReprocDevice() {}
+  ReprocDevice() = default;
+  virtual ~ReprocDevice() = default;
 
-	std::error_code drain() {
-		reproc::sink::thread_safe::string sink{output, m};
-		return reproc::drain(this->process, sink, sink);
-	}
   int start(const std::vector<const char *> &, int) override;
   int stop() override;
   size_t write(std::string_view data) override;
-  size_t read(std::string &data, size_t timeout) override;
-	size_t read(char *, size_t) override;
+	size_t read(uint8_t *, size_t) override;
 };
 
 } // namespace nvimrpc
