@@ -18,10 +18,8 @@ target_sources(${PROJECT_NAME}
 			main.cpp
 			rpc/iodevice.cpp
 			rpc/msgpack.cpp
-			rpc/streamdecoder.cpp
 			${CMAKE_SOURCE_DIR}/inc/rpc/iodevice.hpp
 			${CMAKE_SOURCE_DIR}/inc/rpc/msgpack.hpp
-			${CMAKE_SOURCE_DIR}/inc/rpc/streamdecoder.hpp
 			${JINJA2_SRC}
 	)
 target_include_mpack(${PROJECT_NAME})

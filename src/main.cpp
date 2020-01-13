@@ -18,17 +18,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http:www.gnu.org/licenses/>.
 
-// #include "application.hpp"
-// #include "libnvc.hpp"
 #include "easylogging++.h"
 #include "rpc/iodevice.hpp"
-#include "rpc/msgpack.hpp"
 #include "nvimapi.hpp"
 
 #include <iostream>
 #include <stdexcept>
 #include <string>
 #include <filesystem>
+#include <vector>
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -61,12 +59,13 @@ int main(int argc, char **argv) {
   int timeout = 10;
   std::string buf{"yixx"};
   nvimrpc::ReprocDevice device;
+	nvimrpc::ReprocAsyncReader reader{device};
   std::vector<const char *> args{{"nvim", "-u", "NORC", "--embed", nullptr}};
-  device.spawn(args, timeout);
+  device.start(args, timeout);
 
-  nvimrpc::NvimApi api{device};
+  nvimrpc::NvimApi api{device, reader};
   api.nvim_ui_attach(3000, 2000, {{"rgb", true}});
   api.nvim_buf_set_name(1, buf);
   buf = api.nvim_buf_get_name(1);
-  device.kill();
+  device.stop();
 }
