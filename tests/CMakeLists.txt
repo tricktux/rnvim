@@ -39,10 +39,8 @@ target_sources(test_iodevice
 			test_iodevice.cpp
 			${CMAKE_SOURCE_DIR}/src/rpc/iodevice.cpp
 			${CMAKE_SOURCE_DIR}/src/rpc/msgpack.cpp
-			${CMAKE_SOURCE_DIR}/src/rpc/streamdecoder.cpp
 			${CMAKE_SOURCE_DIR}/inc/rpc/iodevice.hpp
 			${CMAKE_SOURCE_DIR}/inc/rpc/msgpack.hpp
-			${CMAKE_SOURCE_DIR}/inc/rpc/streamdecoder.hpp
 			${JINJA2_SRC}
 	)
 target_include_mpack(test_iodevice)
@@ -66,10 +64,8 @@ target_sources(test_nvimapi
 			test_nvimapi.cpp
 			${CMAKE_SOURCE_DIR}/src/rpc/iodevice.cpp
 			${CMAKE_SOURCE_DIR}/src/rpc/msgpack.cpp
-			${CMAKE_SOURCE_DIR}/src/rpc/streamdecoder.cpp
 			${CMAKE_SOURCE_DIR}/inc/rpc/iodevice.hpp
 			${CMAKE_SOURCE_DIR}/inc/rpc/msgpack.hpp
-			${CMAKE_SOURCE_DIR}/inc/rpc/streamdecoder.hpp
 			${JINJA2_SRC}
 	)
 target_include_mpack(test_nvimapi)

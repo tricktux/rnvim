@@ -21,7 +21,7 @@
 #ifndef NVIMAPI_HPP
 #define NVIMAPI_HPP
 
-#include "rpc/streamdecoder.hpp"
+#include "rpc/iodevice.hpp"
 #include "rpc/msgpack.hpp"
 #include "easylogging++.h"
 
@@ -38,7 +38,9 @@ class NvimApi {
   std::string last_func_call;
   std::queue<mpack_node_t> pending_notif;
   IoDevice &device;
-  StreamDecoder decoder;
+  IIoAsyncReader& async_stream;
+
+	const static size_t POLL_TIMEOUT = 30; /// Seconds
 
   size_t get_new_msgid() { return ++msgid; }
   template <typename... Params>
@@ -61,7 +63,7 @@ class NvimApi {
       return 0;
     }
 
-    if (size_t size = device.send(data); size != data.size()) {
+    if (size_t size = device.write(data); size != data.size()) {
       DLOG(ERROR) << "Failed to send all data";
       return 0;
     }
@@ -73,12 +75,15 @@ class NvimApi {
 		DLOG(INFO) << "Waiting from response to request: '"
 			<< last_func_call << "'";
     do {
-      std::optional<mpack_node_t> rc = decoder.poll();
+      std::optional<std::vector<uint8_t>> rc = async_stream.poll(POLL_TIMEOUT);
       if (!rc) {
 				DLOG_EVERY_N(100000, INFO) << "Not sufficient data in buffer";
         continue;
       }
-      MpackRpcUnpack resp_unpack{rc.value()};
+
+			// TODO fix here
+			mpack_node_t node;
+      MpackRpcUnpack resp_unpack{node};
 
       if (size_t size = resp_unpack.get_num_elements();
           size != MpackRpcUnpack::RESPONSE_NUM_ELEMENTS) {
@@ -89,13 +94,13 @@ class NvimApi {
 						(resp_unpack.get_msg_type() ==
 						 MpackRpcUnpack::NOTIFICATION_MSG_TYPE)) {
 
-					auto redraw_node = mpack_node_array_at(rc.value(), 1);
+					auto redraw_node = mpack_node_array_at(node, 1);
 					auto redraw_node_name = mpack_read<std::string>(redraw_node);
           DLOG(WARNING) << "Instead we got a notification: '"
 						<< redraw_node_name << "'";
-          pending_notif.push(rc.value());
+          pending_notif.push(node);
 
-					auto event_group_node = mpack_node_array_at(rc.value(), 2);
+					auto event_group_node = mpack_node_array_at(node, 2);
 					size_t event_group_length = mpack_node_array_length(event_group_node);
 
 					for(size_t group_index = 0; group_index < event_group_length; ++group_index){
@@ -116,21 +121,21 @@ class NvimApi {
         return T();
       }
 
-      if (int rc = resp_unpack.get_msg_type();
-					rc != MpackRpcUnpack::RESPONSE_MSG_TYPE) {
-        DLOG(WARNING) << "Packet received is not a RESPONSE: '" << rc << "'";
+      if (int type = resp_unpack.get_msg_type();
+					type != MpackRpcUnpack::RESPONSE_MSG_TYPE) {
+        DLOG(WARNING) << "Packet received is not a RESPONSE: '" << type << "'";
         return T();
       }
 
-      if (size_t rc = resp_unpack.get_msgid(); rc != msgid) {
-        DLOG(WARNING) << "Received response, but not for my msgid: '" << rc
+      if (size_t id = resp_unpack.get_msgid(); id != msgid) {
+        DLOG(WARNING) << "Received response, but not for my msgid: '" << id
                       << "'";
         continue;
       }
 
       if (std::optional<std::tuple<int64_t, std::string>>
-					rc = resp_unpack.get_error(); rc.has_value()) {
-				auto [code, msg] = rc.value();
+					error = resp_unpack.get_error(); error.has_value()) {
+				auto [code, msg] = error.value();
         DLOG(ERROR) << "RPC Server returned error. Error code: '" << code
 					<< "'. Error msg: '" << msg << "'";
         return T();
@@ -140,11 +145,10 @@ class NvimApi {
 
     } while (true);
   }
-  // template <> void poll<void>(size_t msgid, size_t timeout);
 
 public:
-  explicit NvimApi(IoDevice &_device)
-      : msgid(0), device(_device), decoder(_device) {}
+  explicit NvimApi(IoDevice &_device, IIoAsyncReader& reader)
+      : msgid(0), device(_device), async_stream(reader) {}
   ~NvimApi() = default;
 	// Generated apis
 	// NOTE: poll function does not compile for poll<void>
@@ -166,45 +170,5 @@ public:
 };
 
 } // namespace nvimrpc
-
-
-// template <> void nvimrpc::NvimApi::poll(size_t msgid, size_t timeout) {
-	// do {
-		// std::string buf{};
-		// if (size_t size = device.recv(buf, timeout); size == 0) {
-			// DLOG(ERROR) << "Timed out waiting for '" << msgid << "'";
-
-			// return;
-		// }
-
-		// MpackRpcUnpack resp_unpack;
-		// if (int rc = resp_unpack.set_data(buf); rc != 0) {
-			// DLOG(WARNING) << "Failed to make sense of data received: '" << buf << "'";
-			// continue; // Keep trying?
-		// }
-
-		// if (int rc = resp_unpack.get_msg_type(); rc != MpackRpcUnpack::MSG_TYPE) {
-			// DLOG(WARNING) << "Packet received is not a RESPONSE: '" << rc << "'";
-			// if (rc == 2)               // TODO Address magic number
-				// pending_notif.push(buf); // Save notification data
-
-			// continue;
-		// }
-
-		// if (size_t rc = resp_unpack.get_msgid(); rc != msgid) {
-			// DLOG(WARNING) << "Received response, but not for my msgid: '" << rc
-				// << "'";
-			// continue;
-		// }
-
-		// if (int rc = resp_unpack.get_error(); rc != 0) {
-			// DLOG(ERROR) << "Server returned error: '" << rc << "'";
-			// return;
-		// }
-
-		// return;
-
-	// } while (true);
-// }
 
 #endif

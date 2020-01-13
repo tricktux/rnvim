@@ -65,8 +65,6 @@ public:
   size_t read(uint8_t *, size_t) override;
 };
 
-} // namespace nvimrpc
-
 class IIoAsyncReader {
 protected:
   std::mutex qm;
@@ -87,16 +85,16 @@ protected:
   }
   IIoAsyncReader(nvimrpc::IoDevice &_dev)
       : t(&IIoAsyncReader::wait_for_data, this), dev(_dev) {
-				data.reserve(ARRAY_SIZE*10);
-			}
+    data.reserve(ARRAY_SIZE * 10);
+  }
   virtual ~IIoAsyncReader() = default;
 
 public:
-	/** 
-	 * @brief Poll reader for data
-	 * @param timeout Wait only for @p timeout seconds
-	 * @return data if there is any, empty if timed out
-	 */
+  /**
+   * @brief Poll reader for data
+   * @param timeout Wait only for @p timeout seconds
+   * @return data if there is any, empty if timed out
+   */
   std::optional<std::vector<uint8_t>> poll(size_t timeout) {
     std::vector<uint8_t> buffer;
     std::unique_lock<std::mutex> lk(qm);
@@ -115,5 +113,7 @@ public:
   ReprocAsyncReader(nvimrpc::IoDevice &dev) : IIoAsyncReader(dev) {}
   ~ReprocAsyncReader() override {}
 };
+
+} // namespace nvimrpc
 
 #endif
