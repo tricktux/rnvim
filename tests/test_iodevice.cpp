@@ -19,44 +19,41 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 #include <gtest/gtest.h>
 #include <vector>
 #include <chrono>
 #include "easylogging++.h"
 #include "rpc/iodevice.hpp"
-// #include "rpc/streamdecoder.hpp"
-// #include "mpack.h"
 
 INITIALIZE_EASYLOGGINGPP
 
-/** 
+/**
  * @brief Test ReprocDevice spawn, recv, and "kill" process
  */
 TEST(reprocdevice, start_stop) {
-	nvimrpc::ReprocDevice device;
+  nvimrpc::ReprocDevice device;
 
-	size_t timeout{10};
-	std::string data;
-	std::vector<const char *> args{ {"cmake", "--help", nullptr} };
+  const size_t data_size = 4096;
+	std::vector<uint8_t> all_data;
+	all_data.reserve(data_size*10);
+	size_t data_read = 0;
+  std::array<uint8_t, data_size> data{};
+  std::vector<const char *> args{{"cmake", "--help", nullptr}};
 
-	ASSERT_EQ(device.spawn(args, 10), 0);
+  ASSERT_EQ(device.start(args, 10), 0);
+	// for (int k = 0; k < 2; k++) {
+		// data_read += device.read(data.data(), data_size);
+		// all_data.insert(std::end(all_data), std::begin(data), std::end(data));
+	// }
+	while((data_read += device.read(data.data(), data_size)) == data_size) {
+		all_data.insert(std::end(all_data), data);
+		// std::this_thread::sleep_for(std::chrono::seconds{1});
+	}
+  ASSERT_GE(data_read, 0);
+	ASSERT_FALSE(all_data.empty());
+  std::cout << "data_size: '" << data_read << "'" << std::endl;
+	std::cout << "data: '" << all_data.data() << "'" << std::endl;
 
-	ASSERT_NE(device.recv(data, timeout),0);
-	std::cout << "data: '" << data << "'" << std::endl;
-
-	ASSERT_EQ(device.kill(), 0);
+  ASSERT_EQ(device.stop(), 0);
 }
 
-TEST(nvimrpc, DISABLED_streamdecoder) {
-	// int timeout = 10;
-	// nvimrpc::ReprocDevice device;
-	// std::vector<const char *> args{ {"nvim", "--embed", nullptr} };
-	// ASSERT_EQ(device.spawn(args, timeout), 0);
-
-	// nvimrpc::StreamDecoder sd{device};
-
-	// auto node = sd.poll();
-	// ASSERT_TRUE(node.has_value());
-	// log_server_pack_node(node.value());
-}
