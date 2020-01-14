@@ -97,12 +97,13 @@ public:
    * @return data if there is any, empty if timed out
    */
   std::optional<std::vector<uint8_t>> poll(size_t timeout) {
-    std::vector<uint8_t> buffer;
     std::unique_lock<std::mutex> lk(qm);
     if (!cv.wait_for(lk, std::chrono::seconds{timeout},
                      [this] { return !data.empty(); }))
       return {};
-    std::swap(data, buffer);
+    // std::swap(data, buffer);
+		std::vector<uint8_t> buffer{data};
+		data.clear();
     return buffer;
   }
 };

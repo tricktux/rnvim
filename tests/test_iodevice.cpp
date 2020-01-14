@@ -68,7 +68,7 @@ TEST(asyncreader, read_ton_of_data) {
 
 	const int TEST_DURATION_SECONDS = 1;
 	const size_t POLL_TIMEOUT = 1;
-	const size_t EXPECTED_DATA_SIZE = 100;
+	// const size_t EXPECTED_DATA_SIZE = 100;
 
   auto start = std::chrono::high_resolution_clock::now();
 
