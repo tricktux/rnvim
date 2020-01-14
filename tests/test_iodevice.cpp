@@ -28,7 +28,7 @@
 INITIALIZE_EASYLOGGINGPP
 
 /**
- * @brief Test ReprocDevice spawn, recv, and "kill" process
+ * @brief Test ReprocDevice start, stop, and read cmake output
  */
 TEST(reprocdevice, start_stop) {
   nvimrpc::ReprocDevice device;
@@ -36,23 +36,21 @@ TEST(reprocdevice, start_stop) {
   const size_t data_size = 4096;
 	std::vector<uint8_t> all_data;
 	all_data.reserve(data_size*10);
-	size_t data_read = 0;
+	size_t data_read = 0, total_data_read = 0;
   std::array<uint8_t, data_size> data{};
   std::vector<const char *> args{{"cmake", "--help", nullptr}};
 
   ASSERT_EQ(device.start(args, 10), 0);
-	// for (int k = 0; k < 2; k++) {
-		// data_read += device.read(data.data(), data_size);
-		// all_data.insert(std::end(all_data), std::begin(data), std::end(data));
-	// }
-	while((data_read += device.read(data.data(), data_size)) == data_size) {
-		all_data.insert(std::end(all_data), data);
-		// std::this_thread::sleep_for(std::chrono::seconds{1});
+	for (int k = 0; k < 2; k++) {
+		data_read = device.read(data.data(), data_size);
+		total_data_read += data_read;
+		all_data.insert(std::end(all_data), data.begin(), data.begin()+data_read);
 	}
-  ASSERT_GE(data_read, 0);
+
+	ASSERT_EQ(total_data_read, all_data.size());
+  ASSERT_GE(total_data_read, 0);
 	ASSERT_FALSE(all_data.empty());
-  std::cout << "data_size: '" << data_read << "'" << std::endl;
-	std::cout << "data: '" << all_data.data() << "'" << std::endl;
+	std::cout << all_data.data() << std::endl;
 
   ASSERT_EQ(device.stop(), 0);
 }
