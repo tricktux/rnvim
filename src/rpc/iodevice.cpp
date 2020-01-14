@@ -132,3 +132,14 @@ size_t nvimrpc::ReprocDevice::read(uint8_t *buf, size_t size) {
 	}
   return bytes_read;
 }
+
+void nvimrpc::ReprocAsyncReader::wait_for_data() {
+	size_t data_read;
+	std::array<uint8_t, ARRAY_SIZE> data{};
+	uint8_t *ptr_data = data.data();
+	while (true) {
+		if ((data_read = dev.read(ptr_data, ARRAY_SIZE)) > 0) {
+			push(ptr_data, data_read);
+		}
+	}
+}

@@ -73,19 +73,20 @@ protected:
   std::thread t;
   nvimrpc::IoDevice &dev; // Used to read data
 
-  const static size_t ARRAY_SIZE = 409600;
+  const static size_t ARRAY_SIZE = 4096;
+  const static size_t DATA_SIZE = ARRAY_SIZE * 20;
 
   virtual void wait_for_data() = 0; /// Waits for IoDevice::read to return data
-  void push(const std::array<uint8_t, ARRAY_SIZE> &_data) {
-    if (_data.empty())
+  void push(uint8_t *buf, size_t size) {
+    if (buf == nullptr)
       return;
     std::unique_lock<std::mutex> lk(qm);
-    data.insert(std::end(data), std::begin(_data), std::end(_data));
+    data.insert(std::end(data), buf, buf + size);
     cv.notify_one();
   }
   IIoAsyncReader(nvimrpc::IoDevice &_dev)
       : t(&IIoAsyncReader::wait_for_data, this), dev(_dev) {
-    data.reserve(ARRAY_SIZE * 10);
+    data.reserve(DATA_SIZE);
   }
   virtual ~IIoAsyncReader() = default;
 
@@ -107,7 +108,7 @@ public:
 };
 
 class ReprocAsyncReader : public IIoAsyncReader {
-  void wait_for_data() override {}
+  void wait_for_data() override;
 
 public:
   ReprocAsyncReader(nvimrpc::IoDevice &dev) : IIoAsyncReader(dev) {}
