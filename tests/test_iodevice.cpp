@@ -41,8 +41,8 @@ TEST(reprocdevice, start_stop) {
   std::vector<const char *> args{{"cmake", "--help", nullptr}};
 
   ASSERT_EQ(device.start(args, 10), 0);
-	// Read only 2 times, since that is all it takes to read output of cmake 
-	// --help
+  // Read only 2 times, since that is all it takes to read output of cmake
+  // --help
   for (int k = 0; k < 2; k++) {
     data_read = device.read(data.data(), data_size);
     total_data_read += data_read;
@@ -55,4 +55,35 @@ TEST(reprocdevice, start_stop) {
   std::cout << all_data.data() << std::endl;
 
   ASSERT_EQ(device.stop(), 0);
+}
+
+TEST(asyncreader, read_ton_of_data) {
+  // Bash command to output chunks of data
+  // while ; do head /dev/urandom | tr -dc A-Za-z0-9 | head -c 256 ; echo '';
+  // done
+  std::vector<const char *> args{{"./data_out.sh", nullptr}};
+  nvimrpc::ReprocDevice device;
+  ASSERT_EQ(device.start(args, 10), 0);
+  nvimrpc::ReprocAsyncReader reader{device};
+
+	const int TEST_DURATION_SECONDS = 1;
+	const size_t POLL_TIMEOUT = 1;
+	const size_t EXPECTED_DATA_SIZE = 100;
+
+  auto start = std::chrono::high_resolution_clock::now();
+
+  while (true) {
+    auto result = reader.poll(POLL_TIMEOUT);
+    ASSERT_TRUE(result);
+    auto data = result.value();
+		EXPECT_EQ(data.size(), EXPECTED_DATA_SIZE);
+    std::cout << data.data() << std::endl;
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration =
+        std::chrono::duration_cast<std::chrono::seconds>(stop - start);
+		if (duration.count() > TEST_DURATION_SECONDS)
+			break;
+  }
+
+	device.stop();
 }
