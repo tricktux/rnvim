@@ -1,0 +1,11 @@
+---
+Checks:
+'
+*,
+-fuchsia-*,
+-cert-err58-cpp,
+-modernize-use-trailing-return-type,
+-cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+-hicpp-no-array-decay,
+'
+...
