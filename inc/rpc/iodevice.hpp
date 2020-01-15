@@ -57,16 +57,15 @@ private:
 
 public:
   ReprocDevice() = default;
-  virtual ~ReprocDevice() = default;
+  ~ReprocDevice() override  = default;
 
-  int start(const std::vector<const char *> &, int) override;
+  int start(const std::vector<const char *> & argv, int timeout) override;
   int stop() override;
   size_t write(std::string_view data) override;
-  size_t read(uint8_t *, size_t) override;
+  size_t read(uint8_t *buf, size_t size) override;
 };
 
 class IIoAsyncReader {
-protected:
   std::mutex qm;
   std::condition_variable cv;
   std::vector<uint8_t> data;
@@ -78,13 +77,14 @@ protected:
 
   virtual void wait_for_data() = 0; /// Waits for IoDevice::read to return data
   void push(uint8_t *buf, size_t size) {
-    if (buf == nullptr)
+    if (buf == nullptr) {
       return;
+    }
     std::unique_lock<std::mutex> lk(qm);
     data.insert(std::end(data), buf, buf + size);
     cv.notify_one();
   }
-  IIoAsyncReader(nvimrpc::IoDevice &_dev)
+  explicit IIoAsyncReader(nvimrpc::IoDevice &_dev)
       : t(&IIoAsyncReader::wait_for_data, this), dev(_dev) {
     data.reserve(DATA_SIZE);
   }
@@ -99,8 +99,9 @@ public:
   std::optional<std::vector<uint8_t>> poll(size_t timeout) {
     std::unique_lock<std::mutex> lk(qm);
     if (!cv.wait_for(lk, std::chrono::seconds{timeout},
-                     [this] { return !data.empty(); }))
-      return {};
+                     [this] { return !data.empty(); })) {
+          return {};
+    };
     // std::swap(data, buffer);
 		std::vector<uint8_t> buffer{data};
 		data.clear();
@@ -113,7 +114,7 @@ class ReprocAsyncReader : public IIoAsyncReader {
 
 public:
   ReprocAsyncReader(nvimrpc::IoDevice &dev) : IIoAsyncReader(dev) {}
-  ~ReprocAsyncReader() override {}
+  ~ReprocAsyncReader() override = default;
 };
 
 } // namespace nvimrpc
