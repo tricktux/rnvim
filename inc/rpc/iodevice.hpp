@@ -25,6 +25,7 @@
 #include <cstring>
 #include <future>
 #include <mutex>
+#include <atomic>
 #include <optional>
 #include <reproc++/reproc.hpp>
 #include <reproc++/sink.hpp>
@@ -41,6 +42,10 @@ class IoDevice {
 public:
   IoDevice() = default;
   virtual ~IoDevice() = default;
+  IoDevice (const IoDevice& dev) = delete;
+  IoDevice (IoDevice&& dev) = delete;
+  void operator=(const IoDevice& dev) = delete;
+  void operator=(IoDevice&& dev) = delete;
 
   virtual int start(const std::vector<const char *> &, int) = 0;
   virtual int stop() = 0;
@@ -56,8 +61,6 @@ private:
   reproc::process process;
 
 public:
-  ReprocDevice() = default;
-  ~ReprocDevice() override  = default;
 
   int start(const std::vector<const char *> & argv, int timeout) override;
   int stop() override;
@@ -66,11 +69,11 @@ public:
 };
 
 class IIoAsyncReader {
+protected:
   std::mutex qm;
   std::condition_variable cv;
   std::vector<uint8_t> data;
   std::thread t;
-  nvimrpc::IoDevice &dev; // Used to read data
 
   const static size_t ARRAY_SIZE = 4096;
   const static size_t DATA_SIZE = ARRAY_SIZE * 20;
@@ -84,11 +87,10 @@ class IIoAsyncReader {
     data.insert(std::end(data), buf, buf + size);
     cv.notify_one();
   }
-  explicit IIoAsyncReader(nvimrpc::IoDevice &_dev)
-      : t(&IIoAsyncReader::wait_for_data, this), dev(_dev) {
+  explicit IIoAsyncReader()
+      : t(&IIoAsyncReader::wait_for_data, this) {
     data.reserve(DATA_SIZE);
   }
-  virtual ~IIoAsyncReader() = default;
 
 public:
   /**
@@ -110,11 +112,12 @@ public:
 };
 
 class ReprocAsyncReader : public IIoAsyncReader {
+  nvimrpc::IoDevice &dev; // Used to read data
   void wait_for_data() override;
 
 public:
-  ReprocAsyncReader(nvimrpc::IoDevice &dev) : IIoAsyncReader(dev) {}
-  ~ReprocAsyncReader() override = default;
+  explicit ReprocAsyncReader(nvimrpc::IoDevice &_dev) : dev(_dev) {}
+  // ~ReprocAsyncReader() override = default;
 };
 
 } // namespace nvimrpc

@@ -7,6 +7,8 @@ Checks:
 -modernize-use-trailing-return-type,
 -cppcoreguidelines-pro-type-vararg,
 -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+-cppcoreguidelines-non-private-member-variables-in-classes,
 -hicpp-no-array-decay,
+-google-runtime-references,
 '
 ...
