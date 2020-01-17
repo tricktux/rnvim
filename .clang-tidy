@@ -9,6 +9,7 @@ Checks:
 -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
 -cppcoreguidelines-non-private-member-variables-in-classes,
 -hicpp-no-array-decay,
+-hicpp-vararg,
 -google-runtime-references,
 '
 ...
