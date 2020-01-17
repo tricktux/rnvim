@@ -20,6 +20,7 @@
 
 #include "easylogging++.h"
 #include "rpc/iodevice.hpp"
+#include <cstring>
 #include <algorithm>
 #include <chrono>
 #include <vector>
@@ -135,11 +136,15 @@ size_t nvimrpc::ReprocDevice::read(uint8_t *buf, size_t size) {
 
 void nvimrpc::ReprocAsyncReader::wait_for_data() {
 	size_t data_read;
-	std::array<uint8_t, ARRAY_SIZE> data{};
-	uint8_t *ptr_data = data.data();
-	while (true) {
-		if ((data_read = dev.read(ptr_data, ARRAY_SIZE)) > 0) {
-			push(ptr_data, data_read);
+  std::array<uint8_t, ARRAY_SIZE> data{};
+  uint8_t *ptrdata = data.data();
+	while (!done.load()) {
+    // Performance: Constantly allocating and deallocating this array
+    // There is no clear function for arrays. Only option is to std::fill_n
+    // How much better is this compared to allocating and deallocating?
+		if ((data_read = dev.read(ptrdata, ARRAY_SIZE)) > 0) {
+			push(ptrdata, data_read);
+      // std::memset(ptrdata, 0, sizeof data);
 		}
 	}
 }

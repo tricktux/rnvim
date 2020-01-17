@@ -70,6 +70,7 @@ public:
 
 class IIoAsyncReader {
 protected:
+  std::atomic<bool> done;
   std::mutex qm;
   std::condition_variable cv;
   std::vector<uint8_t> data;
@@ -88,11 +89,21 @@ protected:
     cv.notify_one();
   }
   explicit IIoAsyncReader()
-      : t(&IIoAsyncReader::wait_for_data, this) {
+      : done(false), t(&IIoAsyncReader::wait_for_data, this) {
     data.reserve(DATA_SIZE);
+  }
+  virtual ~IIoAsyncReader() {
+    if (t.joinable()) {
+      done.store(true);
+      t.join();
+    }
   }
 
 public:
+  IIoAsyncReader(IIoAsyncReader &&reader) = delete;
+  IIoAsyncReader(const IIoAsyncReader &reader) = delete;
+  IIoAsyncReader& operator=(IIoAsyncReader &&reader) = delete;
+  IIoAsyncReader& operator=(const IIoAsyncReader &reader) = delete;
   /**
    * @brief Poll reader for data
    * @param timeout Wait only for @p timeout seconds
