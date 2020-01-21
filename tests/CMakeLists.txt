@@ -53,6 +53,30 @@ add_test(NAME test_iodevice
 	WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )
 
+## ------------mpack--------------
+# list(APPEND TESTS test_mpack)
+add_executable(test_mpack "")
+target_sources(test_mpack
+  PRIVATE
+  test_mpack.cpp
+  ${CMAKE_SOURCE_DIR}/src/rpc/msgpack.cpp
+  ${CMAKE_SOURCE_DIR}/inc/rpc/msgpack.hpp
+  )
+target_include_mpack(test_mpack)
+if (EASYLOGGING_FOUND)
+  add_dependencies(test_mpack easylogging)
+  target_add_easylogging_definitions(test_mpack)
+endif ()
+if (JINJA2_FOUND)
+  target_include_directories(test_mpack PRIVATE ${JINJA2_OUTPUT_DIR})
+  add_dependencies(test_mpack jinja2_proc)
+endif ()
+add_test(NAME test_mpack
+  COMMAND test_mpack
+  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+  )
+
+
 # ------------nvimapi--------------
 # list(APPEND TESTS test_nvimapi)
 # add_executable(test_nvimapi "")
@@ -79,29 +103,6 @@ add_test(NAME test_iodevice
 # endif ()
 # add_test(NAME test_nvimapi
 	# COMMAND test_nvimapi
-	# WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-# )
-
-# # ------------mpack--------------
-# list(APPEND TESTS test_mpack)
-# add_executable(test_mpack "")
-# target_sources(test_mpack
-		# PRIVATE
-			# test_mpack.cpp
-			# ${CMAKE_SOURCE_DIR}/src/rpc/msgpack.cpp
-			# ${CMAKE_SOURCE_DIR}/inc/rpc/msgpack.hpp
-	# )
-# target_include_mpack(test_mpack)
-# if (EASYLOGGING_FOUND)
-	# add_dependencies(test_mpack easylogging)
-	# target_add_easylogging_definitions(test_mpack)
-# endif ()
-# if (JINJA2_FOUND)
-	# target_include_directories(test_mpack PRIVATE ${JINJA2_OUTPUT_DIR})
-	# add_dependencies(test_mpack jinja2_proc)
-# endif ()
-# add_test(NAME test_mpack
-	# COMMAND test_mpack
 	# WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 # )
 
