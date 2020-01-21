@@ -58,12 +58,12 @@ TEST(reprocdevice, start_stop) {
   ASSERT_EQ(device.stop(), 0);
 }
 
-std::vector<const char *> args{{"./data_out.sh", nullptr}};
 TEST(asyncreader, read_ton_of_data) {
   // Bash command to output chunks of data
   // while ; do head /dev/urandom | tr -dc A-Za-z0-9 | head -c 100 ; sleep 0.1;
   // done
   nvimrpc::ReprocDevice device;
+  std::vector<const char *> args{{"./rand_data_out.sh", nullptr}};
   ASSERT_EQ(device.start(args, 10), 0);
   {
     nvimrpc::ReprocAsyncReader reader{device};
@@ -83,43 +83,48 @@ TEST(asyncreader, read_ton_of_data) {
       EXPECT_GE(data.size(), EXPECTED_DATA_SIZE);
       auto stop = std::chrono::high_resolution_clock::now();
       auto duration =
-        std::chrono::duration_cast<std::chrono::seconds>(stop - start);
-      if (duration.count() > TEST_DURATION_SECONDS)
+          std::chrono::duration_cast<std::chrono::seconds>(stop - start);
+      if (duration.count() > TEST_DURATION_SECONDS) {
         break;
+      }
     }
   }
 
-	device.stop();
+  device.stop();
 }
 
-TEST(asyncreader, DISABLED_read_ton_of_data_w_waits) {
-	// Bash command to output chunks of data
-	// while ; do head /dev/urandom | tr -dc A-Za-z0-9 | head -c 256 ; echo '';
-	// done
-	nvimrpc::ReprocDevice device;
-	ASSERT_EQ(device.start(args, 10), 0);
-	nvimrpc::ReprocAsyncReader reader{device};
+TEST(asyncreader, read_known_data) {
+  // Bash command to output chunks of data
+  std::vector<const char *> args{{"./known_data_out.sh", nullptr}};
+  nvimrpc::ReprocDevice device;
+  ASSERT_EQ(device.start(args, 10), 0);
 
-	const int TEST_DURATION_SECONDS = 5;
-	const size_t POLL_TIMEOUT = 1;
-	// const size_t EXPECTED_DATA_SIZE = 100;
+  const int TEST_DURATION_SECONDS = 5;
+  const size_t POLL_TIMEOUT = 1;
+  const size_t EXPECTED_DATA_SIZE = 62;
+  const char *ptr =
+      "1o2k1j2mld1,2l1l2k1j31o2kjl1,2m1l2em1l2kj1lk2ej1l2keml1,wmld1j";
 
-	auto start = std::chrono::high_resolution_clock::now();
+  std::cout << "Receiving data, please wait ...." << std::endl;
 
-	while (true) {
-		auto result = reader.poll(POLL_TIMEOUT);
-		ASSERT_TRUE(result);
-		auto data = result.value();
-		// EXPECT_EQ(data.size(), EXPECTED_DATA_SIZE);
-		std::cout << data.data() << std::endl;
-		auto stop = std::chrono::high_resolution_clock::now();
-		auto duration =
-			std::chrono::duration_cast<std::chrono::seconds>(stop - start);
-		if (duration.count() > TEST_DURATION_SECONDS) {
-			break;
+  auto start = std::chrono::high_resolution_clock::now();
+
+  {
+    nvimrpc::ReprocAsyncReader reader{device};
+    while (true) {
+      auto result = reader.poll(POLL_TIMEOUT);
+      ASSERT_TRUE(result);
+      auto data = result.value();
+      EXPECT_EQ(data.size(), EXPECTED_DATA_SIZE);
+      ASSERT_EQ(memcmp(data.data(), ptr, EXPECTED_DATA_SIZE), 0);
+      auto stop = std::chrono::high_resolution_clock::now();
+      auto duration =
+        std::chrono::duration_cast<std::chrono::seconds>(stop - start);
+      if (duration.count() > TEST_DURATION_SECONDS) {
+        break;
+      }
     }
-		std::this_thread::sleep_for(std::chrono::milliseconds{200});
-	}
+  }
 
-	device.stop();
+  device.stop();
 }
