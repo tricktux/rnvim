@@ -65,32 +65,28 @@ TEST(asyncreader, read_ton_of_data) {
   nvimrpc::ReprocDevice device;
   std::vector<const char *> args{{"./rand_data_out.sh", nullptr}};
   ASSERT_EQ(device.start(args, 10), 0);
-  {
-    nvimrpc::ReprocAsyncReader reader{device};
+  nvimrpc::ReprocAsyncReader reader{device};
 
-    const int TEST_DURATION_SECONDS = 5;
-    const size_t POLL_TIMEOUT = 1;
-    const size_t EXPECTED_DATA_SIZE = 100;
+  const int TEST_DURATION_SECONDS = 5;
+  const size_t POLL_TIMEOUT = 1;
+  const size_t EXPECTED_DATA_SIZE = 100;
 
-    auto start = std::chrono::high_resolution_clock::now();
+  auto start = std::chrono::high_resolution_clock::now();
 
-    std::cout << "Receiving data, please wait ...." << std::endl;
+  std::cout << "Receiving data, please wait ...." << std::endl;
 
-    while (true) {
-      auto result = reader.poll(POLL_TIMEOUT);
-      ASSERT_TRUE(result);
-      auto data = result.value();
-      EXPECT_GE(data.size(), EXPECTED_DATA_SIZE);
-      auto stop = std::chrono::high_resolution_clock::now();
-      auto duration =
-          std::chrono::duration_cast<std::chrono::seconds>(stop - start);
-      if (duration.count() > TEST_DURATION_SECONDS) {
-        break;
-      }
+  while (true) {
+    auto result = reader.poll(POLL_TIMEOUT);
+    ASSERT_TRUE(result);
+    auto data = result.value();
+    EXPECT_GE(data.size(), EXPECTED_DATA_SIZE);
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration =
+      std::chrono::duration_cast<std::chrono::seconds>(stop - start);
+    if (duration.count() > TEST_DURATION_SECONDS) {
+      break;
     }
   }
-
-  device.stop();
 }
 
 TEST(asyncreader, read_known_data) {
@@ -109,22 +105,18 @@ TEST(asyncreader, read_known_data) {
 
   auto start = std::chrono::high_resolution_clock::now();
 
-  {
-    nvimrpc::ReprocAsyncReader reader{device};
-    while (true) {
-      auto result = reader.poll(POLL_TIMEOUT);
-      ASSERT_TRUE(result);
-      auto data = result.value();
-      EXPECT_EQ(data.size(), EXPECTED_DATA_SIZE);
-      ASSERT_EQ(memcmp(data.data(), ptr, EXPECTED_DATA_SIZE), 0);
-      auto stop = std::chrono::high_resolution_clock::now();
-      auto duration =
-        std::chrono::duration_cast<std::chrono::seconds>(stop - start);
-      if (duration.count() > TEST_DURATION_SECONDS) {
-        break;
-      }
+  nvimrpc::ReprocAsyncReader reader{device};
+  while (true) {
+    auto result = reader.poll(POLL_TIMEOUT);
+    ASSERT_TRUE(result);
+    auto data = result.value();
+    EXPECT_EQ(data.size(), EXPECTED_DATA_SIZE);
+    ASSERT_EQ(memcmp(data.data(), ptr, EXPECTED_DATA_SIZE), 0);
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration =
+      std::chrono::duration_cast<std::chrono::seconds>(stop - start);
+    if (duration.count() > TEST_DURATION_SECONDS) {
+      break;
     }
   }
-
-  device.stop();
 }

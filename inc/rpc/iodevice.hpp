@@ -42,10 +42,10 @@ class IoDevice {
 public:
   IoDevice() = default;
   virtual ~IoDevice() = default;
-  IoDevice (const IoDevice& dev) = delete;
-  IoDevice (IoDevice&& dev) = delete;
-  void operator=(const IoDevice& dev) = delete;
-  void operator=(IoDevice&& dev) = delete;
+  IoDevice(const IoDevice &dev) = delete;
+  IoDevice(IoDevice &&dev) = delete;
+  void operator=(const IoDevice &dev) = delete;
+  void operator=(IoDevice &&dev) = delete;
 
   virtual int start(const std::vector<const char *> &, int) = 0;
   virtual int stop() = 0;
@@ -61,8 +61,7 @@ private:
   reproc::process process;
 
 public:
-
-  int start(const std::vector<const char *> & argv, int timeout) override;
+  int start(const std::vector<const char *> &argv, int timeout) override;
   int stop() override;
   size_t write(std::string_view data) override;
   size_t read(uint8_t *buf, size_t size) override;
@@ -88,22 +87,22 @@ protected:
     data.insert(std::end(data), buf, buf + size);
     cv.notify_one();
   }
-  explicit IIoAsyncReader()
-      : done(false), t(&IIoAsyncReader::wait_for_data, this) {
-    data.reserve(DATA_SIZE);
-  }
-  virtual ~IIoAsyncReader() {
+  void stop() {
     if (t.joinable()) {
       done.store(true);
       t.join();
     }
   }
+  IIoAsyncReader() : done(false), t(&IIoAsyncReader::wait_for_data, this) {
+    data.reserve(DATA_SIZE);
+  }
+  virtual ~IIoAsyncReader() { stop(); }
 
 public:
   IIoAsyncReader(IIoAsyncReader &&reader) = delete;
   IIoAsyncReader(const IIoAsyncReader &reader) = delete;
-  IIoAsyncReader& operator=(IIoAsyncReader &&reader) = delete;
-  IIoAsyncReader& operator=(const IIoAsyncReader &reader) = delete;
+  IIoAsyncReader &operator=(IIoAsyncReader &&reader) = delete;
+  IIoAsyncReader &operator=(const IIoAsyncReader &reader) = delete;
   /**
    * @brief Poll reader for data
    * @param timeout Wait only for @p timeout seconds
@@ -113,11 +112,11 @@ public:
     std::unique_lock<std::mutex> lk(qm);
     if (!cv.wait_for(lk, std::chrono::seconds{timeout},
                      [this] { return !data.empty(); })) {
-          return {};
+      return {};
     };
     // std::swap(data, buffer);
-		std::vector<uint8_t> buffer{data};
-		data.clear();
+    std::vector<uint8_t> buffer{data};
+    data.clear();
     return buffer;
   }
 };
@@ -127,8 +126,15 @@ class ReprocAsyncReader : public IIoAsyncReader {
   void wait_for_data() override;
 
 public:
+  ReprocAsyncReader(ReprocAsyncReader &&other) = delete;
+  ReprocAsyncReader(const ReprocAsyncReader &other) = delete;
+  ReprocAsyncReader &operator=(ReprocAsyncReader &&other) = delete;
+  ReprocAsyncReader &operator=(const ReprocAsyncReader &other) = delete;
   explicit ReprocAsyncReader(nvimrpc::IoDevice &_dev) : dev(_dev) {}
-  // ~ReprocAsyncReader() override = default;
+  ~ReprocAsyncReader() override {
+    stop();
+    dev.stop();
+  }
 };
 
 } // namespace nvimrpc
