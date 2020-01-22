@@ -114,7 +114,6 @@ public:
                      [this] { return !data.empty(); })) {
       return {};
     };
-    // std::swap(data, buffer);
     std::vector<uint8_t> buffer{data};
     data.clear();
     return buffer;
