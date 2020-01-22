@@ -33,24 +33,14 @@ interface nvimrpc::IIoAsyncReader {
 	' -std::queue<mpack_node_t> nodes;
 	-std::vector<uint8_t> raw_data;
 	-std::thread t;
-	-IoDevice &dev; ' Used to read data
-	-void wait_for_data() ' simulates `reproc::drain`
 	-void push(data);
+  -virtual void wait_for_data()
 
 	+std::optional<std::vector<uint8_t>> poll();
 }
 
 class nvimrpc::ReprocAsyncReader {
-	-std::mutex qm;
-	-std::condition_variable cv;
-	' -std::queue<mpack_node_t> nodes;
-	-std::vector<uint8_t> raw_data;
-	-std::thread t;
-	-IoDevice &dev; ' Used to read data
-	-void wait_for_data() ' simulates `reproc::drain`
-	-void push(data);
-
-	+std::optional<std::vector<uint8_t>> poll();
+	-IoDevice &dev;
 }
 
 nvimrpc::IIoAsyncReader <|-- nvimrpc::ReprocAsyncReader
@@ -80,7 +70,7 @@ class msgpack::NotifUnpack {
 	-mpack_node_t nodes;
 }
 
-msgpack::INotifUnpack <|-- msgpack::NotifUnpack 
+msgpack::INotifUnpack <|-- msgpack::NotifUnpack
 
 interface msgpack::IResUnpack {
 	-T mpack_read();
