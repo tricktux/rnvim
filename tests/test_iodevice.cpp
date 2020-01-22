@@ -120,3 +120,33 @@ TEST(asyncreader, read_known_data) {
     }
   }
 }
+
+TEST(asyncreader, read_known_data_w_delay) {
+  // Bash command to output chunks of data
+  std::vector<const char *> args{{"./known_data_out.sh", nullptr}};
+  nvimrpc::ReprocDevice device;
+  ASSERT_EQ(device.start(args, 10), 0);
+
+  const int TEST_DURATION_SECONDS = 5;
+  const size_t POLL_TIMEOUT = 1;
+  const size_t EXPECTED_DATA_SIZE = 62;
+
+  std::cout << "Receiving data, please wait ...." << std::endl;
+
+  auto start = std::chrono::high_resolution_clock::now();
+
+  nvimrpc::ReprocAsyncReader reader{device};
+  while (true) {
+    auto result = reader.poll(POLL_TIMEOUT);
+    ASSERT_TRUE(result);
+    auto data = result.value();
+    EXPECT_GE(data.size(), EXPECTED_DATA_SIZE);
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration =
+      std::chrono::duration_cast<std::chrono::seconds>(stop - start);
+    if (duration.count() > TEST_DURATION_SECONDS) {
+      break;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds{200});
+  }
+}
