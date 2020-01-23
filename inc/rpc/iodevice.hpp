@@ -26,6 +26,7 @@
 #include <future>
 #include <mutex>
 #include <optional>
+#include <condition_variable>
 #include <reproc++/reproc.hpp>
 #include <reproc++/sink.hpp>
 #include <string>
@@ -58,6 +59,7 @@ private:
                       /// Future to read async from `stdout` and `stderr` into
                       /// output using the `recv` function
   std::future<std::error_code> drain_async;
+	std::condition_variable cv;
 
 public:
   ReprocDevice() { output.reserve(33554432); }
