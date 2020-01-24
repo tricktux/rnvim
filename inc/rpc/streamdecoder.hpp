@@ -66,7 +66,7 @@ class StreamDecoder {
     }
 
     auto piodev = (IoDevice *)(mpack_tree_context(ptree));
-    return piodev->recv(buf, count);
+    return piodev->read(buf, count);
   }
 
 public:

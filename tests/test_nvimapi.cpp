@@ -39,29 +39,29 @@ std::vector<const char *> args{{"nvim", "--embed", nullptr}};
 
 TEST(api, input) {
   nvimrpc::ReprocDevice device;
-  ASSERT_EQ(device.spawn(args, timeout), 0);
+  ASSERT_EQ(device.start(args, timeout), 0);
 
   nvimrpc::NvimApi api{device};
   api.nvim_ui_attach(size_x, size_y, {{"rgb", true}});
   ASSERT_GT(api.nvim_input("$i123<CR>123<ESC>"), 0);
-  device.kill();
+  device.stop();
 }
 
 TEST(api, buf_set_name) {
   nvimrpc::ReprocDevice device;
-  ASSERT_EQ(device.spawn(args, timeout), 0);
+  ASSERT_EQ(device.start(args, timeout), 0);
 
   nvimrpc::NvimApi api{device};
   api.nvim_ui_attach(size_x, size_y, {{"rgb", true}});
   api.nvim_input("$i123<CR>123<ESC>");
   api.nvim_buf_set_name(1, ":D");
-  device.kill();
+  device.stop();
 }
 
 TEST(api, buf_get_name) {
   std::string buf{"yixx"};
   nvimrpc::ReprocDevice device;
-  ASSERT_EQ(device.spawn(args, timeout), 0);
+  ASSERT_EQ(device.start(args, timeout), 0);
 
   nvimrpc::NvimApi api{device};
   api.nvim_ui_attach(size_x, size_y, {{"rgb", true}});
@@ -69,7 +69,7 @@ TEST(api, buf_get_name) {
   api.nvim_buf_set_name(1, buf);
   std::string name = api.nvim_buf_get_name(1);
 	ASSERT_EQ(buf, name);
-  device.kill();
+  device.stop();
 }
 
 int main(int argc, char *argv[]) {
