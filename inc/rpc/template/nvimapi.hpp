@@ -61,7 +61,7 @@ class NvimApi {
       return 0;
     }
 
-    if (size_t size = device.send(data); size != data.size()) {
+    if (size_t size = device.write(data); size != data.size()) {
       DLOG(ERROR) << "Failed to send all data";
       return 0;
     }
@@ -148,7 +148,7 @@ public:
   ~NvimApi() = default;
 	// Generated apis
 	// NOTE: poll function does not compile for poll<void>
-	// Function get results just returns a default value if it detects a nil mpack 
+	// Function get results just returns a default value if it detects a nil mpack
 	// return type
 	// clang-format off
 {% for req in nvim_reqs %}

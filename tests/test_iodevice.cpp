@@ -19,33 +19,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 #include <gtest/gtest.h>
 #include <vector>
 #include <chrono>
 #include "easylogging++.h"
 #include "rpc/iodevice.hpp"
-// #include "rpc/streamdecoder.hpp"
-// #include "mpack.h"
 
 INITIALIZE_EASYLOGGINGPP
 
-/** 
- * @brief Test ReprocDevice spawn, recv, and "kill" process
+/**
+ * @brief Test ReprocDevice start, stop, and read cmake output
  */
 TEST(reprocdevice, start_stop) {
 	nvimrpc::ReprocDevice device;
 
-	size_t timeout{10};
-	std::string data;
+  char data[10240];
 	std::vector<const char *> args{ {"cmake", "--help", nullptr} };
 
-	ASSERT_EQ(device.spawn(args, 10), 0);
+	ASSERT_EQ(device.start(args, 10), 0);
 
-	ASSERT_NE(device.recv(data, timeout),0);
+	ASSERT_NE(device.read(data, sizeof data),0);
 	std::cout << "data: '" << data << "'" << std::endl;
 
-	ASSERT_EQ(device.kill(), 0);
+	ASSERT_EQ(device.stop(), 0);
 }
 
 TEST(nvimrpc, DISABLED_streamdecoder) {

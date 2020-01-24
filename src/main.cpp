@@ -62,12 +62,12 @@ int main(int argc, char **argv) {
   std::string buf{"yixx"};
   nvimrpc::ReprocDevice device;
   std::vector<const char *> args{{"nvim", "-u", "NORC", "--embed", nullptr}};
-  device.spawn(args, timeout);
+  device.start(args, timeout);
 
   nvimrpc::NvimApi api{device};
   api.nvim_ui_attach(3000, 2000, {{"rgb", true}});
   api.nvim_buf_set_name(1, buf);
   buf = api.nvim_buf_get_name(1);
 	std::cout << "buf = " << buf << std::endl;
-  device.kill();
+  device.stop();
 }

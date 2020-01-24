@@ -25,6 +25,7 @@
 #include <cstring>
 #include <future>
 #include <mutex>
+#include <atomic>
 #include <optional>
 #include <condition_variable>
 #include <reproc++/reproc.hpp>
@@ -42,10 +43,15 @@ class IoDevice {
 public:
   IoDevice() = default;
   virtual ~IoDevice() = default;
+  IoDevice(const IoDevice &dev) = delete;
+  IoDevice(IoDevice &&dev) = delete;
+  void operator=(const IoDevice &dev) = delete;
+  void operator=(IoDevice &&dev) = delete;
 
-  virtual size_t send(std::string_view data) = 0;
-  virtual size_t recv(std::string &data, size_t timeout) = 0;
-	virtual size_t recv(char *, size_t) = 0;
+  virtual int start(const std::vector<const char *> &, int) = 0;
+  virtual int stop() = 0;
+  virtual size_t write(std::string_view data) = 0;
+  virtual size_t read(char *, size_t) = 0;
 };
 
 /** @brief Device that communicates over `stdin/stdout/stderr`
@@ -69,11 +75,10 @@ public:
 		reproc::sink::thread_safe::string sink{output, m};
 		return reproc::drain(this->process, sink, sink);
 	}
-  int spawn(const std::vector<const char *> &, int);
-  int kill();
-  size_t send(std::string_view data) override;
-  size_t recv(std::string &data, size_t timeout) override;
-	size_t recv(char *, size_t) override;
+  int start(const std::vector<const char *> &argv, int timeout) override;
+  int stop() override;
+  size_t write(std::string_view data) override;
+  size_t read(char *buf, size_t size) override;
 };
 
 } // namespace nvimrpc
