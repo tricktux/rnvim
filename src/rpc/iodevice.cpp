@@ -149,18 +149,18 @@ size_t nvimrpc::ReprocDevice::read(char *buf, size_t size) {
   }
 
   size_t read_size, unread_size;
-  {
-    std::lock_guard<std::mutex> guard(m);
-    if (output.empty())
-      return 0;
+  std::unique_lock<std::mutex> guard(m);
+  cv.wait_for(guard, std::chrono::seconds{1},
+              [this] { return !output.empty(); });
+  if (output.empty())
+    return 0;
 
-    read_size = std::min<size_t>(size, output.size());
-    std::memcpy(buf, output.data(), read_size);
-    output.erase(output.begin(), output.begin() + read_size);
-		unread_size = output.size();
-	}
+  read_size = std::min<size_t>(size, output.size());
+  std::memcpy(buf, output.data(), read_size);
+  output.erase(output.begin(), output.begin() + read_size);
+  unread_size = output.size();
+  guard.unlock();
 
-	DLOG(INFO) << "Read: '" << read_size
-						 << "'. Unread: '" << unread_size << "'";
+  DLOG(INFO) << "Read: '" << read_size << "'. Unread: '" << unread_size << "'";
   return read_size;
 }

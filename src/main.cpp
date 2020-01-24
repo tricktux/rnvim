@@ -68,5 +68,6 @@ int main(int argc, char **argv) {
   api.nvim_ui_attach(3000, 2000, {{"rgb", true}});
   api.nvim_buf_set_name(1, buf);
   buf = api.nvim_buf_get_name(1);
+	std::cout << "buf = " << buf << std::endl;
   device.stop();
 }
