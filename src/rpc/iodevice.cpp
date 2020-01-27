@@ -18,7 +18,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "easylogging++.h"
 #include "rpc/iodevice.hpp"
 #include <algorithm>
 #include <chrono>
@@ -34,12 +33,12 @@
 int nvimrpc::ReprocDevice::start(const std::vector<const char *> &argv,
                                  int timeout) {
   if (timeout <= 0) {
-    DLOG(WARNING) << "Invalid timeout sent, using 4 seconds";
+    LOG(WARNING) << "Invalid timeout sent, using 4 seconds";
     timeout = 4;
   }
 
   if (argv.empty()) {
-    DLOG(ERROR) << "Empty argv argument";
+    LOG(ERROR) << "Empty argv argument";
     return -1;
   }
 
@@ -53,7 +52,7 @@ int nvimrpc::ReprocDevice::start(const std::vector<const char *> &argv,
   options.stop = stop_actions;
 
   if (auto ec = process.start(argv.data(), options)) {
-    DLOG(ERROR) << "Error occurred trying to start: '" << argv.data()
+    LOG(ERROR) << "Error occurred trying to start: '" << argv.data()
                 << "'. Error message: '" << ec.message() << "'";
     if (ec == std::errc::no_such_file_or_directory)
       throw std::runtime_error("Executable not found, make sure it's in PATH");
@@ -75,12 +74,12 @@ int nvimrpc::ReprocDevice::stop() {
 
   auto [exit_status, ec] = process.stop(stop_actions);
   if (ec) {
-    DLOG(ERROR) << "Error: '" << ec.message()
+    LOG(ERROR) << "Error: '" << ec.message()
                 << "' occurred while killing child process";
     return ec.value();
   }
 
-  DLOG(INFO) << "Gracefully closed child process whit exit code: "
+  LOG(INFO) << "Gracefully closed child process whit exit code: "
              << exit_status;
   return exit_status;
 }
@@ -93,13 +92,13 @@ int nvimrpc::ReprocDevice::stop() {
  */
 size_t nvimrpc::ReprocDevice::write(std::string_view data) {
   if (data.empty()) {
-    DLOG(WARNING) << "Empty send data provided";
+    LOG(WARNING) << "Empty send data provided";
     return 0;
   }
 
   if (auto ec = process.write(reinterpret_cast<const uint8_t *>(data.data()),
                               data.size())) {
-    DLOG(FATAL) << "Failed to send: '" << data << "'. Error message: '"
+    LOG(FATAL) << "Failed to send: '" << data << "'. Error message: '"
                 << ec.message() << "'";
     throw std::runtime_error(ec.message());
   }
@@ -118,7 +117,7 @@ size_t nvimrpc::ReprocDevice::write(std::string_view data) {
     // {
       // std::lock_guard<std::mutex> guard(m);
       // if (!output.empty()) {
-        // DLOG(INFO) << "Rec'd data: '" << output << "'";
+        // LOG(INFO) << "Rec'd data: '" << output << "'";
         // data = output;
         // output.clear();
         // return data.size();
@@ -127,7 +126,7 @@ size_t nvimrpc::ReprocDevice::write(std::string_view data) {
     // std::this_thread::sleep_for(std::chrono::milliseconds{100});
   // }
 
-  // DLOG(WARNING) << "Timed out waiting for data";
+  // LOG(WARNING) << "Timed out waiting for data";
   // return 0;
 // }
 
@@ -139,12 +138,12 @@ size_t nvimrpc::ReprocDevice::write(std::string_view data) {
  */
 size_t nvimrpc::ReprocDevice::read(char *buf, size_t size) {
   if (buf == nullptr) {
-    DLOG(WARNING) << "Invalid buf pointer";
+    LOG(WARNING) << "Invalid buf pointer";
     return 0;
   }
 
   if (size == 0) {
-    DLOG(WARNING) << "Size zero provided";
+    LOG(WARNING) << "Size zero provided";
     return 0;
   }
 
@@ -161,6 +160,6 @@ size_t nvimrpc::ReprocDevice::read(char *buf, size_t size) {
   unread_size = output.size();
   guard.unlock();
 
-  DLOG(INFO) << "Read: '" << read_size << "'. Unread: '" << unread_size << "'";
+  LOG(INFO) << "Read: '" << read_size << "'. Unread: '" << unread_size << "'";
   return read_size;
 }

@@ -22,10 +22,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 #include <chrono>
-#include "easylogging++.h"
 #include "rpc/iodevice.hpp"
-
-INITIALIZE_EASYLOGGINGPP
 
 /**
  * @brief Test ReprocDevice start, stop, and read cmake output

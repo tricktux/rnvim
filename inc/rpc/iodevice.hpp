@@ -21,6 +21,8 @@
 #ifndef IODEVICE_HPP
 #define IODEVICE_HPP
 
+#include "rpc/log.hpp"
+
 #include <chrono>
 #include <cstring>
 #include <future>

@@ -22,7 +22,7 @@
 #ifndef STREAMDECODER_HPP
 #define STREAMDECODER_HPP
 
-#include "easylogging++.h"
+#include "rpc/log.hpp"
 #include "mpack.h"
 #include "rpc/iodevice.hpp"
 #include <optional>

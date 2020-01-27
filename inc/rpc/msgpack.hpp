@@ -21,7 +21,7 @@
 #ifndef MSGPACK_HPP
 #define MSGPACK_HPP
 
-#include "easylogging++.h"
+#include "rpc/log.hpp"
 #include "mpack.h"
 
 #include <memory>
@@ -41,7 +41,7 @@ void log_server_pack_node(mpack_node_t node);
 // be careful of std::vector<Object> vs std::vector<ObjectWrapper>
 // this can easily give bug
 class ObjectWrapper;
-using Object = std::variant<bool, int64_t, double, std::string, 
+using Object = std::variant<bool, int64_t, double, std::string,
 										 std::array<int64_t, 2>,
                      std::vector<ObjectWrapper>,
                      std::unordered_map<std::string, ObjectWrapper>>;

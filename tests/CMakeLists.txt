@@ -37,7 +37,8 @@ add_executable(test_iodevice "")
 target_sources(test_iodevice
 		PRIVATE
 			test_iodevice.cpp
-			${CMAKE_SOURCE_DIR}/src/rpc/iodevice.cpp
+			${CMAKE_SOURCE_DIR}/src/rpc/log.cpp
+      ${CMAKE_SOURCE_DIR}/src/rpc/iodevice.cpp
 			${CMAKE_SOURCE_DIR}/src/rpc/msgpack.cpp
 			${CMAKE_SOURCE_DIR}/src/rpc/streamdecoder.cpp
 			${CMAKE_SOURCE_DIR}/inc/rpc/iodevice.hpp
@@ -64,6 +65,7 @@ add_executable(test_nvimapi "")
 target_sources(test_nvimapi
 		PRIVATE
 			test_nvimapi.cpp
+      ${CMAKE_SOURCE_DIR}/src/rpc/log.cpp
 			${CMAKE_SOURCE_DIR}/src/rpc/iodevice.cpp
 			${CMAKE_SOURCE_DIR}/src/rpc/msgpack.cpp
 			${CMAKE_SOURCE_DIR}/src/rpc/streamdecoder.cpp
@@ -95,6 +97,7 @@ add_executable(test_mpack "")
 target_sources(test_mpack
 		PRIVATE
 			test_mpack.cpp
+      ${CMAKE_SOURCE_DIR}/src/rpc/log.cpp
 			${CMAKE_SOURCE_DIR}/src/rpc/msgpack.cpp
 			${CMAKE_SOURCE_DIR}/inc/rpc/msgpack.hpp
 	)
