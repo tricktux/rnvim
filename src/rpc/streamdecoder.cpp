@@ -30,18 +30,19 @@
  * @return `mpack_node_t`
  */
 std::optional<mpack_node_t> nvimrpc::StreamDecoder::poll() {
-  // if (mpack_tree_try_parse(&tree)) {
-    // return mpack_tree_root(&tree);
-  // }
-	DLOG(INFO) << "Checking for data";
-	mpack_tree_parse(&tree);
+  if (mpack_tree_try_parse(&tree)) {
+    return mpack_tree_root(&tree);
+  }
+	// mpack_tree_parse(&tree);
 
   // no message valid, two possible reasons:
   //   1. error occurred
   //   2. no sufficent data received
   mpack_error_t ec = mpack_tree_error(&tree);
-  if (ec == mpack_ok)
-    return mpack_tree_root(&tree);
+  if (ec == mpack_ok) {
+    return {};
+    // return mpack_tree_root(&tree);
+  }
 
   std::string err{"Error: "};
   err.append(mpack_error_to_string(ec));

@@ -149,8 +149,8 @@ size_t nvimrpc::ReprocDevice::read(char *buf, size_t size) {
 
   size_t read_size, unread_size;
   std::unique_lock<std::mutex> guard(m);
-  cv.wait_for(guard, std::chrono::seconds{1},
-              [this] { return !output.empty(); });
+  // cv.wait_for(guard, std::chrono::seconds{1},
+              // [this] { return !output.empty(); });
   if (output.empty())
     return 0;
 
