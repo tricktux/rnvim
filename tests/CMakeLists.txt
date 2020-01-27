@@ -1,6 +1,9 @@
 include_directories(${CMAKE_SOURCE_DIR}/inc)
 include_directories("${CMAKE_SOURCE_DIR}/third-party/mpack")
 
+# Use internal neovim
+include("${CMAKE_SOURCE_DIR}/cmake/external/nvim.cmake")
+
 if (GTEST_FOUND)
 	include_directories(SYSTEM "${GTEST_INCLUDE_DIRS}")
 	link_libraries(${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
