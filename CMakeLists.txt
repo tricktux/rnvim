@@ -151,9 +151,9 @@ configure_file(
 include (GNUInstallDirs)
 # install (TARGETS aws-text)
 # Copy all config files to /etc
-if (EXISTS "${CMAKE_SOURCE_DIR}/config")
-	install (FILES
-		GLOB "${CMAKE_SOURCE_DIR}/config/*.*"
-		DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}
-		)
+# if (EXISTS "${CMAKE_SOURCE_DIR}/config")
+	# install (FILES
+		# GLOB "${CMAKE_SOURCE_DIR}/config/*.*"
+		# DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}
+		# )
 endif ()
