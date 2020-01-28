@@ -155,5 +155,5 @@ include (GNUInstallDirs)
 	# install (FILES
 		# GLOB "${CMAKE_SOURCE_DIR}/config/*.*"
 		# DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}
-		# )
-endif ()
+    # )
+# endif ()
