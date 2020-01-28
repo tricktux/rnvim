@@ -54,7 +54,7 @@ if (ENABLE_CLANG_TIDY)
 	find_program (CLANG_TIDY_EXE NAMES "clang-tidy")
 	if(CLANG_TIDY_EXE)
 		set(CMAKE_CXX_CLANG_TIDY
-			"${CLANG_TIDY_EXE};-format-style=file;-checks=*" CACHE STRING "" FORCE)
+			"${CLANG_TIDY_EXE};-format-style=file" CACHE STRING "" FORCE)
 	else()
 		message(FATAL_ERROR "clang-tidy NOT found!")
 		set(CMAKE_CXX_CLANG_TIDY "" CACHE STRING "" FORCE) # clear it
@@ -148,12 +148,14 @@ configure_file(
 		COPYONLY
 	)
 
-include (GNUInstallDirs)
-# install (TARGETS aws-text)
-# Copy all config files to /etc
+# include (GNUInstallDirs)
+# install (TARGETS test_nvimapi)
+# TODO If (NVIM_EXTERNAL)
+# copy files to output dir
+# # Copy all config files to /etc
 # if (EXISTS "${CMAKE_SOURCE_DIR}/config")
-	# install (FILES
-		# GLOB "${CMAKE_SOURCE_DIR}/config/*.*"
-		# DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}
+  # install (FILES
+    # GLOB "${CMAKE_SOURCE_DIR}/config/*.*"
+    # DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}
     # )
 # endif ()
