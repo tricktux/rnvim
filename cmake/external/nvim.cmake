@@ -8,7 +8,6 @@ endif()
 # build directory
 set(nvim_PREFIX ${CMAKE_BINARY_DIR}/external/nvim-prefix)
 # install directory
-set(nvim_INSTALL ${CMAKE_BINARY_DIR}/external/nvim-install)
 
 ExternalProject_Add(
     nvim
@@ -18,9 +17,12 @@ ExternalProject_Add(
     GIT_SHALLOW		 TRUE
     GIT_PROGRESS	 TRUE
     UPDATE_DISCONNECTED TRUE
-		CMAKE_ARGS  -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-                -DCMAKE_INSTALL_PREFIX=${fmt_INSTALL}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND make nvim -j${NPROC} CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} CMAKE_INSTALL_PREFIX=${nvim_INSTALL}
+    INSTALL_COMMAND make install
     LOG_DOWNLOAD TRUE
+    LOG_BUILD TRUE
     LOG_INSTALL TRUE
   )
 
