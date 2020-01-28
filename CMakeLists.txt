@@ -13,9 +13,9 @@ set (_modules
 set (CMAKE_MODULE_PATH ${_modules})
 
 # include("${CMAKE_SOURCE_DIR}/cmake/external/gsl.cmake")
-# include("${CMAKE_SOURCE_DIR}/cmake/external/fmt.cmake")
 # include("${CMAKE_SOURCE_DIR}/cmake/external/mpack.cmake")
 # include("${CMAKE_SOURCE_DIR}/cmake/external/libnvc.cmake")
+include("${CMAKE_SOURCE_DIR}/cmake/external/nvim.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/easylogging.cmake")
 # include("${CMAKE_SOURCE_DIR}/cmake/external/cxxopts.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/reproc++.cmake")
@@ -34,6 +34,7 @@ message(STATUS "BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
 SET(CMAKE_COLOR_MAKEFILE ON)
 
 # Options
+set(NVIM_EXE "" CACHE STRING "Set path to nvim executable to be used")
 # You can achieve the same behavior by doing CC=clang CXX=clang++ cmake ..
 option(USE_CLANG "Build application with clang" OFF) # Ignored at the moment
 # Depends on clang and llvm being installed
@@ -121,7 +122,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Find packages
 find_package(Threads REQUIRED)
-find_package(fmt)
 
 if (SANITIZE_ADDRESS OR SANITIZE_MEMORY OR SANITIZE_THREAD OR
 		SANITIZE_UNDEFINED)
