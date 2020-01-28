@@ -1,11 +1,3 @@
-# File:           CMakeLists.txt
-# Description:     Code Description
-# Author:		    Reinaldo Molina
-# Email:          rmolin88 at gmail dot com
-# Revision:	    0.0.0
-# Created:        Tue Mar 05 2019 06:13
-# Last Modified:  Tue Mar 05 2019 06:13
-
 # 3.13 - updated target_sources policy
 cmake_minimum_required(VERSION 3.13)
 
