@@ -15,6 +15,9 @@ foreach(JINJA2_CURR_TEMPLATE_SRC ${JINJA2_ALL_TEMPLATE_SRC})
 endforeach()
 
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
+if (NOT NVIM_EXTERNAL)
+  set(NVIM_EXE nvim)
+endif()
 
 set(JINJA2_SCRIPT_NAME nvim_api.py)
 set(JINJA2_SCRIPT_DIR ${CMAKE_SOURCE_DIR}/scripts)
