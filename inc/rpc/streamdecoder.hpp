@@ -53,15 +53,15 @@ class StreamDecoder {
    */
   static size_t read_iodev(mpack_tree_t *ptree, char *buf, size_t count) {
     if (ptree == nullptr) {
-      DLOG(ERROR) << "Invalid tree pointer";
+      LOG(ERROR) << "Invalid tree pointer";
       return 0;
     }
     if (buf == nullptr) {
-      DLOG(ERROR) << "Invalid buf pointer";
+      LOG(ERROR) << "Invalid buf pointer";
       return 0;
     }
     if (count == 0) {
-      DLOG(ERROR) << "Zero count provided";
+      LOG(ERROR) << "Zero count provided";
       return 0;
     }
 

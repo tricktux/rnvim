@@ -31,18 +31,18 @@
 std::string nvimrpc::MpackRpcPack::build() {
   mpack_finish_array(&writer);
   if (mpack_error_t error = mpack_writer_destroy(&writer); error != mpack_ok) {
-    DLOG(ERROR) << "Error flushing and closing the underlying stream";
-		DLOG(ERROR) << "Error: '" << mpack_error_to_string( error) << "'";
+    LOG(ERROR) << "Error flushing and closing the underlying stream";
+		LOG(ERROR) << "Error: '" << mpack_error_to_string( error) << "'";
     return {};
   }
 
   if (data == nullptr) {
-    DLOG(ERROR) << "Error invalid pointer to data";
+    LOG(ERROR) << "Error invalid pointer to data";
     return {};
   }
 
   if (size == 0) {
-    DLOG(ERROR) << "Error data size is zero";
+    LOG(ERROR) << "Error data size is zero";
     return {};
   }
 
@@ -61,11 +61,11 @@ std::string nvimrpc::MpackRpcPack::build() {
 std::optional<std::tuple<int64_t, std::string>>
 nvimrpc::MpackRpcUnpack::get_error() {
   if (mpack_node_is_nil(node)) {
-    DLOG(ERROR) << "Empty main node";
+    LOG(ERROR) << "Empty main node";
     return {};
   }
   if (mpack_node_array_length(node) <= RESPONSE_ERROR_IDX) {
-    DLOG(ERROR) << "Array in node is smaller than expected";
+    LOG(ERROR) << "Array in node is smaller than expected";
     return {};
   }
 
@@ -74,7 +74,7 @@ nvimrpc::MpackRpcUnpack::get_error() {
     return {};
 
   if (size_t errnode_size = mpack_node_array_length(error); errnode_size != 2) {
-    DLOG(ERROR) << ": RESP error array [type, message] has invalid size: '"
+    LOG(ERROR) << ": RESP error array [type, message] has invalid size: '"
                 << errnode_size << "'";
     return {};
   }
@@ -100,5 +100,5 @@ void nvimrpc::log_server_pack_node(mpack_node_t node) {
 		}
 		log_str.replace(index, 1, "\\n");
 	}
-	DLOG(INFO) << log_str;
+	LOG(INFO) << log_str;
 }

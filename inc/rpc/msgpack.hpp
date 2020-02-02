@@ -128,7 +128,7 @@ public:
    */
   void set_method(std::string_view name) override {
     if (name.empty()) {
-      DLOG(ERROR) << "Empty method name";
+      LOG(ERROR) << "Empty method name";
       return;
     }
     mpack_write_cstr(&writer, name.data());
@@ -188,7 +188,7 @@ public:
 
   size_t get_num_elements() override {
     if (mpack_node_is_nil(node)) {
-      DLOG(ERROR) << "Empty node";
+      LOG(ERROR) << "Empty node";
       return 0;
     }
     return mpack_node_array_length(node);
@@ -196,11 +196,11 @@ public:
 
   int get_msg_type() override {
     if (mpack_node_is_nil(node)) {
-      DLOG(ERROR) << "Empty node";
+      LOG(ERROR) << "Empty node";
       return -1;
     }
     if (mpack_node_array_length(node) <= RESPONSE_MSG_TYPE_IDX) {
-      DLOG(ERROR) << "Array in node is smaller than expected";
+      LOG(ERROR) << "Array in node is smaller than expected";
       return -2;
     }
 
@@ -209,11 +209,11 @@ public:
 
   size_t get_msgid() override {
     if (mpack_node_is_nil(node)) {
-      DLOG(ERROR) << "Empty node";
+      LOG(ERROR) << "Empty node";
       return 0;
     }
     if (mpack_node_array_length(node) <= RESPONSE_MSG_ID_IDX) {
-      DLOG(ERROR) << "Array in node is smaller than expected";
+      LOG(ERROR) << "Array in node is smaller than expected";
       return 0;
     }
 
@@ -225,19 +225,19 @@ public:
   // This function cannot be virtual because it uses templates
   template <typename T> T get_result() {
     if (mpack_node_is_nil(node)) {
-      DLOG(ERROR) << "Empty node";
+      LOG(ERROR) << "Empty node";
       return T();
     }
 
     if (mpack_node_array_length(node) <= RESPONSE_RESULT_IDX) {
-      DLOG(ERROR) << "Array in node is smaller than expected";
+      LOG(ERROR) << "Array in node is smaller than expected";
       return T();
     }
 
     mpack_node_t result = mpack_node_array_at(node, RESPONSE_RESULT_IDX);
     if (mpack_node_is_nil(result)) {
       if (!std::is_void<T>::value)
-        DLOG(WARNING) << "Got a nil result, but was expecting an actual value";
+        LOG(WARNING) << "Got a nil result, but was expecting an actual value";
       return T();
     }
 
@@ -267,7 +267,7 @@ void inline mpack_write(mpack_writer_t *writer, const Object &obj) {
     return mpack_write(writer, std::get<std::vector<ObjectWrapper>>(obj));
   }
 
-  DLOG(ERROR) << "Unrecognized Object type!";
+  LOG(ERROR) << "Unrecognized Object type!";
 }
 
 void inline mpack_write(mpack_writer_t *writer, std::string_view value) {
@@ -328,7 +328,7 @@ void inline check_node_type(mpack_node_t node, mpack_type_t expected_type) {
   mpack_tag_t tag = mpack_node_tag(node);
   auto type = mpack_tag_type(&tag);
   if (type != expected_type)
-    DLOG(ERROR) << "Expected: '" << mpack_type_to_string(expected_type)
+    LOG(ERROR) << "Expected: '" << mpack_type_to_string(expected_type)
                 << " node',  instead got: '" << mpack_type_to_string(type)
                 << "'";
 }
@@ -361,7 +361,7 @@ inline std::array<int64_t, 2>
 mpack_read<std::array<int64_t, 2>>(mpack_node_t node) {
   check_node_type(node, mpack_type_array);
   if (size_t l = mpack_node_array_length(node); l != 2) {
-    DLOG(ERROR)
+    LOG(ERROR)
         << ": Try to read std::array<int64_t, 2> while mpack array size is: '"
         << l << "'";
   }
@@ -466,7 +466,7 @@ template <> inline Object mpack_read<Object>(mpack_node_t node) {
     return Object(res_vec_wrapper);
   }
   default: {
-    DLOG(ERROR) << "Unsupport type: '" << mpack_type_to_string(type) << "'";
+    LOG(ERROR) << "Unsupport type: '" << mpack_type_to_string(type) << "'";
     return {};
   }
   }

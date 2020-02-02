@@ -75,7 +75,7 @@ class NvimApi {
     do {
       std::optional<mpack_node_t> rc = decoder.poll();
       if (!rc) {
-				DLOG_EVERY_N(100000, INFO) << "Not sufficient data in buffer";
+				LOG_EVERY_N(1000000, INFO) << "Not sufficient data in buffer";
         continue;
       }
       MpackRpcUnpack resp_unpack{rc.value()};
