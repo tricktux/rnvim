@@ -15,7 +15,7 @@ set (CMAKE_MODULE_PATH ${_modules})
 # include("${CMAKE_SOURCE_DIR}/cmake/external/gsl.cmake")
 # include("${CMAKE_SOURCE_DIR}/cmake/external/mpack.cmake")
 # include("${CMAKE_SOURCE_DIR}/cmake/external/libnvc.cmake")
-include("${CMAKE_SOURCE_DIR}/cmake/external/nvim.cmake")
+# include("${CMAKE_SOURCE_DIR}/cmake/external/nvim.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/easylogging.cmake")
 # include("${CMAKE_SOURCE_DIR}/cmake/external/cxxopts.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/external/reproc++.cmake")
@@ -150,12 +150,15 @@ configure_file(
 
 # include (GNUInstallDirs)
 # install (TARGETS test_nvimapi)
-# TODO If (NVIM_EXTERNAL)
 # copy files to output dir
-# # Copy all config files to /etc
-# if (EXISTS "${CMAKE_SOURCE_DIR}/config")
-  # install (FILES
-    # GLOB "${CMAKE_SOURCE_DIR}/config/*.*"
-    # DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}
+# If (NVIM_EXTERNAL)
+# # # Copy all config files to /etc
+  # install (DIRECTORY
+      # ${nvim_INSTALL}/bin/
+      # DESTINATION ${CMAKE_INSTALL_BINDIR}
+    # )
+  # install (DIRECTORY
+      # ${nvim_INSTALL}/share/
+      # DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}
     # )
 # endif ()
