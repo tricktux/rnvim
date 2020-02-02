@@ -142,11 +142,11 @@ if(ENABLE_TESTS AND EXISTS "${CMAKE_SOURCE_DIR}/tests")
 endif()
 
 # Copy configuration files
-configure_file(
-		"${CMAKE_SOURCE_DIR}/config/easylogingpp.conf"
-		"${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/easylogingpp.conf"
-		COPYONLY
-	)
+# configure_file(
+		# "${CMAKE_SOURCE_DIR}/config/easylogingpp.conf"
+		# "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/easylogingpp.conf"
+		# COPYONLY
+	# )
 
 # include (GNUInstallDirs)
 # install (TARGETS test_nvimapi)

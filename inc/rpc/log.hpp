@@ -25,8 +25,15 @@
 #include "easylogging++.h"
 
 class Log {
-  public:
-    Log();
+  const char *ENV_VAR = "NVIMPP_LOG_FILE";
+  const char *FORMAT = "%datetime{%M-%d-%y %H:%m:%s,%g} %level %fbase: %msg";
+  const char *SUBSECOND_PRECISION = "4";
+  const char *PERFORMANCE_TRACKING = "false";
+  const char *MAX_LOG_FILE_SIZE = "52428800"; // 50MB
+  const char *LOG_FLUSH_THRESHOLD = "100";
+
+public:
+  Log();
 };
 
 #endif

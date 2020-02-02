@@ -21,24 +21,39 @@
 
 #include "rpc/log.hpp"
 #include <filesystem>
+#include <cstdlib>
 
 namespace fs = std::filesystem;
 INITIALIZE_EASYLOGGINGPP
 
 Log::Log() {
-  fs::path elconf{fs::current_path()};
-  if (elconf.empty()) {
-    return;
+  bool enabled = false;
+  const char *log_path = std::getenv(ENV_VAR);
+  if (log_path != nullptr) {
+    fs::path lpath{log_path};
+    if (fs::exists(lpath.parent_path())) {
+      enabled = true;
+    }
   }
 
-  elconf.append("easylogingpp.conf");
-  if (!fs::is_regular_file(elconf)) {
-    return;
+  el::Configurations conf;
+  conf.setToDefault();
+  // Values are always std::string
+  conf.setGlobally(el::ConfigurationType::Format, FORMAT);
+  if (enabled) {
+    conf.setGlobally(el::ConfigurationType::Filename, log_path);
   }
-  el::Configurations conf(elconf.c_str());
+  conf.setGlobally(el::ConfigurationType::SubsecondPrecision,
+                   SUBSECOND_PRECISION);
+  conf.setGlobally(el::ConfigurationType::PerformanceTracking,
+                   PERFORMANCE_TRACKING);
+  conf.setGlobally(el::ConfigurationType::MaxLogFileSize, MAX_LOG_FILE_SIZE);
+  conf.setGlobally(el::ConfigurationType::LogFlushThreshold,
+                   LOG_FLUSH_THRESHOLD);
+  conf.setGlobally(el::ConfigurationType::ToStandardOutput, "false");
+  conf.setGlobally(el::ConfigurationType::Enabled, enabled ? "true" : "false");
   el::Loggers::reconfigureAllLoggers(conf);
-  DLOG(INFO) << ">>>Start of Log<<<";
-  DLOG(INFO) << "Easylogging config file: '" << elconf << "'";
+  LOG(INFO) << ">>>Start of Log<<<";
 }
 
 static Log log{};
