@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 # Set ProjectName
-project(rnvim)
+project(nvimpp)
 
 # Manually include dependencies
 set (_modules
@@ -130,7 +130,7 @@ endif ()
 
 
 # add_subdirectory("lib")
-# add_subdirectory("src")
+add_subdirectory("src")
 # TODO Fix cmake for doxygen
 # add_subdirectory("docs")
 
