@@ -66,15 +66,6 @@ include(CheckCXXCompilerFlag)
 set (_cpp_version "17")
 if (MSVC AND MSVC_VERSION GREATER_EQUAL "1900")
 	check_cxx_compiler_flag("/std:c++latest" _cpp_latest_flag_supported)
-	if (_cpp_latest_flag_supported)
-		add_compile_options("/std:c++latest")
-	endif()
-else ()
-	check_cxx_compiler_flag("-std=c++${_cpp_version}"
-		_cpp_latest_flag_supported)
-	if (_cpp_latest_flag_supported)
-		add_compile_options("-std=c++${_cpp_version}")
-	endif()
 endif()
 
 # add flags to release mode
