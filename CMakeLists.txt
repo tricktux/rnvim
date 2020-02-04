@@ -148,8 +148,12 @@ endif()
 		# COPYONLY
 	# )
 
-# include (GNUInstallDirs)
-# install (TARGETS test_nvimapi)
+include (GNUInstallDirs)
+# install (TARGETS ${PROJECT_NAME})
+# install (DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/inc/${PROJECT_NAME}
+  # DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  # USE_SOURCE_PERMISSIONS
+  # PATTERN "*.hpp")
 # copy files to output dir
 # If (NVIM_EXTERNAL)
 # # # Copy all config files to /etc
