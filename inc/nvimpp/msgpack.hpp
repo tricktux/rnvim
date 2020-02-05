@@ -21,7 +21,7 @@
 #ifndef MSGPACK_HPP
 #define MSGPACK_HPP
 
-#include "rpc/log.hpp"
+#include "nvimpp/log.hpp"
 #include "mpack.h"
 
 #include <memory>

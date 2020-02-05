@@ -21,7 +21,7 @@
 #ifndef IODEVICE_HPP
 #define IODEVICE_HPP
 
-#include "rpc/log.hpp"
+#include "nvimpp/log.hpp"
 
 #include <chrono>
 #include <cstring>

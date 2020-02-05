@@ -22,9 +22,9 @@
 #ifndef STREAMDECODER_HPP
 #define STREAMDECODER_HPP
 
-#include "rpc/log.hpp"
+#include "nvimpp/log.hpp"
 #include "mpack.h"
-#include "rpc/iodevice.hpp"
+#include "nvimpp/iodevice.hpp"
 #include <optional>
 
 namespace nvimrpc {

@@ -22,7 +22,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 #include <chrono>
-#include "rpc/iodevice.hpp"
+#include "nvimpp/iodevice.hpp"
 
 /**
  * @brief Test ReprocDevice start, stop, and read cmake output

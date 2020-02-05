@@ -16,12 +16,12 @@ add_library(${PROJECT_NAME} "")
 target_sources(${PROJECT_NAME}
 		PRIVATE
 			# main.cpp
-			rpc/iodevice.cpp
-			rpc/msgpack.cpp
-			rpc/streamdecoder.cpp
-			${CMAKE_SOURCE_DIR}/inc/rpc/iodevice.hpp
-			${CMAKE_SOURCE_DIR}/inc/rpc/msgpack.hpp
-			${CMAKE_SOURCE_DIR}/inc/rpc/streamdecoder.hpp
+      ${PROJECT_NAME}/iodevice.cpp
+			${PROJECT_NAME}/msgpack.cpp
+			${PROJECT_NAME}/streamdecoder.cpp
+			${CMAKE_SOURCE_DIR}/inc/${PROJECT_NAME}/iodevice.hpp
+			${CMAKE_SOURCE_DIR}/inc/${PROJECT_NAME}/msgpack.hpp
+			${CMAKE_SOURCE_DIR}/inc/${PROJECT_NAME}/streamdecoder.hpp
 			${JINJA2_SRC}
 	)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
