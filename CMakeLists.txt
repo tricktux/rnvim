@@ -127,7 +127,6 @@ add_subdirectory("src")
 
 if(ENABLE_TESTS AND EXISTS "${CMAKE_SOURCE_DIR}/tests")
 	message(STATUS "Building Tests")
-	find_package(GTest REQUIRED)
 	enable_testing()
 	add_subdirectory("tests")
 endif()

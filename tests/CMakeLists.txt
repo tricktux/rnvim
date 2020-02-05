@@ -1,3 +1,5 @@
+find_package(GTest REQUIRED)
+
 include_directories(${CMAKE_SOURCE_DIR}/inc)
 include_directories("${CMAKE_SOURCE_DIR}/third-party/mpack")
 
