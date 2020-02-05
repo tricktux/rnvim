@@ -20,6 +20,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "nvimpp/log.hpp"
+
+#include "easylogging++.h"
 #include <filesystem>
 #include <cstdlib>
 

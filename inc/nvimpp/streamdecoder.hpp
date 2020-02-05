@@ -51,23 +51,7 @@ class StreamDecoder {
    * @param count
    * @return
    */
-  static size_t read_iodev(mpack_tree_t *ptree, char *buf, size_t count) {
-    if (ptree == nullptr) {
-      LOG(ERROR) << "Invalid tree pointer";
-      return 0;
-    }
-    if (buf == nullptr) {
-      LOG(ERROR) << "Invalid buf pointer";
-      return 0;
-    }
-    if (count == 0) {
-      LOG(ERROR) << "Zero count provided";
-      return 0;
-    }
-
-    auto piodev = (IoDevice *)(mpack_tree_context(ptree));
-    return piodev->read(buf, count);
-  }
+  static size_t read_iodev(mpack_tree_t *ptree, char *buf, size_t count);
 
 public:
   StreamDecoder(IoDevice &dev) : tree() {

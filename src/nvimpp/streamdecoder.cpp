@@ -20,6 +20,8 @@
 
 #include "nvimpp/streamdecoder.hpp"
 
+#include "easylogging++.h"
+
 /**
  * @brief Parse data from the `stdout` into an `mpack_node_t`
  * This function uses `mpack_tree_try_parse` which in turn calls `read_iodev`,
@@ -33,7 +35,7 @@ std::optional<mpack_node_t> nvimrpc::StreamDecoder::poll() {
   if (mpack_tree_try_parse(&tree)) {
     return mpack_tree_root(&tree);
   }
-	// mpack_tree_parse(&tree);
+  // mpack_tree_parse(&tree);
 
   // no message valid, two possible reasons:
   //   1. error occurred
@@ -46,7 +48,26 @@ std::optional<mpack_node_t> nvimrpc::StreamDecoder::poll() {
 
   std::string err{"Error: "};
   err.append(mpack_error_to_string(ec));
-	LOG(FATAL) << err;
+  LOG(FATAL) << err;
   throw std::runtime_error(err.c_str());
   return {};
+}
+
+inline size_t nvimrpc::StreamDecoder::read_iodev(mpack_tree_t *ptree, char *buf,
+                                                 size_t count) {
+  if (ptree == nullptr) {
+    LOG(ERROR) << "Invalid tree pointer";
+    return 0;
+  }
+  if (buf == nullptr) {
+    LOG(ERROR) << "Invalid buf pointer";
+    return 0;
+  }
+  if (count == 0) {
+    LOG(ERROR) << "Zero count provided";
+    return 0;
+  }
+
+  auto piodev = (IoDevice *)(mpack_tree_context(ptree));
+  return piodev->read(buf, count);
 }

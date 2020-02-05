@@ -19,6 +19,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "nvimpp/iodevice.hpp"
+
+#include "easylogging++.h"
 #include <algorithm>
 #include <chrono>
 #include <vector>

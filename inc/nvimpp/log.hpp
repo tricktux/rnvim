@@ -22,8 +22,6 @@
 #ifndef LOG_HPP
 #define LOG_HPP
 
-#include "easylogging++.h"
-
 class Log {
   const char *ENV_VAR = "NVIMPP_LOG_FILE";
   const char *FORMAT = "%datetime{%M-%d-%y %H:%m:%s,%g} %level %fbase: %msg";

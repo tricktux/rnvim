@@ -42,9 +42,8 @@ void log_server_pack_node(mpack_node_t node);
 // this can easily give bug
 class ObjectWrapper;
 using Object = std::variant<bool, int64_t, double, std::string,
-										 std::array<int64_t, 2>,
-                     std::vector<ObjectWrapper>,
-                     std::unordered_map<std::string, ObjectWrapper>>;
+                            std::array<int64_t, 2>, std::vector<ObjectWrapper>,
+                            std::unordered_map<std::string, ObjectWrapper>>;
 
 class ObjectWrapper {
   // Use shared_ptr not unique_ptr
@@ -95,19 +94,19 @@ public:
  *
  * */
 class MpackRpcPack : public IMpackRpcPack {
-  char *data;
-  size_t size;
+  char *data{};
+  size_t size{};
   mpack_writer_t writer;
 
 public:
-  MpackRpcPack() : data(nullptr), size(0) {
+  MpackRpcPack() {
     mpack_writer_init_growable(&writer, &data, &size);
     // The request message is a four elements array
     mpack_start_array(&writer, NUM_ELEMENTS);
     // The message type, must be the integer zero (0) for "Request" messages.
     mpack_write_i32(&writer, MSG_TYPE);
   }
-  virtual ~MpackRpcPack() {
+  ~MpackRpcPack() override {
     if (data != nullptr) {
       MPACK_FREE(data);
       data = nullptr;
@@ -126,13 +125,7 @@ public:
    * @brief Set the method name
    * @param name A string which represents the method name.
    */
-  void set_method(std::string_view name) override {
-    if (name.empty()) {
-      LOG(ERROR) << "Empty method name";
-      return;
-    }
-    mpack_write_cstr(&writer, name.data());
-  }
+  void set_method(std::string_view name) override;
 
   /**
    * @brief Pass the method parameters
@@ -186,103 +179,32 @@ public:
   }
   virtual ~MpackRpcUnpack() = default;
 
-  size_t get_num_elements() override {
-    if (mpack_node_is_nil(node)) {
-      LOG(ERROR) << "Empty node";
-      return 0;
-    }
-    return mpack_node_array_length(node);
-  }
-
-  int get_msg_type() override {
-    if (mpack_node_is_nil(node)) {
-      LOG(ERROR) << "Empty node";
-      return -1;
-    }
-    if (mpack_node_array_length(node) <= RESPONSE_MSG_TYPE_IDX) {
-      LOG(ERROR) << "Array in node is smaller than expected";
-      return -2;
-    }
-
-    return mpack_node_u32(mpack_node_array_at(node, RESPONSE_MSG_TYPE_IDX));
-  }
-
-  size_t get_msgid() override {
-    if (mpack_node_is_nil(node)) {
-      LOG(ERROR) << "Empty node";
-      return 0;
-    }
-    if (mpack_node_array_length(node) <= RESPONSE_MSG_ID_IDX) {
-      LOG(ERROR) << "Array in node is smaller than expected";
-      return 0;
-    }
-
-    return mpack_node_u32(mpack_node_array_at(node, RESPONSE_MSG_ID_IDX));
-  }
-
+  size_t get_num_elements() override;
+  int get_msg_type() override;
+  size_t get_msgid() override;
   std::optional<std::tuple<int64_t, std::string>> get_error() override;
 
   // This function cannot be virtual because it uses templates
-  template <typename T> T get_result() {
-    if (mpack_node_is_nil(node)) {
-      LOG(ERROR) << "Empty node";
-      return T();
-    }
-
-    if (mpack_node_array_length(node) <= RESPONSE_RESULT_IDX) {
-      LOG(ERROR) << "Array in node is smaller than expected";
-      return T();
-    }
-
-    mpack_node_t result = mpack_node_array_at(node, RESPONSE_RESULT_IDX);
-    if (mpack_node_is_nil(result)) {
-      if (!std::is_void<T>::value)
-        LOG(WARNING) << "Got a nil result, but was expecting an actual value";
-      return T();
-    }
-
-    return std::forward<T>(mpack_read<T>(result));
-  }
+  template <typename T> T get_result();
 };
 
 // --------------mpack_write--------------------- //
 
-void inline mpack_write(mpack_writer_t *writer, const Object &obj) {
-  if (std::holds_alternative<bool>(obj))
-    return mpack_write(writer, std::get<bool>(obj));
-  if (std::holds_alternative<int64_t>(obj))
-    return mpack_write(writer, std::get<int64_t>(obj));
-  if (std::holds_alternative<double>(obj))
-    return mpack_write(writer, std::get<double>(obj));
-  if (std::holds_alternative<std::string>(obj))
-    return mpack_write(writer, std::get<std::string>(obj));
-  if (std::holds_alternative<std::array<int64_t, 2>>(obj))
-    return mpack_write(writer, std::get<std::array<int64_t, 2>>(obj));
-  if (std::holds_alternative<std::unordered_map<std::string, ObjectWrapper>>(
-          obj)) {
-    return mpack_write(
-        writer, std::get<std::unordered_map<std::string, ObjectWrapper>>(obj));
-  }
-  if (std::holds_alternative<std::vector<ObjectWrapper>>(obj)) {
-    return mpack_write(writer, std::get<std::vector<ObjectWrapper>>(obj));
-  }
+inline void mpack_write(mpack_writer_t *writer, const Object &obj);
 
-  LOG(ERROR) << "Unrecognized Object type!";
-}
-
-void inline mpack_write(mpack_writer_t *writer, std::string_view value) {
+inline void mpack_write(mpack_writer_t *writer, std::string_view value) {
   mpack_write_cstr(writer, value.data());
 }
-void inline mpack_write(mpack_writer_t *writer, const std::string &value) {
+inline void mpack_write(mpack_writer_t *writer, const std::string &value) {
   mpack_write_cstr(writer, value.data());
 }
 // inline void
 // mpack_write(mpack_writer_t *writer,
 // const std::unordered_map<std::string, ObjectWrapper> &object_map);
 
-void inline mpack_write(
-    mpack_writer_t *writer,
-    const std::unordered_map<std::string, Object> &object_map) {
+inline void
+mpack_write(mpack_writer_t *writer,
+            const std::unordered_map<std::string, Object> &object_map) {
   mpack_start_map(writer, object_map.size());
   for (const auto &val : object_map) {
     mpack_write(writer, val.first);
@@ -291,9 +213,9 @@ void inline mpack_write(
   mpack_finish_map(writer);
 }
 
-void inline mpack_write(
-    mpack_writer_t *writer,
-    const std::unordered_map<std::string, ObjectWrapper> &object_map) {
+inline void
+mpack_write(mpack_writer_t *writer,
+            const std::unordered_map<std::string, ObjectWrapper> &object_map) {
   mpack_start_map(writer, object_map.size());
   for (const auto &val : object_map) {
     mpack_write(writer, val.first);
@@ -301,7 +223,7 @@ void inline mpack_write(
   }
   mpack_finish_map(writer);
 }
-void inline mpack_write(mpack_writer_t *writer,
+inline void mpack_write(mpack_writer_t *writer,
                         const std::vector<ObjectWrapper> &object_list) {
   mpack_start_array(writer, object_list.size());
   for (const auto &val : object_list) {
@@ -311,7 +233,7 @@ void inline mpack_write(mpack_writer_t *writer,
 }
 
 template <typename T, typename... Params>
-void inline mpack_write(mpack_writer_t *writer, T &&value,
+inline void mpack_write(mpack_writer_t *writer, T &&value,
                         Params &&... params) {
   mpack_write(writer, std::forward<T>(value));
   mpack_write(writer, std::forward<Params>(params)...);
@@ -324,14 +246,8 @@ void inline mpack_write(mpack_writer_t *writer, T &&value,
 
 // --------------mpack_read--------------------- //
 //
-void inline check_node_type(mpack_node_t node, mpack_type_t expected_type) {
-  mpack_tag_t tag = mpack_node_tag(node);
-  auto type = mpack_tag_type(&tag);
-  if (type != expected_type)
-    LOG(ERROR) << "Expected: '" << mpack_type_to_string(expected_type)
-                << " node',  instead got: '" << mpack_type_to_string(type)
-                << "'";
-}
+void check_node_type(mpack_node_t node, mpack_type_t expected_type);
+
 // template <typename T> T mpack_read(mpack_node_t);
 template <> inline bool mpack_read<bool>(mpack_node_t node) {
   check_node_type(node, mpack_type_bool);
@@ -357,20 +273,7 @@ template <> inline std::string mpack_read<std::string>(mpack_node_t node) {
 }
 
 template <>
-inline std::array<int64_t, 2>
-mpack_read<std::array<int64_t, 2>>(mpack_node_t node) {
-  check_node_type(node, mpack_type_array);
-  if (size_t l = mpack_node_array_length(node); l != 2) {
-    LOG(ERROR)
-        << ": Try to read std::array<int64_t, 2> while mpack array size is: '"
-        << l << "'";
-  }
-
-  std::array<int64_t, 2> res;
-  res[0] = mpack_read<int64_t>(mpack_node_array_at(node, 0));
-  res[1] = mpack_read<int64_t>(mpack_node_array_at(node, 1));
-  return res;
-}
+std::array<int64_t, 2> mpack_read<std::array<int64_t, 2>>(mpack_node_t node);
 
 template <typename T> std::vector<T> mpack_read_array(mpack_node_t node) {
   check_node_type(node, mpack_type_array);
@@ -430,47 +333,7 @@ mpack_read<std::unordered_map<std::string, Object>>(mpack_node_t node) {
   return mpack_read_map<std::string, Object>(node);
 }
 
-template <> inline Object mpack_read<Object>(mpack_node_t node) {
-  Object obj{};
-  auto tag = mpack_node_tag(node);
-  switch (auto type = mpack_tag_type(&tag)) {
-  case mpack_type_bool: {
-    return mpack_read<bool>(node);
-  }
-  case mpack_type_int: {
-    return mpack_read<int64_t>(node);
-  }
-  case mpack_type_uint: {
-    return (int64_t)(mpack_read<uint64_t>(node));
-  }
-  case mpack_type_double: {
-    return mpack_read<double>(node);
-  }
-  case mpack_type_str: {
-    return mpack_read<std::string>(node);
-  }
-  case mpack_type_map: {
-    auto res_map = mpack_read<std::unordered_map<std::string, Object>>(node);
-    std::unordered_map<std::string, ObjectWrapper> res_map_wrapper;
-    for (auto &item : res_map) {
-      res_map_wrapper[item.first] = ObjectWrapper(item.second);
-    }
-    return Object(res_map_wrapper);
-  }
-  case mpack_type_array: {
-    auto res_vec = mpack_read<std::vector<Object>>(node);
-    std::vector<ObjectWrapper> res_vec_wrapper;
-    for (auto &item : res_vec) {
-      res_vec_wrapper.emplace_back(ObjectWrapper(item));
-    }
-    return Object(res_vec_wrapper);
-  }
-  default: {
-    LOG(ERROR) << "Unsupport type: '" << mpack_type_to_string(type) << "'";
-    return {};
-  }
-  }
-}
+template <> Object mpack_read<Object>(mpack_node_t node);
 
 } // namespace nvimrpc
 #endif

@@ -5,6 +5,8 @@ set_source_files_properties(${JINJA2_SRC}
 
 # Executables
 add_library(${PROJECT_NAME} "")
+#Add an alias so that library can be used inside the build tree, e.g. when testing
+add_library(${PROJECT_NAME}::nvimrpc ALIAS ${PROJECT_NAME})
 
 # Add code coverage
 # As an executable target, the reports will exclude the non-covered.cpp file,
@@ -24,11 +26,11 @@ target_sources(${PROJECT_NAME}
 			${CMAKE_SOURCE_DIR}/inc/${PROJECT_NAME}/streamdecoder.hpp
 			${JINJA2_SRC}
 	)
+target_include_mpack(${PROJECT_NAME})
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 if (_cpp_latest_flag_supported)
   target_compile_options(${PROJECT_NAME} PRIVATE "/std:c++latest")
 endif()
-target_include_mpack(${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/inc>)
