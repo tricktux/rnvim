@@ -1,7 +1,7 @@
 find_package(GTest REQUIRED)
 
-include_directories(${CMAKE_SOURCE_DIR}/inc)
-include_directories("${CMAKE_SOURCE_DIR}/third-party/mpack")
+# include_directories(${CMAKE_SOURCE_DIR}/inc)
+# include_directories("${CMAKE_SOURCE_DIR}/third-party/mpack")
 
 if (GTEST_FOUND)
 	include_directories(SYSTEM "${GTEST_INCLUDE_DIRS}")
@@ -49,9 +49,8 @@ target_sources(test_iodevice
 			# ${JINJA2_SRC}
 	)
 add_dependencies(test_iodevice ${PROJECT_NAME})
-target_link_libraries(test_iodevice
-    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/lib${PROJECT_NAME}.a"
-  )
+target_compile_features(test_iodevice PRIVATE cxx_std_17)
+target_link_libraries(test_iodevice ${PROJECT_NAME}::nvimrpc)
 # target_include_mpack(test_iodevice)
 # if (reprocxx_EXTERNAL)
 	# add_dependencies(test_iodevice reproc)

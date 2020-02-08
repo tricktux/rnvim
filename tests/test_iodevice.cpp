@@ -19,10 +19,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <nvimpp/iodevice.hpp>
 #include <gtest/gtest.h>
 #include <vector>
 #include <chrono>
-#include "nvimpp/iodevice.hpp"
 
 /**
  * @brief Test ReprocDevice start, stop, and read cmake output

@@ -37,7 +37,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/third-party/mpack>)
-target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 
 if (JINJA2_FOUND)
 	add_dependencies(${PROJECT_NAME} jinja2_proc)
@@ -51,14 +51,14 @@ if (EASYLOGGING_FOUND)
   target_include_directories(${PROJECT_NAME} PUBLIC
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     $<BUILD_INTERFACE:${EASYLOGGING_INCLUDE_DIRS}>)
-	target_link_libraries(${PROJECT_NAME} ${EASYLOGGING_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME} PUBLIC ${EASYLOGGING_LIBRARIES})
 endif ()
 if (NVC_FOUND)
 	add_dependencies(${PROJECT_NAME} nvc)
   target_include_directories(${PROJECT_NAME} PUBLIC
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     $<BUILD_INTERFACE:${NVC_INCLUDE_DIRS}>)
-	target_link_libraries(${PROJECT_NAME} ${NVC_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME} PUBLIC ${NVC_LIBRARIES})
 endif ()
 if (CXXOPTS_FOUND)
 	add_dependencies(${PROJECT_NAME} cxxopts)
@@ -73,11 +73,11 @@ if (reprocxx_FOUND)
   target_include_directories(${PROJECT_NAME} PUBLIC SYSTEM
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     $<BUILD_INTERFACE:${reprocxx_INCLUDE_DIRS}>)
-	target_link_libraries(${PROJECT_NAME} ${reprocxx_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME} PUBLIC ${reprocxx_LIBRARIES})
 endif ()
 if (GSL_FOUND)
 	add_dependencies(${PROJECT_NAME} gsl)
-  target_include_directories(${PROJECT_NAME} INTERFACE SYSTEM
+  target_include_directories(${PROJECT_NAME} PUBLIC SYSTEM
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     $<BUILD_INTERFACE:${GSL_INCLUDE_DIRS}>)
 endif ()
