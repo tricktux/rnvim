@@ -4,7 +4,7 @@ set_source_files_properties(${JINJA2_SRC}
 	)
 
 # Executables
-add_library(${PROJECT_NAME} "")
+add_library(${PROJECT_NAME} STATIC "")
 #Add an alias so that library can be used inside the build tree, e.g. when testing
 add_library(${PROJECT_NAME}::nvimrpc ALIAS ${PROJECT_NAME})
 
@@ -17,7 +17,6 @@ add_library(${PROJECT_NAME}::nvimrpc ALIAS ${PROJECT_NAME})
 
 target_sources(${PROJECT_NAME}
 		PRIVATE
-			# main.cpp
       ${PROJECT_NAME}/iodevice.cpp
 			${PROJECT_NAME}/msgpack.cpp
 			${PROJECT_NAME}/streamdecoder.cpp
@@ -37,7 +36,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/third-party/mpack>)
-target_link_libraries(${PROJECT_NAME} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+# target_link_libraries(${PROJECT_NAME} PRIVATE Thread::Thread)
 
 if (JINJA2_FOUND)
 	add_dependencies(${PROJECT_NAME} jinja2_proc)
@@ -47,7 +46,7 @@ if (JINJA2_FOUND)
 endif ()
 if (EASYLOGGING_FOUND)
 	add_dependencies(${PROJECT_NAME} easylogging)
-	target_add_easylogging_definitions(${PROJECT_NAME})
+	target_include_easyloggingpp(${PROJECT_NAME})
   target_include_directories(${PROJECT_NAME} PUBLIC
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     $<BUILD_INTERFACE:${EASYLOGGING_INCLUDE_DIRS}>)

@@ -6,7 +6,7 @@ set(easylogging_PREFIX ${CMAKE_BINARY_DIR}/external/easylogging-prefix)
 set(easylogging_INSTALL ${CMAKE_BINARY_DIR}/external/easylogging-install)
 
 set(easylogging_LIBS
-		${easylogging_INSTALL}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}easyloggingpp${CMAKE_STATIC_LIBRARY_SUFFIX}
+  ${easylogging_INSTALL}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}easyloggingpp${CMAKE_STATIC_LIBRARY_SUFFIX}
 	)
 
 ExternalProject_Add(
@@ -18,7 +18,7 @@ ExternalProject_Add(
 	GIT_PROGRESS	 TRUE
 	CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release
 						-DCMAKE_INSTALL_PREFIX=${easylogging_INSTALL}
-						-Dbuild_static_lib=ON
+            -Dbuild_static_lib=ON
 
 	UPDATE_DISCONNECTED TRUE
 	BUILD_BYPRODUCTS ${easylogging_LIBS}
@@ -28,12 +28,21 @@ ExternalProject_Add(
 
 set(EASYLOGGING_FOUND TRUE)
 set(EASYLOGGING_INCLUDE_DIRS ${easylogging_INSTALL}/include)
+set(EASYLOGGING_SOURCES
+      ${EASYLOGGING_INCLUDE_DIRS}/easylogging++.h
+      ${EASYLOGGING_INCLUDE_DIRS}/easylogging++.cc
+)
 set(EASYLOGGING_LIBRARIES ${easylogging_LIBS})
 set(EASYLOGGING_LIBRARY_DIRS ${easylogging_INSTALL}/lib)
 set(EASYLOGGING_EXTERNAL TRUE)
 # TODO if (WIN32) copy dynamic lib to RUNTIME_OUTPUT_DIR?
 
-function(target_add_easylogging_definitions target)
+function(target_include_easyloggingpp target)
+  # Everywhere you want to include ${JINJA2_SRC}
+  # You must copy and paste this line :(.... ask CMake
+  # set_source_files_properties(${EASYLOGGING_SOURCES}
+    # PROPERTIES GENERATED 1
+    # )
 	target_compile_definitions(${target}
 		PRIVATE
 			ELPP_STL_LOGGING
@@ -41,5 +50,11 @@ function(target_add_easylogging_definitions target)
 			ELPP_LOG_UNORDERED_MAP
 			ELPP_LOG_UNORDERED_SET
 		)
+  # target_sources(${target}
+    # PRIVATE
+      # ${EASYLOGGING_SOURCES}
+  # )
+  # target_include_directories(${target}
+    # PRIVATE ${EASYLOGGING_INCLUDE_DIRS})
 endfunction()
 
