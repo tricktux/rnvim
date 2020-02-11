@@ -35,7 +35,30 @@ set(EASYLOGGING_SOURCES
 set(EASYLOGGING_LIBRARIES ${easylogging_LIBS})
 set(EASYLOGGING_LIBRARY_DIRS ${easylogging_INSTALL}/lib)
 set(EASYLOGGING_EXTERNAL TRUE)
-# TODO if (WIN32) copy dynamic lib to RUNTIME_OUTPUT_DIR?
+add_library(easyloggingpp::easyloggingpp INTERFACE IMPORTED)
+set (easylogging_defines
+        ELPP_STL_LOGGING
+        ELPP_LOG_STD_ARRAY
+        ELPP_LOG_UNORDERED_MAP
+        ELPP_LOG_UNORDERED_SET
+        )
+# set_target_properties(easyloggingpp::easyloggingpp PROPERTIES
+    # IMPORTED_LOCATION ${EASYLOGGING_LIBRARIES}
+  # )
+set_target_properties(easyloggingpp::easyloggingpp PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES
+      $<INSTALL_INTERFACE:${EASYLOGGING_INCLUDE_DIRS}>
+      # $<BUILD_INTERFACE:${EASYLOGGING_INCLUDE_DIRS}>
+  )
+set_target_properties(easyloggingpp::easyloggingpp PROPERTIES
+    INTERFACE_COMPILE_DEFINITIONS ELPP_STL_LOGGING
+    )
+set_target_properties(easyloggingpp::easyloggingpp PROPERTIES
+    INTERFACE_LINK_DIRECTORIES ${EASYLOGGING_LIBRARY_DIRS}
+  )
+set_target_properties(easyloggingpp::easyloggingpp PROPERTIES
+    INTERFACE_LINK_LIBRARIES ${EASYLOGGING_LIBRARIES}
+  )
 
 function(target_include_easyloggingpp target)
   # Everywhere you want to include ${JINJA2_SRC}

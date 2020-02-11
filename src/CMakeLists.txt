@@ -46,11 +46,10 @@ if (JINJA2_FOUND)
 endif ()
 if (EASYLOGGING_FOUND)
 	add_dependencies(${PROJECT_NAME} easylogging)
-	target_include_easyloggingpp(${PROJECT_NAME})
-  target_include_directories(${PROJECT_NAME} PUBLIC
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+	# target_include_easyloggingpp(${PROJECT_NAME})
+  target_include_directories(${PROJECT_NAME} PRIVATE
     $<BUILD_INTERFACE:${EASYLOGGING_INCLUDE_DIRS}>)
-  target_link_libraries(${PROJECT_NAME} PUBLIC ${EASYLOGGING_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME} PRIVATE easyloggingpp::easyloggingpp)
 endif ()
 if (NVC_FOUND)
 	add_dependencies(${PROJECT_NAME} nvc)
