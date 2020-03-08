@@ -97,11 +97,12 @@ size_t nvimrpc::ReprocDevice::write(std::string_view data) {
     return 0;
   }
 
-  if (auto ec = process.write(reinterpret_cast<const uint8_t *>(data.data()),
-                              data.size())) {
-    DLOG(FATAL) << "Failed to send: '" << data << "'. Error message: '"
-                << ec.message() << "'";
-    throw std::runtime_error(ec.message());
+  std::pair<size_t, std::error_code> rc = process.write(
+      reinterpret_cast<const uint8_t *>(data.data()), data.size());
+  if ((rc.first == 0) || !(rc.second)) {
+    DLOG(ERROR) << "Failed to send: '" << data << "'. Error message: '"
+                << rc.second.message() << "'";
+    throw std::runtime_error(rc.second.message());
   }
   return data.size();
 }
@@ -113,22 +114,22 @@ size_t nvimrpc::ReprocDevice::write(std::string_view data) {
  * @return Size of rec'd data
  */
 // size_t nvimrpc::ReprocDevice::recv(std::string &data, size_t timeout) {
-  // size_t t = timeout == 0 ? 60000 : timeout * 1000; // Convert to ms
-  // for (size_t k = t; k > 0; k -= 100) {
-    // {
-      // std::lock_guard<std::mutex> guard(m);
-      // if (!output.empty()) {
-        // DLOG(INFO) << "Rec'd data: '" << output << "'";
-        // data = output;
-        // output.clear();
-        // return data.size();
-      // }
-    // }
-    // std::this_thread::sleep_for(std::chrono::milliseconds{100});
-  // }
+// size_t t = timeout == 0 ? 60000 : timeout * 1000; // Convert to ms
+// for (size_t k = t; k > 0; k -= 100) {
+// {
+// std::lock_guard<std::mutex> guard(m);
+// if (!output.empty()) {
+// DLOG(INFO) << "Rec'd data: '" << output << "'";
+// data = output;
+// output.clear();
+// return data.size();
+// }
+// }
+// std::this_thread::sleep_for(std::chrono::milliseconds{100});
+// }
 
-  // DLOG(WARNING) << "Timed out waiting for data";
-  // return 0;
+// DLOG(WARNING) << "Timed out waiting for data";
+// return 0;
 // }
 
 /**
