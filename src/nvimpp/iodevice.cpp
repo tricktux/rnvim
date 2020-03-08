@@ -56,8 +56,9 @@ int nvimrpc::ReprocDevice::start(const std::vector<const char *> &argv,
   if (auto ec = process.start(argv.data(), options)) {
     LOG(ERROR) << "Error occurred trying to start: '" << argv.data()
                << "'. Error message: '" << ec.message() << "'";
-    if (ec == std::errc::no_such_file_or_directory)
+    if (ec == std::errc::no_such_file_or_directory) {
       throw std::runtime_error("Executable not found, make sure it's in PATH");
+    }
     throw std::runtime_error(ec.message());
   }
 
