@@ -25,6 +25,12 @@ target_sources(${PROJECT_NAME}
 			${CMAKE_SOURCE_DIR}/inc/${PROJECT_NAME}/streamdecoder.hpp
 			${JINJA2_SRC}
 	)
+if (EASYLOGGING_FOUND)
+  add_dependencies(${PROJECT_NAME} easylogging)
+  # target_include_easyloggingpp(${PROJECT_NAME})
+  target_include_directories(${PROJECT_NAME} INTERFACE easyloggingpp::easyloggingpp)
+  target_link_libraries(${PROJECT_NAME} INTERFACE easyloggingpp::easyloggingpp)
+endif ()
 target_include_mpack(${PROJECT_NAME})
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 if (_cpp_latest_flag_supported)
@@ -43,13 +49,6 @@ if (JINJA2_FOUND)
   target_include_directories(${PROJECT_NAME} PUBLIC
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     $<BUILD_INTERFACE:${JINJA2_OUTPUT_DIR}>)
-endif ()
-if (EASYLOGGING_FOUND)
-	add_dependencies(${PROJECT_NAME} easylogging)
-	# target_include_easyloggingpp(${PROJECT_NAME})
-  target_include_directories(${PROJECT_NAME} PRIVATE
-    $<BUILD_INTERFACE:${EASYLOGGING_INCLUDE_DIRS}>)
-  target_link_libraries(${PROJECT_NAME} PRIVATE easyloggingpp::easyloggingpp)
 endif ()
 if (NVC_FOUND)
 	add_dependencies(${PROJECT_NAME} nvc)

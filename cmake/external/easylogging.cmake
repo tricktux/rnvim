@@ -47,8 +47,7 @@ set (easylogging_defines
   # )
 set_target_properties(easyloggingpp::easyloggingpp PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES
-      $<INSTALL_INTERFACE:${EASYLOGGING_INCLUDE_DIRS}>
-      # $<BUILD_INTERFACE:${EASYLOGGING_INCLUDE_DIRS}>
+      ${EASYLOGGING_INCLUDE_DIRS}
   )
 set_target_properties(easyloggingpp::easyloggingpp PROPERTIES
     INTERFACE_COMPILE_DEFINITIONS ELPP_STL_LOGGING
