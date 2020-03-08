@@ -55,7 +55,7 @@ int nvimrpc::ReprocDevice::start(const std::vector<const char *> &argv,
 
   if (auto ec = process.start(argv.data(), options)) {
     LOG(ERROR) << "Error occurred trying to start: '" << argv.data()
-                << "'. Error message: '" << ec.message() << "'";
+               << "'. Error message: '" << ec.message() << "'";
     if (ec == std::errc::no_such_file_or_directory)
       throw std::runtime_error("Executable not found, make sure it's in PATH");
     throw std::runtime_error(ec.message());
@@ -77,12 +77,12 @@ int nvimrpc::ReprocDevice::stop() {
   auto [exit_status, ec] = process.stop(stop_actions);
   if (ec) {
     LOG(ERROR) << "Error: '" << ec.message()
-                << "' occurred while killing child process";
+               << "' occurred while killing child process";
     return ec.value();
   }
 
   LOG(INFO) << "Gracefully closed child process whit exit code: "
-             << exit_status;
+            << exit_status;
   return exit_status;
 }
 
@@ -98,11 +98,12 @@ size_t nvimrpc::ReprocDevice::write(std::string_view data) {
     return 0;
   }
 
-  if (auto ec = process.write(reinterpret_cast<const uint8_t *>(data.data()),
-                              data.size())) {
+  std::pair<uint64_t, std::error_code> rc = process.write(
+      reinterpret_cast<const uint8_t *>(data.data()), data.size());
+  if ((rc.first == 0) || (!rc.second)) {
     LOG(FATAL) << "Failed to send: '" << data << "'. Error message: '"
-                << ec.message() << "'";
-    throw std::runtime_error(ec.message());
+               << rc.second.message() << "'";
+    throw std::runtime_error(rc.second.message());
   }
   return data.size();
 }
@@ -114,22 +115,22 @@ size_t nvimrpc::ReprocDevice::write(std::string_view data) {
  * @return Size of rec'd data
  */
 // size_t nvimrpc::ReprocDevice::recv(std::string &data, size_t timeout) {
-  // size_t t = timeout == 0 ? 60000 : timeout * 1000; // Convert to ms
-  // for (size_t k = t; k > 0; k -= 100) {
-    // {
-      // std::lock_guard<std::mutex> guard(m);
-      // if (!output.empty()) {
-        // LOG(INFO) << "Rec'd data: '" << output << "'";
-        // data = output;
-        // output.clear();
-        // return data.size();
-      // }
-    // }
-    // std::this_thread::sleep_for(std::chrono::milliseconds{100});
-  // }
+// size_t t = timeout == 0 ? 60000 : timeout * 1000; // Convert to ms
+// for (size_t k = t; k > 0; k -= 100) {
+// {
+// std::lock_guard<std::mutex> guard(m);
+// if (!output.empty()) {
+// LOG(INFO) << "Rec'd data: '" << output << "'";
+// data = output;
+// output.clear();
+// return data.size();
+// }
+// }
+// std::this_thread::sleep_for(std::chrono::milliseconds{100});
+// }
 
-  // LOG(WARNING) << "Timed out waiting for data";
-  // return 0;
+// LOG(WARNING) << "Timed out waiting for data";
+// return 0;
 // }
 
 /**
@@ -152,7 +153,7 @@ size_t nvimrpc::ReprocDevice::read(char *buf, size_t size) {
   size_t read_size, unread_size;
   std::unique_lock<std::mutex> guard(m);
   // cv.wait_for(guard, std::chrono::seconds{1},
-              // [this] { return !output.empty(); });
+  // [this] { return !output.empty(); });
   if (output.empty())
     return 0;
 
