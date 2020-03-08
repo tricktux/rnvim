@@ -6,7 +6,7 @@ set_source_files_properties(${JINJA2_SRC}
 # Executables
 add_library(${PROJECT_NAME} STATIC "")
 #Add an alias so that library can be used inside the build tree, e.g. when testing
-add_library(${PROJECT_NAME}::nvimrpc ALIAS ${PROJECT_NAME})
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 # Add code coverage
 # As an executable target, the reports will exclude the non-covered.cpp file,
