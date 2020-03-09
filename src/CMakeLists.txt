@@ -34,7 +34,7 @@ if (EASYLOGGING_FOUND)
   # target_link_libraries(${PROJECT_NAME} PUBLIC #${EASYLOGGING_LIBRARIES})
     # $<INSTALL_INTERFACE:${CMAKE_INSTALL_LIBDIR}>
     # $<BUILD_INTERFACE:${EASYLOGGING_LIBRARIES}>)
-  target_link_libraries(${PROJECT_NAME} PRIVATE easyloggingpp::easyloggingpp)
+    target_link_libraries(${PROJECT_NAME} PUBLIC easyloggingpp::easyloggingpp)
 endif ()
 target_include_mpack(${PROJECT_NAME})
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
@@ -47,7 +47,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/third-party/mpack>)
-# target_link_libraries(${PROJECT_NAME} PRIVATE Thread::Thread)
+target_link_libraries(${PROJECT_NAME} PUBLIC Threads::Threads)
 
 if (JINJA2_FOUND)
 	add_dependencies(${PROJECT_NAME} jinja2_proc)

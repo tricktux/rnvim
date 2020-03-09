@@ -80,7 +80,7 @@ public:
 
 	std::error_code drain() {
 		reproc::sink::thread_safe::string sink{output, m};
-		return reproc::drain(this->process, sink, sink);
+		return reproc::drain(process, sink, sink);
 	}
   int start(const std::vector<const char *> &argv, int timeout) override;
   int stop() override;

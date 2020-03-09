@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <nvimpp/iodevice.hpp>
+#include "nvimpp/iodevice.hpp"
 #include <gtest/gtest.h>
 #include <vector>
 #include <chrono>
@@ -28,13 +28,15 @@
  * @brief Test ReprocDevice start, stop, and read cmake output
  */
 TEST(reprocdevice, start_stop) {
-  // nvimrpc::ReprocDevice device;
+  nvimrpc::ReprocDevice device;
 
   // char data[10240];
   std::vector<const char *> args{ {"cmake", "--help", nullptr} };
 
-	// ASSERT_EQ(device.start(args, 10), 0);
+  // ASSERT_EQ(device.start(args, 10), 0);
+  ASSERT_EQ(1,1);
 
+  // nvimrpc::NvimApi api{device};
 	// ASSERT_NE(device.read(data, sizeof data),0);
 	// std::cout << "data: '" << data << "'" << std::endl;
 
