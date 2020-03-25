@@ -35,48 +35,21 @@ set(EASYLOGGING_SOURCES
 set(EASYLOGGING_LIBRARIES ${easylogging_LIBS})
 set(EASYLOGGING_LIBRARY_DIRS ${easylogging_INSTALL}/lib)
 set(EASYLOGGING_EXTERNAL TRUE)
-add_library(easyloggingpp::easyloggingpp INTERFACE IMPORTED)
-set (easylogging_defines
-        ELPP_STL_LOGGING
-        ELPP_LOG_STD_ARRAY
-        ELPP_LOG_UNORDERED_MAP
-        ELPP_LOG_UNORDERED_SET
-        )
-# set_target_properties(easyloggingpp::easyloggingpp PROPERTIES
-    # IMPORTED_LOCATION ${EASYLOGGING_LIBRARIES}
-  # )
-set_target_properties(easyloggingpp::easyloggingpp PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES
-      ${EASYLOGGING_INCLUDE_DIRS}
-  )
-set_target_properties(easyloggingpp::easyloggingpp PROPERTIES
-    INTERFACE_COMPILE_DEFINITIONS ELPP_STL_LOGGING
-    )
-set_target_properties(easyloggingpp::easyloggingpp PROPERTIES
+
+# Needed due to:
+#   https://gitlab.kitware.com/cmake/cmake/issues/15052
+file(MAKE_DIRECTORY ${EASYLOGGING_INCLUDE_DIRS})
+
+add_library(easyloggingpp STATIC IMPORTED GLOBAL)
+add_dependencies(easyloggingpp easylogging)
+add_library(easyloggingpp::easyloggingpp ALIAS easyloggingpp)
+set_target_properties(easyloggingpp PROPERTIES
+    IMPORTED_LOCATION ${EASYLOGGING_LIBRARIES}
+    INTERFACE_INCLUDE_DIRECTORIES ${EASYLOGGING_INCLUDE_DIRS}
+    INTERFACE_COMPILE_DEFINITIONS
+      "ELPP_STL_LOGGING;ELPP_LOG_STD_ARRAY;ELPP_LOG_UNORDERED_MAP;ELPP_LOG_UNORDERED_SET"
+    PUBLIC_HEADER "${EASYLOGGING_INCLUDE_DIRS}/easylogging++.h"
+    IMPORTED_LINK_INTERFACE_LIBRARIES "${EASYLOGGING_LIBRARIES}"
     INTERFACE_LINK_DIRECTORIES ${EASYLOGGING_LIBRARY_DIRS}
-  )
-set_target_properties(easyloggingpp::easyloggingpp PROPERTIES
     INTERFACE_LINK_LIBRARIES ${EASYLOGGING_LIBRARIES}
   )
-
-function(target_include_easyloggingpp target)
-  # Everywhere you want to include ${JINJA2_SRC}
-  # You must copy and paste this line :(.... ask CMake
-  # set_source_files_properties(${EASYLOGGING_SOURCES}
-    # PROPERTIES GENERATED 1
-    # )
-	target_compile_definitions(${target}
-		PRIVATE
-			ELPP_STL_LOGGING
-			ELPP_LOG_STD_ARRAY
-			ELPP_LOG_UNORDERED_MAP
-			ELPP_LOG_UNORDERED_SET
-		)
-  # target_sources(${target}
-    # PRIVATE
-      # ${EASYLOGGING_SOURCES}
-  # )
-  # target_include_directories(${target}
-    # PRIVATE ${EASYLOGGING_INCLUDE_DIRS})
-endfunction()
-

@@ -6,7 +6,7 @@ set_source_files_properties(${JINJA2_SRC}
 # Executables
 add_library(${PROJECT_NAME} STATIC "")
 #Add an alias so that library can be used inside the build tree, e.g. when testing
-add_library(${PROJECT_NAME}::nvimrpc ALIAS ${PROJECT_NAME})
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 # Add code coverage
 # As an executable target, the reports will exclude the non-covered.cpp file,
@@ -28,8 +28,13 @@ target_sources(${PROJECT_NAME}
 if (EASYLOGGING_FOUND)
   add_dependencies(${PROJECT_NAME} easylogging)
   # target_include_easyloggingpp(${PROJECT_NAME})
-  target_include_directories(${PROJECT_NAME} INTERFACE easyloggingpp::easyloggingpp)
-  target_link_libraries(${PROJECT_NAME} INTERFACE easyloggingpp::easyloggingpp)
+  # target_include_directories(${PROJECT_NAME} PUBLIC #${EASYLOGGING_INCLUDE_DIRS})
+    # $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    # $<BUILD_INTERFACE:${EASYLOGGING_INCLUDE_DIRS}>)
+  # target_link_libraries(${PROJECT_NAME} PUBLIC #${EASYLOGGING_LIBRARIES})
+    # $<INSTALL_INTERFACE:${CMAKE_INSTALL_LIBDIR}>
+    # $<BUILD_INTERFACE:${EASYLOGGING_LIBRARIES}>)
+    target_link_libraries(${PROJECT_NAME} PUBLIC easyloggingpp::easyloggingpp)
 endif ()
 target_include_mpack(${PROJECT_NAME})
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
@@ -42,7 +47,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/third-party/mpack>)
-# target_link_libraries(${PROJECT_NAME} PRIVATE Thread::Thread)
+target_link_libraries(${PROJECT_NAME} PUBLIC Threads::Threads)
 
 if (JINJA2_FOUND)
 	add_dependencies(${PROJECT_NAME} jinja2_proc)
