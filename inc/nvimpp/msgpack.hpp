@@ -235,8 +235,7 @@ inline void mpack_write(mpack_writer_t *writer,
 template <typename T, typename... Params>
 inline void mpack_write(mpack_writer_t *writer, T &&value,
                         Params &&... params) {
-  mpack_write(writer, std::forward<T>(value));
-  mpack_write(writer, std::forward<Params>(params)...);
+  mpack_write(writer, std::forward<T>(value), std::forward<Params>(params)...);
 }
 
 // void mpack_write(mpack_writer_t *writer, const std::array<int64_t, 2> &val) {
