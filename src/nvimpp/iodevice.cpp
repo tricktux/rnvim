@@ -99,12 +99,12 @@ size_t nvimrpc::ReprocDevice::write(std::string_view data) {
     return 0;
   }
 
-  std::pair<uint64_t, std::error_code> rc = process.write(
+  std::error_code rc = process.write(
       reinterpret_cast<const uint8_t *>(data.data()), data.size());
-  if ((rc.first == 0) || (!rc.second)) {
+  if (!rc) {
     LOG(FATAL) << "Failed to send: '" << data << "'. Error message: '"
-               << rc.second.message() << "'";
-    throw std::runtime_error(rc.second.message());
+               << rc.message() << "'";
+    throw std::runtime_error(rc.message());
   }
   return data.size();
 }
